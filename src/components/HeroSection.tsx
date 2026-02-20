@@ -5,8 +5,25 @@ interface HeroSectionProps {
   onNavigate: (section: string) => void;
 }
 
-// ─── Canvas-based animated infinity symbol ───
-const InfinityCanvas = ({
+// ─── Unified sparkle system: path + free particles ───
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  hue: number;
+  life: number;
+  mode: "path" | "free"; // path = on infinity, free = floating
+  pathAngle: number; // used when mode === "path"
+  throwTimer: number; // cooldown before it can be thrown again
+}
+
+const TOTAL_PARTICLES = 100;
+const PATH_PARTICLES = 40;
+const FREE_PARTICLES = TOTAL_PARTICLES - PATH_PARTICLES;
+
+const UnifiedHeroCanvas = ({
   mouseX,
   mouseY,
 }: {
@@ -16,157 +33,11 @@ const InfinityCanvas = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const timeRef = useRef(0);
+  const particlesRef = useRef<Particle[]>([]);
+  const mouseRef = useRef({ x: mouseX, y: mouseY });
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d")!;
-    let w = 0,
-      h = 0;
-
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio, 2);
-      w = canvas.clientWidth;
-      h = canvas.clientHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const draw = () => {
-      timeRef.current += 0.008;
-      const t = timeRef.current;
-      ctx.clearRect(0, 0, w, h);
-
-      const cx = w / 2;
-      const cy = h / 2;
-      const scaleX = Math.min(w * 0.42, 500);
-      const scaleY = Math.min(h * 0.45, 420);
-
-      // Mouse influence on the infinity shape
-      const mx = (mouseX - 0.5) * 30;
-      const my = (mouseY - 0.5) * 20;
-
-      // Draw multiple layered infinity paths with offset phases
-      const layers = [
-        { offset: 0, alpha: 0.08, width: 120, blur: 60 },
-        { offset: 0.1, alpha: 0.12, width: 80, blur: 40 },
-        { offset: 0.2, alpha: 0.2, width: 50, blur: 25 },
-        { offset: 0.3, alpha: 0.35, width: 20, blur: 12 },
-        { offset: 0.35, alpha: 0.6, width: 8, blur: 4 },
-        { offset: 0.4, alpha: 1, width: 3, blur: 0 },
-      ];
-
-      for (const layer of layers) {
-        ctx.save();
-        ctx.globalAlpha = layer.alpha;
-        if (layer.blur > 0) ctx.filter = `blur(${layer.blur}px)`;
-
-        // Animated gradient along the infinity path
-        const grad = ctx.createLinearGradient(
-          cx - scaleX,
-          cy,
-          cx + scaleX,
-          cy
-        );
-        const hue1 = (t * 40 + layer.offset * 360) % 360;
-        const hue2 = (hue1 + 60) % 360;
-        const hue3 = (hue1 + 180) % 360;
-        const hue4 = (hue1 + 270) % 360;
-        grad.addColorStop(0, `hsl(${hue1}, 85%, 65%)`);
-        grad.addColorStop(0.3, `hsl(${hue2}, 90%, 60%)`);
-        grad.addColorStop(0.6, `hsl(${hue3}, 85%, 65%)`);
-        grad.addColorStop(1, `hsl(${hue4}, 90%, 60%)`);
-
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = layer.width;
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-
-        // Parametric infinity (lemniscate of Bernoulli)
-        ctx.beginPath();
-        const steps = 200;
-        for (let i = 0; i <= steps; i++) {
-          const angle = (i / steps) * Math.PI * 2;
-          const phase = t * 0.5 + layer.offset;
-          // Infinity parametric equation
-          const denom = 1 + Math.sin(angle) * Math.sin(angle);
-          let x = (Math.cos(angle) / denom) * scaleX;
-          let y = (Math.sin(angle) * Math.cos(angle) / denom) * scaleY;
-
-          // Add flowing wave distortion
-          x += Math.sin(angle * 3 + phase * 4) * 8 * Math.sin(t + layer.offset);
-          y += Math.cos(angle * 2 + phase * 3) * 6 * Math.cos(t * 1.3 + layer.offset);
-
-          // Subtle mouse push
-          const distFromMouse = Math.hypot(
-            (cx + x) / w - mouseX,
-            (cy + y) / h - mouseY
-          );
-          const push = Math.max(0, 1 - distFromMouse * 3) * 25;
-          x += mx * push * 0.3;
-          y += my * push * 0.3;
-
-          if (i === 0) ctx.moveTo(cx + x, cy + y);
-          else ctx.lineTo(cx + x, cy + y);
-        }
-        ctx.stroke();
-        ctx.restore();
-      }
-
-      // Glowing particles along the path
-      const numParticles = 40;
-      for (let i = 0; i < numParticles; i++) {
-        const angle = (i / numParticles) * Math.PI * 2 + t * 1.5;
-        const denom = 1 + Math.sin(angle) * Math.sin(angle);
-        let px = (Math.cos(angle) / denom) * scaleX;
-        let py = (Math.sin(angle) * Math.cos(angle) / denom) * scaleY;
-        px += Math.sin(angle * 3 + t * 2) * 6;
-        py += Math.cos(angle * 2 + t * 1.5) * 4;
-
-        const hue = ((t * 50 + i * 9) % 360);
-        const size = 2 + Math.sin(t * 3 + i) * 1.5;
-        const alpha = 0.4 + Math.sin(t * 2 + i * 0.5) * 0.3;
-
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = `hsl(${hue}, 90%, 70%)`;
-        ctx.shadowColor = `hsl(${hue}, 90%, 70%)`;
-        ctx.shadowBlur = 15;
-        ctx.beginPath();
-        ctx.arc(cx + px, cy + py, size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-
-      animRef.current = requestAnimationFrame(draw);
-    };
-
-    draw();
-    return () => {
-      cancelAnimationFrame(animRef.current);
-      window.removeEventListener("resize", resize);
-    };
-  }, [mouseX, mouseY]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full"
-      style={{ mixBlendMode: "screen" }}
-    />
-  );
-};
-
-// ─── Floating particles background ───
-const FloatingParticles = ({ mouseX, mouseY }: { mouseX: number; mouseY: number }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animRef = useRef<number>(0);
-  const particlesRef = useRef<
-    Array<{ x: number; y: number; vx: number; vy: number; size: number; hue: number; life: number }>
-  >([]);
+  // Keep mouse ref updated without re-creating effect
+  mouseRef.current = { x: mouseX, y: mouseY };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -187,8 +58,23 @@ const FloatingParticles = ({ mouseX, mouseY }: { mouseX: number; mouseY: number 
 
     // Initialize particles
     if (particlesRef.current.length === 0) {
-      for (let i = 0; i < 80; i++) {
-        particlesRef.current.push({
+      const particles: Particle[] = [];
+      // Path particles
+      for (let i = 0; i < PATH_PARTICLES; i++) {
+        particles.push({
+          x: 0, y: 0,
+          vx: 0, vy: 0,
+          size: Math.random() * 2 + 1.5,
+          hue: Math.random() * 360,
+          life: Math.random(),
+          mode: "path",
+          pathAngle: (i / PATH_PARTICLES) * Math.PI * 2,
+          throwTimer: 0,
+        });
+      }
+      // Free particles
+      for (let i = 0; i < FREE_PARTICLES; i++) {
+        particles.push({
           x: Math.random() * 2000,
           y: Math.random() * 1200,
           vx: (Math.random() - 0.5) * 0.5,
@@ -196,48 +82,211 @@ const FloatingParticles = ({ mouseX, mouseY }: { mouseX: number; mouseY: number 
           size: Math.random() * 2.5 + 0.5,
           hue: Math.random() * 360,
           life: Math.random(),
+          mode: "free",
+          pathAngle: 0,
+          throwTimer: 0,
         });
       }
+      particlesRef.current = particles;
     }
 
-    let time = 0;
+    // Helper: get position on infinity path
+    const getInfinityPos = (angle: number, t: number, cx: number, cy: number, scaleX: number, scaleY: number) => {
+      const denom = 1 + Math.sin(angle) * Math.sin(angle);
+      let x = (Math.cos(angle) / denom) * scaleX;
+      let y = (Math.sin(angle) * Math.cos(angle) / denom) * scaleY;
+      x += Math.sin(angle * 3 + t * 2) * 6;
+      y += Math.cos(angle * 2 + t * 1.5) * 4;
+      return { x: cx + x, y: cy + y };
+    };
+
     const draw = () => {
-      time += 0.01;
+      timeRef.current += 0.008;
+      const t = timeRef.current;
+      const mouse = mouseRef.current;
       ctx.clearRect(0, 0, w, h);
 
-      for (const p of particlesRef.current) {
-        // Mouse repulsion
-        const dx = p.x / w - mouseX;
-        const dy = p.y / h - mouseY;
-        const dist = Math.hypot(dx, dy);
-        if (dist < 0.15) {
-          const force = (0.15 - dist) * 2;
-          p.vx += (dx / dist) * force;
-          p.vy += (dy / dist) * force;
-        }
+      const cx = w / 2;
+      const cy = h / 2;
+      const scaleX = Math.min(w * 0.42, 500);
+      const scaleY = Math.min(h * 0.45, 420);
+      const mx = (mouse.x - 0.5) * 30;
+      const my = (mouse.y - 0.5) * 20;
 
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vx *= 0.98;
-        p.vy *= 0.98;
-        p.hue = (p.hue + 0.3) % 360;
-        p.life = (Math.sin(time + p.hue * 0.01) + 1) / 2;
+      // ── Draw infinity path layers ──
+      const layers = [
+        { offset: 0, alpha: 0.08, width: 120, blur: 60 },
+        { offset: 0.1, alpha: 0.12, width: 80, blur: 40 },
+        { offset: 0.2, alpha: 0.2, width: 50, blur: 25 },
+        { offset: 0.3, alpha: 0.35, width: 20, blur: 12 },
+        { offset: 0.35, alpha: 0.6, width: 8, blur: 4 },
+        { offset: 0.4, alpha: 1, width: 3, blur: 0 },
+      ];
 
-        // Wrap around
-        if (p.x < 0) p.x = w;
-        if (p.x > w) p.x = 0;
-        if (p.y < 0) p.y = h;
-        if (p.y > h) p.y = 0;
-
+      for (const layer of layers) {
         ctx.save();
-        ctx.globalAlpha = 0.3 + p.life * 0.4;
-        ctx.fillStyle = `hsl(${p.hue}, 80%, 65%)`;
-        ctx.shadowColor = `hsl(${p.hue}, 80%, 65%)`;
-        ctx.shadowBlur = 10;
+        ctx.globalAlpha = layer.alpha;
+        if (layer.blur > 0) ctx.filter = `blur(${layer.blur}px)`;
+
+        const grad = ctx.createLinearGradient(cx - scaleX, cy, cx + scaleX, cy);
+        const hue1 = (t * 40 + layer.offset * 360) % 360;
+        const hue2 = (hue1 + 60) % 360;
+        const hue3 = (hue1 + 180) % 360;
+        const hue4 = (hue1 + 270) % 360;
+        grad.addColorStop(0, `hsl(${hue1}, 85%, 65%)`);
+        grad.addColorStop(0.3, `hsl(${hue2}, 90%, 60%)`);
+        grad.addColorStop(0.6, `hsl(${hue3}, 85%, 65%)`);
+        grad.addColorStop(1, `hsl(${hue4}, 90%, 60%)`);
+
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = layer.width;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
+        const steps = 200;
+        for (let i = 0; i <= steps; i++) {
+          const angle = (i / steps) * Math.PI * 2;
+          const phase = t * 0.5 + layer.offset;
+          const denom = 1 + Math.sin(angle) * Math.sin(angle);
+          let x = (Math.cos(angle) / denom) * scaleX;
+          let y = (Math.sin(angle) * Math.cos(angle) / denom) * scaleY;
+          x += Math.sin(angle * 3 + phase * 4) * 8 * Math.sin(t + layer.offset);
+          y += Math.cos(angle * 2 + phase * 3) * 6 * Math.cos(t * 1.3 + layer.offset);
+
+          const distFromMouse = Math.hypot((cx + x) / w - mouse.x, (cy + y) / h - mouse.y);
+          const push = Math.max(0, 1 - distFromMouse * 3) * 25;
+          x += mx * push * 0.3;
+          y += my * push * 0.3;
+
+          if (i === 0) ctx.moveTo(cx + x, cy + y);
+          else ctx.lineTo(cx + x, cy + y);
+        }
+        ctx.stroke();
         ctx.restore();
+      }
+
+      // ── Check if mouse is near infinity path ──
+      const mousePixelX = mouse.x * w;
+      const mousePixelY = mouse.y * h;
+      let mouseNearInfinity = false;
+      // Sample a few points on the path to check proximity
+      for (let i = 0; i < 16; i++) {
+        const sampleAngle = (i / 16) * Math.PI * 2;
+        const pos = getInfinityPos(sampleAngle, t, cx, cy, scaleX, scaleY);
+        if (Math.hypot(pos.x - mousePixelX, pos.y - mousePixelY) < 120) {
+          mouseNearInfinity = true;
+          break;
+        }
+      }
+
+      // ── Occasionally throw a path particle to free when hovering ──
+      if (mouseNearInfinity && Math.random() < 0.08) {
+        // Find a path particle near mouse to throw
+        const pathParticles = particlesRef.current.filter(p => p.mode === "path" && p.throwTimer <= 0);
+        if (pathParticles.length > 20) { // keep at least 20 on path
+          // Pick the one closest to mouse
+          let closest: Particle | null = null;
+          let closestDist = Infinity;
+          for (const p of pathParticles) {
+            const pos = getInfinityPos(p.pathAngle + t * 1.5, t, cx, cy, scaleX, scaleY);
+            const d = Math.hypot(pos.x - mousePixelX, pos.y - mousePixelY);
+            if (d < closestDist && d < 150) {
+              closestDist = d;
+              closest = p;
+            }
+          }
+          if (closest) {
+            const pos = getInfinityPos(closest.pathAngle + t * 1.5, t, cx, cy, scaleX, scaleY);
+            // Throw direction: away from mouse
+            const throwDx = pos.x - mousePixelX;
+            const throwDy = pos.y - mousePixelY;
+            const throwDist = Math.hypot(throwDx, throwDy) || 1;
+            const speed = 3 + Math.random() * 4;
+            closest.mode = "free";
+            closest.x = pos.x;
+            closest.y = pos.y;
+            closest.vx = (throwDx / throwDist) * speed + (Math.random() - 0.5) * 2;
+            closest.vy = (throwDy / throwDist) * speed + (Math.random() - 0.5) * 2;
+            closest.throwTimer = 300; // frames before it can return
+          }
+        }
+      }
+
+      // ── Reclaim: free particles slowly return to path when far and timer expired ──
+      const freeParticles = particlesRef.current.filter(p => p.mode === "free");
+      const pathCount = TOTAL_PARTICLES - freeParticles.length;
+      if (pathCount < PATH_PARTICLES) {
+        for (const p of freeParticles) {
+          if (p.throwTimer > 0) { p.throwTimer--; continue; }
+          // If far from mouse and slow, reclaim it
+          const dToMouse = Math.hypot(p.x / w - mouse.x, p.y / h - mouse.y);
+          const speed = Math.hypot(p.vx, p.vy);
+          if (dToMouse > 0.3 && speed < 1) {
+            p.mode = "path";
+            p.pathAngle = Math.random() * Math.PI * 2;
+            p.throwTimer = 0;
+            if (particlesRef.current.filter(pp => pp.mode === "free").length <= FREE_PARTICLES) break;
+          }
+        }
+      }
+
+      // ── Draw all particles ──
+      for (const p of particlesRef.current) {
+        p.hue = (p.hue + 0.3) % 360;
+
+        if (p.mode === "path") {
+          // Move along infinity path
+          p.pathAngle += 0.02;
+          const pos = getInfinityPos(p.pathAngle + t * 1.5, t, cx, cy, scaleX, scaleY);
+          p.x = pos.x;
+          p.y = pos.y;
+
+          const alpha = 0.4 + Math.sin(t * 2 + p.pathAngle * 3) * 0.3;
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = `hsl(${p.hue}, 90%, 70%)`;
+          ctx.shadowColor = `hsl(${p.hue}, 90%, 70%)`;
+          ctx.shadowBlur = 15;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          // Free floating particle
+          // Mouse repulsion
+          const dx = p.x / w - mouse.x;
+          const dy = p.y / h - mouse.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 0.15 && dist > 0) {
+            const force = (0.15 - dist) * 2;
+            p.vx += (dx / dist) * force;
+            p.vy += (dy / dist) * force;
+          }
+
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.98;
+          p.vy *= 0.98;
+          p.life = (Math.sin(t * 10 + p.hue * 0.01) + 1) / 2;
+          if (p.throwTimer > 0) p.throwTimer--;
+
+          // Wrap around
+          if (p.x < 0) p.x = w;
+          if (p.x > w) p.x = 0;
+          if (p.y < 0) p.y = h;
+          if (p.y > h) p.y = 0;
+
+          ctx.save();
+          ctx.globalAlpha = 0.3 + p.life * 0.4;
+          ctx.fillStyle = `hsl(${p.hue}, 80%, 65%)`;
+          ctx.shadowColor = `hsl(${p.hue}, 80%, 65%)`;
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
       }
 
       animRef.current = requestAnimationFrame(draw);
@@ -248,9 +297,15 @@ const FloatingParticles = ({ mouseX, mouseY }: { mouseX: number; mouseY: number 
       cancelAnimationFrame(animRef.current);
       window.removeEventListener("resize", resize);
     };
-  }, [mouseX, mouseY]);
+  }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-60" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full"
+      style={{ mixBlendMode: "screen" }}
+    />
+  );
 };
 
 // ─── Main Hero Section ───
@@ -316,20 +371,12 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
       {/* ── Layer 0: Deep background gradient ── */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-card" />
 
-      {/* ── Layer 1: Floating particles ── */}
-      <motion.div
-        className="absolute inset-0"
-        style={{ x: layer1X, y: layer1Y, opacity: scrollOpacity }}
-      >
-        <FloatingParticles mouseX={mousePos.x} mouseY={mousePos.y} />
-      </motion.div>
-
-      {/* ── Layer 2: Animated infinity symbol ── */}
+      {/* ── Unified sparkle + infinity canvas ── */}
       <motion.div
         className="absolute inset-0"
         style={{ x: layer2X, y: layer2Y, scale: scrollScale, opacity: scrollOpacity }}
       >
-        <InfinityCanvas mouseX={mousePos.x} mouseY={mousePos.y} />
+        <UnifiedHeroCanvas mouseX={mousePos.x} mouseY={mousePos.y} />
       </motion.div>
 
       {/* ── Layer 3: INFINITY text revealed by cursor mask ── */}
