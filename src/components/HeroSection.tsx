@@ -453,6 +453,72 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
             </span>
           ))}
         </motion.div>
+
+        {/* Editions & Encounter buttons */}
+        <motion.div
+          className="flex items-center gap-5 mt-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.3 }}
+        >
+          {[
+            { label: "EDITIONS", section: "editions", icon: "◆" },
+            { label: "ENCOUNTER", section: "encounter", icon: "✦" },
+          ].map(({ label, section, icon }) => (
+            <motion.button
+              key={section}
+              onClick={() => {
+                const el = document.getElementById(section);
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="group relative px-8 py-3 rounded-full overflow-hidden"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              data-magnetic
+            >
+              {/* Animated gradient border */}
+              <span
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)), hsl(var(--infinity-cyan)))",
+                  backgroundSize: "300% 300%",
+                  animation: "gradient-shift 4s ease infinite",
+                }}
+              />
+              {/* Glow on hover */}
+              <span
+                className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)), hsl(var(--infinity-cyan)))",
+                  backgroundSize: "300% 300%",
+                  animation: "gradient-shift 4s ease infinite",
+                  filter: "blur(10px)",
+                }}
+              />
+              {/* Inner fill */}
+              <span
+                className="absolute inset-[1.5px] rounded-full transition-all duration-300 group-hover:inset-[2px]"
+                style={{ background: "hsl(var(--background) / 0.88)" }}
+              />
+              {/* Text */}
+              <span className="relative z-10 flex items-center gap-2.5">
+                <span
+                  className="text-xs opacity-60 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110"
+                  style={{
+                    background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-pink)))",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  {icon}
+                </span>
+                <span className="text-xs font-display font-bold tracking-[0.3em] text-foreground/70 group-hover:text-foreground transition-colors duration-300">
+                  {label}
+                </span>
+              </span>
+            </motion.button>
+          ))}
+        </motion.div>
       </motion.div>
 
       {/* ── Custom cursor dot ── */}
