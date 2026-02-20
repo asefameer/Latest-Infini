@@ -11,7 +11,7 @@ const NavInfinityLogo = () => {
     const ctx = canvas.getContext("2d")!;
     const dpr = Math.min(window.devicePixelRatio, 2);
     const w = 56;
-    const h = 36;
+    const h = 44;
     canvas.width = w * dpr;
     canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -24,7 +24,7 @@ const NavInfinityLogo = () => {
       const cx = w / 2;
       const cy = h / 2;
       const scaleX = 20;
-      const scaleY = 14;
+      const scaleY = 18;
 
       // Glow layers
       const layers = [
@@ -99,7 +99,7 @@ const NavInfinityLogo = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="w-14 h-9"
+      className="w-14 h-11"
       style={{ mixBlendMode: "screen" }}
     />
   );
