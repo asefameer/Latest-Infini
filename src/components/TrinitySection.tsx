@@ -53,33 +53,30 @@ const OverlayCard = ({
   });
   const smoothProgress = useSpring(scrollYProgress, springConfig);
 
-  // Image2 opacity: fades in during the middle portion of scroll (when card is on screen)
-  const overlayOpacity = useTransform(smoothProgress, [0.25, 0.55], [0, 1]);
+  // Image 1: visible initially, scales down & fades out
+  const opacity1 = useTransform(smoothProgress, [0.2, 0.45], [1, 0]);
+  const scale1 = useTransform(smoothProgress, [0.2, 0.45], [1, 0.92]);
 
-  // Subtle parallax on base image
-  const y1 = useTransform(smoothProgress, [0, 1], ["-10%", "10%"]);
-  const scale1 = useTransform(smoothProgress, [0, 0.5, 1], [1.1, 1.0, 1.1]);
-
-  // Image2 scales up subtly as it appears + slides up
-  const y2 = useTransform(smoothProgress, [0.25, 0.55], ["4%", "0%"]);
-  const scale2 = useTransform(smoothProgress, [0.25, 0.55], [1.05, 1.0]);
+  // Image 2: hidden initially, scales up & fades in
+  const opacity2 = useTransform(smoothProgress, [0.35, 0.55], [0, 1]);
+  const scale2 = useTransform(smoothProgress, [0.35, 0.55], [1.08, 1]);
 
   return (
     <div ref={ref} className="relative aspect-[3/4] rounded-lg overflow-hidden mb-5">
-      {/* Base image (image1) */}
+      {/* Image 1 — scales down & fades out */}
       <motion.img
         src={image1}
         alt={alt}
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ y: y1, scale: scale1, willChange: "transform" }}
+        style={{ opacity: opacity1, scale: scale1, willChange: "transform, opacity" }}
       />
 
-      {/* Overlay image (image2) — fades in on scroll */}
+      {/* Image 2 — scales up & fades in */}
       <motion.img
         src={image2}
-        alt={`${alt} overlay`}
+        alt={`${alt} branded`}
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ opacity: overlayOpacity, y: y2, scale: scale2, willChange: "transform, opacity" }}
+        style={{ opacity: opacity2, scale: scale2, willChange: "transform, opacity" }}
       />
 
       {/* Bottom gradient */}
