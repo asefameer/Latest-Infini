@@ -7,6 +7,7 @@ import TrinitySection from "@/components/TrinitySection";
 import GrainOverlay from "@/components/GrainOverlay";
 import SmoothScroll from "@/components/SmoothScroll";
 import GlobalSparkles from "@/components/GlobalSparkles";
+import ScrollReveal from "@/components/ScrollReveal";
 
 const Index = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -58,17 +59,17 @@ const Index = () => {
 
             {/* Placeholder sections for future phases */}
             <section id="editions" className="min-h-screen flex items-center justify-center">
-              <div className="text-center">
+              <ScrollReveal className="text-center" offsetY={60} blur={10}>
                 <h2 className="font-display text-5xl font-bold text-foreground mb-4">Editions</h2>
                 <p className="text-muted-foreground">E-commerce store coming soon</p>
-              </div>
+              </ScrollReveal>
             </section>
 
             <section id="encounter" className="min-h-screen flex items-center justify-center">
-              <div className="text-center">
+              <ScrollReveal className="text-center" offsetY={60} blur={10}>
                 <h2 className="font-display text-5xl font-bold text-foreground mb-4">Encounter</h2>
                 <p className="text-muted-foreground">Event ticketing coming soon</p>
-              </div>
+              </ScrollReveal>
             </section>
           </>
         )}

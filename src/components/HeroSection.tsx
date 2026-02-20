@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
+import ScrollReveal from "@/components/ScrollReveal";
 
 interface HeroSectionProps {
   onNavigate: (section: string) => void;
@@ -466,14 +467,13 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
 
     {/* ── Below-fold reveal section ── */}
     <section className="relative z-10 flex flex-col items-center text-center py-24 bg-background">
-      {/* Sub-brands - 3D depth from left */}
-      <motion.div
+      {/* Sub-brands - scroll-synced 3D from left */}
+      <ScrollReveal
         className="flex items-center gap-6"
-        style={{ perspective: 800, transformStyle: "preserve-3d" }}
-        initial={{ opacity: 0, x: -180, rotateY: 50, z: -150, filter: "blur(16px)" }}
-        whileInView={{ opacity: 1, x: 0, rotateY: 0, z: 0, filter: "blur(0px)" }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 1.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+        offsetY={60}
+        offsetX={-120}
+        rotateY={40}
+        blur={16}
       >
         {["NOVA", "LIVE THE MOMENT", "XFORCE"].map((name, i) => (
           <span key={name} className="flex items-center gap-6">
@@ -486,16 +486,16 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
             </span>
           </span>
         ))}
-      </motion.div>
+      </ScrollReveal>
 
-      {/* Editions & Encounter buttons - 3D depth from left */}
-      <motion.div
+      {/* Editions & Encounter buttons - scroll-synced 3D from left */}
+      <ScrollReveal
         className="flex items-center gap-5 mt-10"
-        style={{ perspective: 800, transformStyle: "preserve-3d" }}
-        initial={{ opacity: 0, x: -220, rotateY: 55, z: -200, scale: 0.9, filter: "blur(20px)" }}
-        whileInView={{ opacity: 1, x: 0, rotateY: 0, z: 0, scale: 1, filter: "blur(0px)" }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+        offsetY={80}
+        offsetX={-160}
+        rotateY={50}
+        blur={20}
+        scale={0.9}
       >
         {[
           { label: "EDITIONS", section: "editions", icon: "◆" },
@@ -550,7 +550,7 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
             </span>
           </motion.button>
         ))}
-      </motion.div>
+      </ScrollReveal>
     </section>
     </>
   );
