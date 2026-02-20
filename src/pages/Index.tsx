@@ -3,7 +3,7 @@ import SplashScreen from "@/components/SplashScreen";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import TrinitySection from "@/components/TrinitySection";
-import MagneticCursor from "@/components/MagneticCursor";
+
 import GrainOverlay from "@/components/GrainOverlay";
 import SmoothScroll from "@/components/SmoothScroll";
 import GlobalSparkles from "@/components/GlobalSparkles";
@@ -49,7 +49,7 @@ const Index = () => {
         <SplashScreen isVisible={showSplash} />
         {!showSplash && (
           <>
-            <MagneticCursor />
+            
             <GrainOverlay />
             <GlobalSparkles />
             <Navbar activeSection={activeSection} onNavigate={handleNavigate} />

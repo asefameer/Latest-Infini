@@ -365,7 +365,7 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
     <section
       ref={sectionRef}
       id="ground-zero"
-      className="relative h-screen flex flex-col items-center justify-center overflow-hidden bg-background cursor-none"
+      className="relative h-screen flex flex-col items-center justify-center overflow-hidden bg-background"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
