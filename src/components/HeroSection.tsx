@@ -107,31 +107,17 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         />
       </motion.div>
 
-      {/* Dark overlays for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/20 to-background/90 z-[1]" />
-      <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-background/40 z-[1]" />
-
-      {/* ── Top marquee ticker ── */}
+      {/* INFINITY text knockout — multiply blend: white text reveals video, black bg blocks it */}
       <motion.div
-        className="relative z-10 mt-20 opacity-40"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: videoReady ? 0.4 : 0 }}
-        transition={{ duration: 1, delay: 1.5 }}
+        className="absolute inset-0 z-[2] pointer-events-none"
+        style={{ mixBlendMode: "multiply", opacity: scrollOpacity }}
       >
-        <MarqueeTicker speed={40}>
-          {tickerText}
-        </MarqueeTicker>
-      </motion.div>
-
-      {/* ── Main hero content ── */}
-      <motion.div
-        className="relative z-10 flex-1 flex flex-col items-center justify-center"
-        style={{ opacity: scrollOpacity, y: scrollY, x: layer2X }}
-      >
-        {/* Giant INFINITY text */}
-        <div className="overflow-hidden">
+        {/* Full-screen black layer */}
+        <div className="absolute inset-0 bg-black" />
+        {/* White text punches through the black to reveal video */}
+        <div className="absolute inset-0 flex items-center justify-center" style={{ y: scrollY } as any}>
           <motion.h1
-            className="font-display font-black text-[clamp(4rem,15vw,12rem)] leading-[0.85] tracking-[-0.04em] text-foreground select-none"
+            className="relative font-display font-black text-[clamp(4rem,15vw,12rem)] leading-[0.85] tracking-[-0.04em] text-white select-none"
             style={{ perspective: 600 }}
           >
             {"INFINITY".split("").map((char, i) => (
@@ -148,6 +134,30 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
             ))}
           </motion.h1>
         </div>
+      </motion.div>
+
+      {/* Dark overlays for readability on other content */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/90 z-[3] pointer-events-none" />
+
+      {/* ── Top marquee ticker ── */}
+      <motion.div
+        className="relative z-10 mt-20 opacity-40"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: videoReady ? 0.4 : 0 }}
+        transition={{ duration: 1, delay: 1.5 }}
+      >
+        <MarqueeTicker speed={40}>
+          {tickerText}
+        </MarqueeTicker>
+      </motion.div>
+
+      {/* ── Main hero content (below knockout text) ── */}
+      <motion.div
+        className="relative z-10 flex-1 flex flex-col items-center justify-center"
+        style={{ opacity: scrollOpacity, y: scrollY, x: layer2X }}
+      >
+        {/* Spacer for the giant text */}
+        <div className="h-[clamp(4rem,15vw,12rem)]" />
 
         {/* Subtitle */}
         <motion.p
