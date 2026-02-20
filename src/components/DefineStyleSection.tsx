@@ -34,7 +34,7 @@ const VideoCard = ({ video, title, tilt }: { video: string; title: string; tilt:
   return (
     <motion.div
       ref={ref}
-      className="relative aspect-[9/16] rounded-2xl overflow-hidden group cursor-pointer"
+      className="relative aspect-[3/4] rounded-2xl overflow-hidden group cursor-pointer"
       style={{
         scale,
         y,
@@ -87,9 +87,9 @@ const DefineStyleSection = () => {
       </ScrollReveal>
 
       {/* Two video cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-12 max-w-5xl w-full">
         {cards.map((card) => (
-          <ScrollReveal key={card.title} offsetY={80} blur={10}>
+          <ScrollReveal key={card.title} offsetY={80} blur={10} className="w-full max-w-[360px]">
             <VideoCard video={card.video} title={card.title} tilt={card.tilt} />
           </ScrollReveal>
         ))}
