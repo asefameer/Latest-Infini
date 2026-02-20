@@ -23,29 +23,47 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
 
       {/* Nav Links */}
       <div className="flex items-center gap-1">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onNavigate(item.id)}
-            className={`relative px-5 py-2 text-sm font-medium transition-all duration-300 rounded-full border ${
-              activeSection === item.id
-                ? "text-foreground border-[hsl(var(--infinity-cyan)/0.35)]"
-                : "text-muted-foreground hover:text-foreground border-[hsl(var(--infinity-cyan)/0.12)] hover:border-[hsl(var(--infinity-cyan)/0.25)]"
-            }`}
-            style={
-              activeSection === item.id
-                ? {
-                    background: "linear-gradient(135deg, hsl(var(--infinity-cyan) / 0.1), hsl(var(--infinity-purple) / 0.06))",
-                    boxShadow: "0 0 14px hsl(var(--infinity-cyan) / 0.15), inset 0 0 10px hsl(var(--infinity-cyan) / 0.05)",
-                  }
-                : {
-                    background: "hsl(var(--infinity-cyan) / 0.03)",
-                  }
-            }
-          >
-            {item.label}
-          </button>
-        ))}
+        {navItems.map((item) => {
+          const isActive = activeSection === item.id;
+          return (
+            <div key={item.id} className="relative group">
+              {/* Animated gradient border */}
+              <div
+                className="absolute -inset-[1px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)), hsl(var(--infinity-cyan)))",
+                  backgroundSize: "300% 300%",
+                  animation: "gradient-shift 3s ease infinite",
+                  filter: "blur(3px)",
+                  ...(isActive ? { opacity: 1 } : {}),
+                }}
+              />
+              {/* Visible gradient border */}
+              <div
+                className="absolute -inset-[1px] rounded-full transition-opacity duration-300"
+                style={{
+                  background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)), hsl(var(--infinity-cyan)))",
+                  backgroundSize: "300% 300%",
+                  animation: "gradient-shift 3s ease infinite",
+                  opacity: isActive ? 0.8 : 0.2,
+                }}
+              />
+              <button
+                onClick={() => onNavigate(item.id)}
+                className={`relative px-5 py-2 text-sm font-medium transition-all duration-300 rounded-full ${
+                  isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+                style={{
+                  background: isActive
+                    ? "hsl(var(--background) / 0.85)"
+                    : "hsl(var(--background) / 0.7)",
+                }}
+              >
+                {item.label}
+              </button>
+            </div>
+          );
+        })}
       </div>
 
       {/* Icons */}
