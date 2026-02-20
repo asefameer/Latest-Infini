@@ -1,5 +1,6 @@
 import { ShoppingBag, User } from "lucide-react";
 import NavInfinityLogo from "@/components/NavInfinityLogo";
+import MagneticButton from "@/components/MagneticButton";
 
 interface NavbarProps {
   activeSection: string;
@@ -17,17 +18,17 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 bg-background/60 backdrop-blur-xl border-b border-border/30">
       {/* Logo */}
-      <button onClick={() => onNavigate("ground-zero")} className="flex-shrink-0 hover:scale-110 transition-transform duration-300">
+      <MagneticButton onClick={() => onNavigate("ground-zero")} className="flex-shrink-0" strength={0.4}>
         <NavInfinityLogo />
-      </button>
+      </MagneticButton>
 
       {/* Nav Links */}
       <div className="flex items-center gap-1">
         {navItems.map((item) => {
           const isActive = activeSection === item.id;
           return (
-            <div key={item.id} className="relative group">
-              {/* Animated gradient border */}
+            <MagneticButton key={item.id} className="relative group" strength={0.25}>
+              {/* Animated gradient border glow */}
               <div
                 className="absolute -inset-[1px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 style={{
@@ -61,19 +62,19 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
               >
                 {item.label}
               </button>
-            </div>
+            </MagneticButton>
           );
         })}
       </div>
 
       {/* Icons */}
       <div className="flex items-center gap-4">
-        <button className="text-muted-foreground hover:text-foreground transition-colors">
+        <MagneticButton className="text-muted-foreground hover:text-foreground transition-colors" strength={0.4}>
           <ShoppingBag className="w-5 h-5" />
-        </button>
-        <button className="text-muted-foreground hover:text-foreground transition-colors">
+        </MagneticButton>
+        <MagneticButton className="text-muted-foreground hover:text-foreground transition-colors" strength={0.4}>
           <User className="w-5 h-5" />
-        </button>
+        </MagneticButton>
       </div>
     </nav>
   );

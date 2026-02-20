@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import ScrollReveal from "@/components/ScrollReveal";
+import MagneticButton from "@/components/MagneticButton";
 
 interface HeroSectionProps {
   onNavigate: (section: string) => void;
@@ -501,54 +502,54 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
           { label: "EDITIONS", section: "editions", icon: "◆" },
           { label: "ENCOUNTER", section: "encounter", icon: "✦" },
         ].map(({ label, section, icon }) => (
-          <motion.button
-            key={section}
-            onClick={() => {
-              const el = document.getElementById(section);
-              if (el) el.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="group relative px-8 py-3 rounded-full overflow-hidden"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            data-magnetic
-          >
-            <span
-              className="absolute inset-0 rounded-full"
-              style={{
-                background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)), hsl(var(--infinity-cyan)))",
-                backgroundSize: "300% 300%",
-                animation: "gradient-shift 4s ease infinite",
+          <MagneticButton key={section} className="group" strength={0.35}>
+            <motion.button
+              onClick={() => {
+                const el = document.getElementById(section);
+                if (el) el.scrollIntoView({ behavior: "smooth" });
               }}
-            />
-            <span
-              className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              style={{
-                background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)), hsl(var(--infinity-cyan)))",
-                backgroundSize: "300% 300%",
-                animation: "gradient-shift 4s ease infinite",
-                filter: "blur(10px)",
-              }}
-            />
-            <span
-              className="absolute inset-[1.5px] rounded-full transition-all duration-300 group-hover:inset-[2px]"
-              style={{ background: "hsl(var(--background) / 0.88)" }}
-            />
-            <span className="relative z-10 flex items-center gap-2.5">
+              className="relative px-8 py-3 rounded-full overflow-hidden"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+            >
               <span
-                className="text-xs opacity-60 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110"
+                className="absolute inset-0 rounded-full"
                 style={{
-                  background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-pink)))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
+                  background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)), hsl(var(--infinity-cyan)))",
+                  backgroundSize: "300% 300%",
+                  animation: "gradient-shift 4s ease infinite",
                 }}
-              >
-                {icon}
+              />
+              <span
+                className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)), hsl(var(--infinity-cyan)))",
+                  backgroundSize: "300% 300%",
+                  animation: "gradient-shift 4s ease infinite",
+                  filter: "blur(10px)",
+                }}
+              />
+              <span
+                className="absolute inset-[1.5px] rounded-full transition-all duration-300 group-hover:inset-[2px]"
+                style={{ background: "hsl(var(--background) / 0.88)" }}
+              />
+              <span className="relative z-10 flex items-center gap-2.5">
+                <span
+                  className="text-xs opacity-60 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110"
+                  style={{
+                    background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-pink)))",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  {icon}
+                </span>
+                <span className="text-xs font-display font-bold tracking-[0.3em] text-foreground/70 group-hover:text-foreground transition-colors duration-300">
+                  {label}
+                </span>
               </span>
-              <span className="text-xs font-display font-bold tracking-[0.3em] text-foreground/70 group-hover:text-foreground transition-colors duration-300">
-                {label}
-              </span>
-            </span>
-          </motion.button>
+            </motion.button>
+          </MagneticButton>
         ))}
       </ScrollReveal>
     </section>

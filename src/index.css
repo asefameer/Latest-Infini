@@ -50,6 +50,11 @@
     --infinity-purple: 280 60% 60%;
     --infinity-pink: 320 70% 60%;
     --infinity-glow: 174 72% 56%;
+
+    /* Section background alternation */
+    --section-dark: 220 20% 4%;
+    --section-mid: 220 18% 8%;
+    --section-light: 220 16% 12%;
   }
 
   * {

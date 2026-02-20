@@ -3,7 +3,6 @@ import SplashScreen from "@/components/SplashScreen";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import TrinitySection from "@/components/TrinitySection";
-
 import GrainOverlay from "@/components/GrainOverlay";
 import SmoothScroll from "@/components/SmoothScroll";
 import GlobalSparkles from "@/components/GlobalSparkles";
@@ -46,26 +45,41 @@ const Index = () => {
 
   return (
     <SmoothScroll>
-      <div className="bg-background min-h-screen">
+      <div className="min-h-screen">
         <SplashScreen isVisible={showSplash} />
         {!showSplash && (
           <>
-            
             <GrainOverlay />
             <GlobalSparkles />
             <Navbar activeSection={activeSection} onNavigate={handleNavigate} />
             <HeroSection onNavigate={handleNavigate} />
-            <TrinitySection />
 
-            {/* Placeholder sections for future phases */}
-            <section id="editions" className="min-h-screen flex items-center justify-center">
+            {/* Trinity - slightly lighter bg */}
+            <div
+              className="transition-colors duration-1000"
+              style={{ background: "hsl(var(--section-mid))" }}
+            >
+              <TrinitySection />
+            </div>
+
+            {/* Editions - back to dark */}
+            <section
+              id="editions"
+              className="min-h-screen flex items-center justify-center transition-colors duration-1000"
+              style={{ background: "hsl(var(--section-dark))" }}
+            >
               <ScrollReveal className="text-center" offsetY={60} blur={10}>
                 <h2 className="font-display text-5xl font-bold text-foreground mb-4">Editions</h2>
                 <p className="text-muted-foreground">E-commerce store coming soon</p>
               </ScrollReveal>
             </section>
 
-            <section id="encounter" className="min-h-screen flex items-center justify-center">
+            {/* Encounter - lighter */}
+            <section
+              id="encounter"
+              className="min-h-screen flex items-center justify-center transition-colors duration-1000"
+              style={{ background: "hsl(var(--section-light))" }}
+            >
               <ScrollReveal className="text-center" offsetY={60} blur={10}>
                 <h2 className="font-display text-5xl font-bold text-foreground mb-4">Encounter</h2>
                 <p className="text-muted-foreground">Event ticketing coming soon</p>
