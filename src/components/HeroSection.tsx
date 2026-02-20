@@ -414,23 +414,6 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         className="relative z-10 flex flex-col items-center justify-center text-center"
         style={{ opacity: scrollOpacity, y: scrollY }}
       >
-        {/* Small infinity icon */}
-        <motion.div
-          className="mb-6"
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.3 }}
-        >
-          <svg width="60" height="30" viewBox="0 0 60 30" className="opacity-40">
-            <path
-              d="M15 15c0-5.5 4.5-10 10-10s10 4.5 10 10-4.5 10-10 10-10-4.5-10-10zm20 0c0-5.5 4.5-10 10-10s10 4.5 10 10-4.5 10-10 10-10-4.5-10-10z"
-              fill="none"
-              stroke="hsl(var(--primary))"
-              strokeWidth="1.5"
-            />
-          </svg>
-        </motion.div>
-
         {/* Tagline */}
         <motion.p
           className="font-body text-sm md:text-base tracking-[0.5em] text-muted-foreground uppercase mb-8"
