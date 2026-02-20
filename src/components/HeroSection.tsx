@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import heroVideo from "@/assets/infinity-logo-video.mp4";
 import heroCrystal from "@/assets/hero-crystal.jpg";
+import WebGLDistortion from "@/components/WebGLDistortion";
 
 interface HeroSectionProps {
   onNavigate: (section: string) => void;
@@ -12,7 +13,6 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
   const [scrolled, setScrolled] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   // Mouse position for parallax
   const mouseX = useMotionValue(0);
@@ -88,22 +88,16 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
       onMouseMove={handleMouseMove}
     >
-      {/* Video Background with scroll zoom + mouse parallax (deepest layer) */}
+      {/* WebGL Distortion Video Background — deepest parallax layer */}
       <motion.div
         className="absolute inset-0"
         style={{ scale: scrollScale, x: layer1X, y: layer1Y }}
       >
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          playsInline
-          crossOrigin="anonymous"
-          onCanPlay={() => setVideoReady(true)}
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src={heroVideo} type="video/mp4" />
-        </video>
+        <WebGLDistortion
+          videoSrc={heroVideo}
+          className="w-full h-full"
+          onReady={() => setVideoReady(true)}
+        />
       </motion.div>
 
       {/* SVG Masked crystal image overlay — middle parallax layer */}
