@@ -11,15 +11,17 @@ const cards = [
     title: "LIVE THE MOMENT",
     subtitle: "Experience life as it happens",
     video: ltmCardVideo,
+    tilt: -6, // tilted left
   },
   {
     title: "X FORCE",
     subtitle: "Push beyond limits",
     video: xforceCardVideo,
+    tilt: 6, // tilted right
   },
 ];
 
-const VideoCard = ({ video, title }: { video: string; title: string }) => {
+const VideoCard = ({ video, title, tilt }: { video: string; title: string; tilt: number }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -33,7 +35,12 @@ const VideoCard = ({ video, title }: { video: string; title: string }) => {
     <motion.div
       ref={ref}
       className="relative aspect-[9/16] rounded-2xl overflow-hidden group cursor-pointer"
-      style={{ scale, y, willChange: "transform" }}
+      style={{
+        scale,
+        y,
+        rotate: tilt,
+        willChange: "transform",
+      }}
     >
       <video
         src={video}
@@ -83,7 +90,7 @@ const DefineStyleSection = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
         {cards.map((card) => (
           <ScrollReveal key={card.title} offsetY={80} blur={10}>
-            <VideoCard video={card.video} title={card.title} />
+            <VideoCard video={card.video} title={card.title} tilt={card.tilt} />
           </ScrollReveal>
         ))}
       </div>
