@@ -45,7 +45,7 @@ const InfinityCanvas = ({
       const cx = w / 2;
       const cy = h / 2;
       const scaleX = Math.min(w * 0.32, 380);
-      const scaleY = Math.min(h * 0.18, 160);
+      const scaleY = Math.min(h * 0.28, 280);
 
       // Mouse influence on the infinity shape
       const mx = (mouseX - 0.5) * 30;
@@ -316,12 +316,12 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
       onMouseLeave={handleMouseLeave}
     >
       {/* ── Layer 0: WebGL distortion background ── */}
-      <div className="absolute inset-0 opacity-30">
+      <div className="absolute inset-0 opacity-20">
         <WebGLDistortion videoSrc={infinityVideo} />
       </div>
 
-      {/* ── Layer 0b: Dark overlay to keep it subtle ── */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-card/70" />
+      {/* ── Layer 0b: Dark overlay ── */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background/90 via-background/70 to-card/80" />
 
       {/* ── Layer 1: Floating particles ── */}
       <motion.div
