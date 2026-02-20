@@ -411,24 +411,23 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
 
       {/* ── Layer 4: Central content ── */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center mt-[34rem] md:mt-[38rem] pb-20">
-        {/* Tagline */}
+        {/* Tagline - visible immediately */}
         <motion.p
           className="font-body text-sm md:text-base tracking-[0.5em] text-muted-foreground uppercase mb-8"
-          initial={{ opacity: 0, y: 40, filter: "blur(8px)" }}
-          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          viewport={{ once: true, amount: 0.8 }}
-          transition={{ duration: 0.9, ease: "easeOut" }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.6 }}
         >
           Towards infinite possibilities
         </motion.p>
 
-        {/* Hover prompt */}
+        {/* Hover prompt - scroll reveal */}
         <motion.p
           className="font-body text-xs tracking-[0.3em] text-muted-foreground/50 uppercase"
-          initial={{ opacity: 0, y: 30, filter: "blur(6px)" }}
+          initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
           whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          viewport={{ once: true, amount: 0.8 }}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.15 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
         >
           move cursor to reveal
         </motion.p>
@@ -436,10 +435,10 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         {/* Sub-brands */}
         <motion.div
           className="flex items-center gap-6 mt-12"
-          initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
+          initial={{ opacity: 0, y: 35, filter: "blur(10px)" }}
           whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          viewport={{ once: true, amount: 0.8 }}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
           {["NOVA", "LIVE THE MOMENT", "XFORCE"].map((name, i) => (
             <span key={name} className="flex items-center gap-6">
@@ -457,10 +456,10 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         {/* Editions & Encounter buttons */}
         <motion.div
           className="flex items-center gap-5 mt-10"
-          initial={{ opacity: 0, y: 50, scale: 0.9, filter: "blur(12px)" }}
+          initial={{ opacity: 0, y: 40, scale: 0.95, filter: "blur(12px)" }}
           whileInView={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-          viewport={{ once: true, amount: 0.8 }}
-          transition={{ duration: 0.9, ease: "easeOut", delay: 0.45 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
         >
           {[
             { label: "EDITIONS", section: "editions", icon: "◆" },
