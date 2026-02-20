@@ -85,27 +85,6 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         className="relative z-10 flex flex-col items-center text-center px-4 pt-20"
         style={{ rotateX, rotateY, perspective: 1200, opacity: scrollOpacity }}
       >
-        {/* Dynamic video logo */}
-        <motion.div
-          className="relative w-[280px] h-[280px] md:w-[400px] md:h-[400px] rounded-full overflow-hidden"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, delay: 0.3 }}
-          whileHover={{ scale: 1.05 }}
-          style={{
-            boxShadow: "0 0 60px hsl(174 72% 56% / 0.2), 0 0 120px hsl(280 60% 60% / 0.15)",
-          }}
-        >
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          >
-            <source src={heroVideo} type="video/mp4" />
-          </video>
-        </motion.div>
 
         <motion.p
           className="font-body text-lg md:text-xl tracking-[0.4em] text-muted-foreground mt-4"

@@ -1,5 +1,5 @@
 import { ShoppingBag, User } from "lucide-react";
-import infinityLogo from "@/assets/infinity-logo.jpg";
+import logoVideo from "@/assets/infinity-logo-video.mp4";
 
 interface NavbarProps {
   activeSection: string;
@@ -17,8 +17,16 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 bg-background/60 backdrop-blur-xl border-b border-border/30">
       {/* Logo */}
-      <button onClick={() => onNavigate("ground-zero")} className="flex-shrink-0">
-        <img src={infinityLogo} alt="Infinity" className="h-7 w-auto" />
+      <button onClick={() => onNavigate("ground-zero")} className="flex-shrink-0 h-9 w-16 overflow-hidden rounded">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="h-full w-full object-cover hover:scale-110 transition-transform duration-300"
+        >
+          <source src={logoVideo} type="video/mp4" />
+        </video>
       </button>
 
       {/* Nav Links */}
