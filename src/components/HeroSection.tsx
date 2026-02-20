@@ -1,186 +1,421 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
-import heroVideo from "@/assets/infinity-logo-video.mp4";
-import WebGLDistortion from "@/components/WebGLDistortion";
+import { useEffect, useRef, useCallback, useState } from "react";
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 
 interface HeroSectionProps {
   onNavigate: (section: string) => void;
 }
 
-// Infinite marquee ticker component
-const MarqueeTicker = ({ children, speed = 30 }: { children: React.ReactNode; speed?: number }) => (
-  <div className="overflow-hidden whitespace-nowrap">
-    <motion.div
-      className="inline-flex"
-      animate={{ x: [0, "-50%"] }}
-      transition={{ duration: speed, ease: "linear", repeat: Infinity }}
-    >
-      <span className="inline-flex">{children}</span>
-      <span className="inline-flex">{children}</span>
-    </motion.div>
-  </div>
-);
+// ─── Canvas-based animated infinity symbol ───
+const InfinityCanvas = ({
+  mouseX,
+  mouseY,
+}: {
+  mouseX: number;
+  mouseY: number;
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animRef = useRef<number>(0);
+  const timeRef = useRef(0);
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+    let w = 0,
+      h = 0;
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio, 2);
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const draw = () => {
+      timeRef.current += 0.008;
+      const t = timeRef.current;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h / 2;
+      const scaleX = Math.min(w * 0.32, 380);
+      const scaleY = Math.min(h * 0.18, 160);
+
+      // Mouse influence on the infinity shape
+      const mx = (mouseX - 0.5) * 30;
+      const my = (mouseY - 0.5) * 20;
+
+      // Draw multiple layered infinity paths with offset phases
+      const layers = [
+        { offset: 0, alpha: 0.08, width: 120, blur: 60 },
+        { offset: 0.1, alpha: 0.12, width: 80, blur: 40 },
+        { offset: 0.2, alpha: 0.2, width: 50, blur: 25 },
+        { offset: 0.3, alpha: 0.35, width: 20, blur: 12 },
+        { offset: 0.35, alpha: 0.6, width: 8, blur: 4 },
+        { offset: 0.4, alpha: 1, width: 3, blur: 0 },
+      ];
+
+      for (const layer of layers) {
+        ctx.save();
+        ctx.globalAlpha = layer.alpha;
+        if (layer.blur > 0) ctx.filter = `blur(${layer.blur}px)`;
+
+        // Animated gradient along the infinity path
+        const grad = ctx.createLinearGradient(
+          cx - scaleX,
+          cy,
+          cx + scaleX,
+          cy
+        );
+        const hue1 = (t * 40 + layer.offset * 360) % 360;
+        const hue2 = (hue1 + 60) % 360;
+        const hue3 = (hue1 + 180) % 360;
+        const hue4 = (hue1 + 270) % 360;
+        grad.addColorStop(0, `hsl(${hue1}, 85%, 65%)`);
+        grad.addColorStop(0.3, `hsl(${hue2}, 90%, 60%)`);
+        grad.addColorStop(0.6, `hsl(${hue3}, 85%, 65%)`);
+        grad.addColorStop(1, `hsl(${hue4}, 90%, 60%)`);
+
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = layer.width;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        // Parametric infinity (lemniscate of Bernoulli)
+        ctx.beginPath();
+        const steps = 200;
+        for (let i = 0; i <= steps; i++) {
+          const angle = (i / steps) * Math.PI * 2;
+          const phase = t * 0.5 + layer.offset;
+          // Infinity parametric equation
+          const denom = 1 + Math.sin(angle) * Math.sin(angle);
+          let x = (Math.cos(angle) / denom) * scaleX;
+          let y = (Math.sin(angle) * Math.cos(angle) / denom) * scaleY;
+
+          // Add flowing wave distortion
+          x += Math.sin(angle * 3 + phase * 4) * 8 * Math.sin(t + layer.offset);
+          y += Math.cos(angle * 2 + phase * 3) * 6 * Math.cos(t * 1.3 + layer.offset);
+
+          // Subtle mouse push
+          const distFromMouse = Math.hypot(
+            (cx + x) / w - mouseX,
+            (cy + y) / h - mouseY
+          );
+          const push = Math.max(0, 1 - distFromMouse * 3) * 25;
+          x += mx * push * 0.3;
+          y += my * push * 0.3;
+
+          if (i === 0) ctx.moveTo(cx + x, cy + y);
+          else ctx.lineTo(cx + x, cy + y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Glowing particles along the path
+      const numParticles = 40;
+      for (let i = 0; i < numParticles; i++) {
+        const angle = (i / numParticles) * Math.PI * 2 + t * 1.5;
+        const denom = 1 + Math.sin(angle) * Math.sin(angle);
+        let px = (Math.cos(angle) / denom) * scaleX;
+        let py = (Math.sin(angle) * Math.cos(angle) / denom) * scaleY;
+        px += Math.sin(angle * 3 + t * 2) * 6;
+        py += Math.cos(angle * 2 + t * 1.5) * 4;
+
+        const hue = ((t * 50 + i * 9) % 360);
+        const size = 2 + Math.sin(t * 3 + i) * 1.5;
+        const alpha = 0.4 + Math.sin(t * 2 + i * 0.5) * 0.3;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = `hsl(${hue}, 90%, 70%)`;
+        ctx.shadowColor = `hsl(${hue}, 90%, 70%)`;
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        ctx.arc(cx + px, cy + py, size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      animRef.current = requestAnimationFrame(draw);
+    };
+
+    draw();
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener("resize", resize);
+    };
+  }, [mouseX, mouseY]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full"
+      style={{ mixBlendMode: "screen" }}
+    />
+  );
+};
+
+// ─── Floating particles background ───
+const FloatingParticles = ({ mouseX, mouseY }: { mouseX: number; mouseY: number }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animRef = useRef<number>(0);
+  const particlesRef = useRef<
+    Array<{ x: number; y: number; vx: number; vy: number; size: number; hue: number; life: number }>
+  >([]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+    let w = 0, h = 0;
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio, 2);
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Initialize particles
+    if (particlesRef.current.length === 0) {
+      for (let i = 0; i < 80; i++) {
+        particlesRef.current.push({
+          x: Math.random() * 2000,
+          y: Math.random() * 1200,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          size: Math.random() * 2.5 + 0.5,
+          hue: Math.random() * 360,
+          life: Math.random(),
+        });
+      }
+    }
+
+    let time = 0;
+    const draw = () => {
+      time += 0.01;
+      ctx.clearRect(0, 0, w, h);
+
+      for (const p of particlesRef.current) {
+        // Mouse repulsion
+        const dx = p.x / w - mouseX;
+        const dy = p.y / h - mouseY;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 0.15) {
+          const force = (0.15 - dist) * 2;
+          p.vx += (dx / dist) * force;
+          p.vy += (dy / dist) * force;
+        }
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+        p.hue = (p.hue + 0.3) % 360;
+        p.life = (Math.sin(time + p.hue * 0.01) + 1) / 2;
+
+        // Wrap around
+        if (p.x < 0) p.x = w;
+        if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h;
+        if (p.y > h) p.y = 0;
+
+        ctx.save();
+        ctx.globalAlpha = 0.3 + p.life * 0.4;
+        ctx.fillStyle = `hsl(${p.hue}, 80%, 65%)`;
+        ctx.shadowColor = `hsl(${p.hue}, 80%, 65%)`;
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      animRef.current = requestAnimationFrame(draw);
+    };
+
+    draw();
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener("resize", resize);
+    };
+  }, [mouseX, mouseY]);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-60" />;
+};
+
+// ─── Main Hero Section ───
 const HeroSection = ({ onNavigate }: HeroSectionProps) => {
-  const [scrolled, setScrolled] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+  const [pixelMouse, setPixelMouse] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
 
-  // Mouse position for parallax
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const smoothMouseX = useSpring(mouseX, { damping: 50, stiffness: 150 });
-  const smoothMouseY = useSpring(mouseY, { damping: 50, stiffness: 150 });
+  // Smooth springs for parallax
+  const mx = useMotionValue(0.5);
+  const my = useMotionValue(0.5);
+  const smoothX = useSpring(mx, { damping: 30, stiffness: 100 });
+  const smoothY = useSpring(my, { damping: 30, stiffness: 100 });
 
-  // Parallax layers
-  const layer1X = useTransform(smoothMouseX, [-0.5, 0.5], [15, -15]);
-  const layer1Y = useTransform(smoothMouseY, [-0.5, 0.5], [10, -10]);
-  const layer2X = useTransform(smoothMouseX, [-0.5, 0.5], [6, -6]);
-  const layer2Y = useTransform(smoothMouseY, [-0.5, 0.5], [4, -4]);
+  // Parallax transforms
+  const layer1X = useTransform(smoothX, [0, 1], [20, -20]);
+  const layer1Y = useTransform(smoothY, [0, 1], [15, -15]);
+  const layer2X = useTransform(smoothX, [0, 1], [-10, 10]);
+  const layer2Y = useTransform(smoothY, [0, 1], [-8, 8]);
+  const layer3X = useTransform(smoothX, [0, 1], [8, -8]);
+  const layer3Y = useTransform(smoothY, [0, 1], [6, -6]);
 
-  // Scroll-based parallax
+  // Scroll parallax
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
-  const scrollScale = useTransform(scrollYProgress, [0, 1], [1.02, 1.25]);
   const scrollOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const scrollY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const scrollScale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  const scrollY = useTransform(scrollYProgress, [0, 1], [0, -120]);
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 100);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!sectionRef.current) return;
+      const rect = sectionRef.current.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      mx.set(x);
+      my.set(y);
+      setMousePos({ x, y });
+      setPixelMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      setIsHovering(true);
+    },
+    [mx, my]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovering(false);
   }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!sectionRef.current) return;
-    const rect = sectionRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    mouseX.set(x);
-    mouseY.set(y);
-  }, [mouseX, mouseY]);
-
-  const ease: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
-
-  // Character stagger for INFINITY
-  const letterVariants = {
-    hidden: { opacity: 0, y: 80, rotateX: -90 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      rotateX: 0,
-      transition: { duration: 0.8, delay: 0.4 + i * 0.06, ease },
-    }),
-  };
-
-  const tickerText = (
-    <>
-      {["NOVA", "LIVE THE MOMENT", "XFORCE", "EDITIONS", "ENCOUNTER"].map((item, i) => (
-        <span key={i} className="inline-flex items-center gap-4 mx-8">
-          <span className="w-2 h-2 rounded-full bg-primary" />
-          <span className="text-xs font-display font-bold tracking-[0.3em] text-muted-foreground uppercase">
-            {item}
-          </span>
-        </span>
-      ))}
-    </>
-  );
+  // Mask size based on hover
+  const maskSize = isHovering ? 220 : 0;
 
   return (
     <section
       ref={sectionRef}
       id="ground-zero"
-      className="relative h-screen flex flex-col overflow-hidden"
+      className="relative h-screen flex flex-col items-center justify-center overflow-hidden bg-background cursor-none"
       onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
     >
-      {/* WebGL Video Background */}
+      {/* ── Layer 0: Deep background gradient ── */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-card" />
+
+      {/* ── Layer 1: Floating particles ── */}
       <motion.div
         className="absolute inset-0"
-        style={{ scale: scrollScale, x: layer1X, y: layer1Y }}
+        style={{ x: layer1X, y: layer1Y, opacity: scrollOpacity }}
       >
-        <WebGLDistortion
-          videoSrc={heroVideo}
-          className="w-full h-full"
-          onReady={() => setVideoReady(true)}
-        />
+        <FloatingParticles mouseX={mousePos.x} mouseY={mousePos.y} />
       </motion.div>
 
-      {/* INFINITY text knockout — multiply blend: white text reveals video, black bg blocks it */}
+      {/* ── Layer 2: Animated infinity symbol ── */}
       <motion.div
-        className="absolute inset-0 z-[2] pointer-events-none"
-        style={{ mixBlendMode: "multiply", opacity: scrollOpacity }}
+        className="absolute inset-0"
+        style={{ x: layer2X, y: layer2Y, scale: scrollScale, opacity: scrollOpacity }}
       >
-        {/* Full-screen black layer */}
-        <div className="absolute inset-0 bg-black" />
-        {/* White text punches through the black to reveal video */}
-        <div className="absolute inset-0 flex items-center justify-center" style={{ y: scrollY } as any}>
-          <motion.h1
-            className="relative font-display font-black text-[clamp(4rem,15vw,12rem)] leading-[0.85] tracking-[-0.04em] text-white select-none"
-            style={{ perspective: 600 }}
+        <InfinityCanvas mouseX={mousePos.x} mouseY={mousePos.y} />
+      </motion.div>
+
+      {/* ── Layer 3: INFINITY text revealed by cursor mask ── */}
+      <motion.div
+        className="absolute inset-0 z-[5] pointer-events-none"
+        style={{ x: layer3X, y: layer3Y, opacity: scrollOpacity }}
+      >
+        <div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{
+            WebkitMaskImage: `radial-gradient(circle ${maskSize}px at ${pixelMouse.x}px ${pixelMouse.y}px, black 30%, transparent 100%)`,
+            maskImage: `radial-gradient(circle ${maskSize}px at ${pixelMouse.x}px ${pixelMouse.y}px, black 30%, transparent 100%)`,
+            transition: isHovering ? "none" : "mask-size 0.5s ease-out, -webkit-mask-size 0.5s ease-out",
+          }}
+        >
+          {/* Glowing frosted glass background behind text */}
+          <div className="absolute inset-0 backdrop-blur-xl bg-background/30" />
+          <h1
+            className="relative font-display font-black text-[clamp(5rem,18vw,16rem)] leading-[0.85] tracking-[-0.04em] select-none"
+            style={{
+              background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--infinity-pink)), hsl(var(--primary)))",
+              backgroundSize: "300% 300%",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              animation: "gradient-shift 4s ease infinite",
+            }}
           >
-            {"INFINITY".split("").map((char, i) => (
-              <motion.span
-                key={i}
-                className="inline-block"
-                variants={letterVariants}
-                initial="hidden"
-                animate={videoReady ? "visible" : "hidden"}
-                custom={i}
-              >
-                {char}
-              </motion.span>
-            ))}
-          </motion.h1>
+            INFINITY
+          </h1>
         </div>
       </motion.div>
 
-      {/* Dark overlays for readability on other content */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/90 z-[3] pointer-events-none" />
-
-      {/* ── Top marquee ticker ── */}
+      {/* ── Layer 4: Central content ── */}
       <motion.div
-        className="relative z-10 mt-20 opacity-40"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: videoReady ? 0.4 : 0 }}
-        transition={{ duration: 1, delay: 1.5 }}
+        className="relative z-10 flex flex-col items-center justify-center text-center"
+        style={{ opacity: scrollOpacity, y: scrollY }}
       >
-        <MarqueeTicker speed={40}>
-          {tickerText}
-        </MarqueeTicker>
-      </motion.div>
+        {/* Small infinity icon */}
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 0.3 }}
+        >
+          <svg width="60" height="30" viewBox="0 0 60 30" className="opacity-40">
+            <path
+              d="M15 15c0-5.5 4.5-10 10-10s10 4.5 10 10-4.5 10-10 10-10-4.5-10-10zm20 0c0-5.5 4.5-10 10-10s10 4.5 10 10-4.5 10-10 10-10-4.5-10-10z"
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeWidth="1.5"
+            />
+          </svg>
+        </motion.div>
 
-      {/* ── Main hero content (below knockout text) ── */}
-      <motion.div
-        className="relative z-10 flex-1 flex flex-col items-center justify-center"
-        style={{ opacity: scrollOpacity, y: scrollY, x: layer2X }}
-      >
-        {/* Spacer for the giant text */}
-        <div className="h-[clamp(4rem,15vw,12rem)]" />
-
-        {/* Subtitle */}
+        {/* Tagline */}
         <motion.p
-          className="font-body text-sm md:text-base tracking-[0.5em] text-muted-foreground uppercase mt-6"
-          initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-          animate={videoReady ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
-          transition={{ duration: 0.8, delay: 1.2, ease }}
+          className="font-body text-sm md:text-base tracking-[0.5em] text-muted-foreground uppercase mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
         >
           Towards infinite possibilities
         </motion.p>
 
-        {/* Sub-brands row */}
+        {/* Hover prompt */}
+        <motion.p
+          className="font-body text-xs tracking-[0.3em] text-muted-foreground/50 uppercase"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1.2 }}
+        >
+          move cursor to reveal
+        </motion.p>
+
+        {/* Sub-brands */}
         <motion.div
-          className="flex items-center gap-6 mt-10"
+          className="flex items-center gap-6 mt-12"
           initial={{ opacity: 0, y: 15 }}
-          animate={videoReady ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 1.6, ease }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1 }}
         >
           {["NOVA", "LIVE THE MOMENT", "XFORCE"].map((name, i) => (
             <span key={name} className="flex items-center gap-6">
               {i > 0 && <span className="w-px h-4 bg-muted-foreground/30" />}
               <span
-                className="text-xs font-display font-bold tracking-[0.3em] text-foreground/70 hover:text-primary transition-colors cursor-pointer"
+                className="text-xs font-display font-bold tracking-[0.3em] text-foreground/60 hover:text-primary transition-colors cursor-pointer"
                 data-magnetic
               >
                 {name}
@@ -188,65 +423,29 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
             </span>
           ))}
         </motion.div>
-
-        {/* CTA Buttons */}
-        <AnimatePresence>
-          {scrolled && (
-            <motion.div
-              className="flex items-center gap-4 mt-10"
-              initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -10, filter: "blur(10px)" }}
-              transition={{ duration: 0.5, ease }}
-            >
-              <button
-                onClick={() => onNavigate("editions")}
-                data-magnetic
-                data-cursor="cta"
-                data-cursor-label="Shop"
-                className="px-10 py-4 rounded-full text-xs font-display font-bold tracking-[0.3em] uppercase bg-foreground text-background hover:scale-105 transition-transform"
-              >
-                Editions
-              </button>
-              <button
-                onClick={() => onNavigate("encounter")}
-                data-magnetic
-                data-cursor="cta"
-                data-cursor-label="Events"
-                className="px-10 py-4 rounded-full text-xs font-display font-bold tracking-[0.3em] uppercase border border-foreground/30 text-foreground hover:border-foreground/60 hover:scale-105 transition-all"
-              >
-                Encounter
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.div>
 
-      {/* ── Bottom marquee ticker (reverse) ── */}
-      <motion.div
-        className="relative z-10 mb-20 opacity-30"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: videoReady ? 0.3 : 0 }}
-        transition={{ duration: 1, delay: 1.8 }}
-      >
-        <div className="overflow-hidden whitespace-nowrap">
-          <motion.div
-            className="inline-flex"
-            animate={{ x: ["-50%", "0%"] }}
-            transition={{ duration: 35, ease: "linear", repeat: Infinity }}
-          >
-            <span className="inline-flex">{tickerText}</span>
-            <span className="inline-flex">{tickerText}</span>
-          </motion.div>
-        </div>
-      </motion.div>
+      {/* ── Custom cursor dot ── */}
+      {isHovering && (
+        <motion.div
+          className="fixed z-50 pointer-events-none mix-blend-difference"
+          style={{
+            left: pixelMouse.x,
+            top: pixelMouse.y,
+            x: "-50%",
+            y: "-50%",
+          }}
+        >
+          <div className="w-4 h-4 rounded-full bg-foreground" />
+        </motion.div>
+      )}
 
-      {/* Scroll indicator */}
+      {/* ── Scroll indicator ── */}
       <motion.div
         className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2, duration: 0.8 }}
+        transition={{ delay: 1.5, duration: 0.8 }}
       >
         <span className="text-[10px] tracking-[0.4em] text-muted-foreground font-display font-bold uppercase">
           Scroll
@@ -255,6 +454,9 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
           <div className="w-1 h-1 rounded-full bg-foreground animate-scroll-bounce" />
         </div>
       </motion.div>
+
+      {/* Bottom fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-[3] pointer-events-none" />
     </section>
   );
 };
