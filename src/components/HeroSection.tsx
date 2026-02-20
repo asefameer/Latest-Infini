@@ -361,6 +361,7 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
   const maskSize = isHovering ? 220 : 0;
 
   return (
+    <>
     <section
       ref={sectionRef}
       id="ground-zero"
@@ -409,119 +410,24 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         </div>
       </motion.div>
 
-      {/* ── Layer 4: Central content ── */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center mt-[34rem] md:mt-[38rem] pb-20">
-        {/* Tagline - visible immediately */}
+      {/* ── Layer 4: Tagline only ── */}
+      <div className="absolute bottom-32 left-0 right-0 z-10 flex flex-col items-center text-center">
         <motion.p
-          className="font-body text-sm md:text-base tracking-[0.5em] text-muted-foreground uppercase mb-8"
+          className="font-body text-sm md:text-base tracking-[0.5em] text-muted-foreground uppercase"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.6 }}
         >
           Towards infinite possibilities
         </motion.p>
-
-        {/* Hover prompt - 3D depth from left */}
         <motion.p
-          className="font-body text-xs tracking-[0.3em] text-muted-foreground/50 uppercase"
-          style={{ perspective: 800, transformStyle: "preserve-3d" }}
-          initial={{ opacity: 0, x: -120, rotateY: 45, z: -100, filter: "blur(6px)" }}
-          whileInView={{ opacity: 1, x: 0, rotateY: 0, z: 0, filter: "blur(0px)" }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="font-body text-xs tracking-[0.3em] text-muted-foreground/50 uppercase mt-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1.2 }}
         >
           move cursor to reveal
         </motion.p>
-
-        {/* Sub-brands - 3D depth from left */}
-        <motion.div
-          className="flex items-center gap-6 mt-12"
-          style={{ perspective: 800, transformStyle: "preserve-3d" }}
-          initial={{ opacity: 0, x: -180, rotateY: 50, z: -150, filter: "blur(16px)" }}
-          whileInView={{ opacity: 1, x: 0, rotateY: 0, z: 0, filter: "blur(0px)" }}
-          viewport={{ once: true, amount: 1 }}
-          transition={{ duration: 1.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          {["NOVA", "LIVE THE MOMENT", "XFORCE"].map((name, i) => (
-            <span key={name} className="flex items-center gap-6">
-              {i > 0 && <span className="w-px h-4 bg-muted-foreground/30" />}
-              <span
-                className="text-xs font-display font-bold tracking-[0.3em] text-foreground/60 hover:text-primary transition-colors cursor-pointer"
-                data-magnetic
-              >
-                {name}
-              </span>
-            </span>
-          ))}
-        </motion.div>
-
-        {/* Editions & Encounter buttons - 3D depth from left */}
-        <motion.div
-          className="flex items-center gap-5 mt-10"
-          style={{ perspective: 800, transformStyle: "preserve-3d" }}
-          initial={{ opacity: 0, x: -220, rotateY: 55, z: -200, scale: 0.9, filter: "blur(20px)" }}
-          whileInView={{ opacity: 1, x: 0, rotateY: 0, z: 0, scale: 1, filter: "blur(0px)" }}
-          viewport={{ once: true, amount: 1 }}
-          transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          {[
-            { label: "EDITIONS", section: "editions", icon: "◆" },
-            { label: "ENCOUNTER", section: "encounter", icon: "✦" },
-          ].map(({ label, section, icon }) => (
-            <motion.button
-              key={section}
-              onClick={() => {
-                const el = document.getElementById(section);
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="group relative px-8 py-3 rounded-full overflow-hidden"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-              data-magnetic
-            >
-              {/* Animated gradient border */}
-              <span
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)), hsl(var(--infinity-cyan)))",
-                  backgroundSize: "300% 300%",
-                  animation: "gradient-shift 4s ease infinite",
-                }}
-              />
-              {/* Glow on hover */}
-              <span
-                className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{
-                  background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)), hsl(var(--infinity-cyan)))",
-                  backgroundSize: "300% 300%",
-                  animation: "gradient-shift 4s ease infinite",
-                  filter: "blur(10px)",
-                }}
-              />
-              {/* Inner fill */}
-              <span
-                className="absolute inset-[1.5px] rounded-full transition-all duration-300 group-hover:inset-[2px]"
-                style={{ background: "hsl(var(--background) / 0.88)" }}
-              />
-              {/* Text */}
-              <span className="relative z-10 flex items-center gap-2.5">
-                <span
-                  className="text-xs opacity-60 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110"
-                  style={{
-                    background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-pink)))",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
-                  {icon}
-                </span>
-                <span className="text-xs font-display font-bold tracking-[0.3em] text-foreground/70 group-hover:text-foreground transition-colors duration-300">
-                  {label}
-                </span>
-              </span>
-            </motion.button>
-          ))}
-        </motion.div>
       </div>
 
       {/* ── Custom cursor dot ── */}
@@ -557,6 +463,96 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
       {/* Bottom fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-[3] pointer-events-none" />
     </section>
+
+    {/* ── Below-fold reveal section ── */}
+    <section className="relative z-10 flex flex-col items-center text-center py-24 bg-background">
+      {/* Sub-brands - 3D depth from left */}
+      <motion.div
+        className="flex items-center gap-6"
+        style={{ perspective: 800, transformStyle: "preserve-3d" }}
+        initial={{ opacity: 0, x: -180, rotateY: 50, z: -150, filter: "blur(16px)" }}
+        whileInView={{ opacity: 1, x: 0, rotateY: 0, z: 0, filter: "blur(0px)" }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{ duration: 1.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+      >
+        {["NOVA", "LIVE THE MOMENT", "XFORCE"].map((name, i) => (
+          <span key={name} className="flex items-center gap-6">
+            {i > 0 && <span className="w-px h-4 bg-muted-foreground/30" />}
+            <span
+              className="text-xs font-display font-bold tracking-[0.3em] text-foreground/60 hover:text-primary transition-colors cursor-pointer"
+              data-magnetic
+            >
+              {name}
+            </span>
+          </span>
+        ))}
+      </motion.div>
+
+      {/* Editions & Encounter buttons - 3D depth from left */}
+      <motion.div
+        className="flex items-center gap-5 mt-10"
+        style={{ perspective: 800, transformStyle: "preserve-3d" }}
+        initial={{ opacity: 0, x: -220, rotateY: 55, z: -200, scale: 0.9, filter: "blur(20px)" }}
+        whileInView={{ opacity: 1, x: 0, rotateY: 0, z: 0, scale: 1, filter: "blur(0px)" }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+      >
+        {[
+          { label: "EDITIONS", section: "editions", icon: "◆" },
+          { label: "ENCOUNTER", section: "encounter", icon: "✦" },
+        ].map(({ label, section, icon }) => (
+          <motion.button
+            key={section}
+            onClick={() => {
+              const el = document.getElementById(section);
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }}
+            className="group relative px-8 py-3 rounded-full overflow-hidden"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
+            data-magnetic
+          >
+            <span
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)), hsl(var(--infinity-cyan)))",
+                backgroundSize: "300% 300%",
+                animation: "gradient-shift 4s ease infinite",
+              }}
+            />
+            <span
+              className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{
+                background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)), hsl(var(--infinity-cyan)))",
+                backgroundSize: "300% 300%",
+                animation: "gradient-shift 4s ease infinite",
+                filter: "blur(10px)",
+              }}
+            />
+            <span
+              className="absolute inset-[1.5px] rounded-full transition-all duration-300 group-hover:inset-[2px]"
+              style={{ background: "hsl(var(--background) / 0.88)" }}
+            />
+            <span className="relative z-10 flex items-center gap-2.5">
+              <span
+                className="text-xs opacity-60 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110"
+                style={{
+                  background: "linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-pink)))",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                {icon}
+              </span>
+              <span className="text-xs font-display font-bold tracking-[0.3em] text-foreground/70 group-hover:text-foreground transition-colors duration-300">
+                {label}
+              </span>
+            </span>
+          </motion.button>
+        ))}
+      </motion.div>
+    </section>
+    </>
   );
 };
 
