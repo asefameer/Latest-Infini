@@ -371,8 +371,8 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {/* ── Layer 0: Deep background gradient ── */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-card" />
+      {/* ── Layer 0: Solid background ── */}
+      <div className="absolute inset-0 bg-background" />
 
       {/* ── Unified sparkle + infinity canvas ── */}
       <motion.div
@@ -395,8 +395,8 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
             transition: isHovering ? "none" : "mask-size 0.5s ease-out, -webkit-mask-size 0.5s ease-out",
           }}
         >
-          {/* Glowing frosted glass background behind text */}
-          <div className="absolute inset-0 backdrop-blur-xl bg-background/30" />
+          {/* Clean background behind text — no blur */}
+          <div className="absolute inset-0 bg-background/40" />
           <h1
             className="relative font-display font-black text-[clamp(5rem,18vw,16rem)] leading-[0.85] tracking-[-0.04em] select-none"
             style={{
@@ -448,8 +448,8 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         </div>
       </motion.div>
 
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-[3] pointer-events-none" />
+      {/* Bottom fade — subtle */}
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-background/80 to-transparent z-[3] pointer-events-none" />
     </section>
 
     {/* ── Below-fold reveal section ── */}
