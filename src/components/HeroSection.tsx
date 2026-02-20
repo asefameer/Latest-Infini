@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform, useScroll } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import heroVideo from "@/assets/infinity-logo-video.mp4";
 
@@ -20,6 +20,14 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
   const glowY = useTransform(mouseY, [0, 1], ["0%", "100%"]);
   const rotateX = useTransform(mouseY, [0, 1], [3, -3]);
   const rotateY = useTransform(mouseX, [0, 1], [-3, 3]);
+
+  // Scroll-based parallax zoom
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const scrollScale = useTransform(scrollYProgress, [0, 1], [1.08, 1.35]);
+  const scrollOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,7 +52,7 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
       onMouseMove={handleMouseMove}
     >
       {/* Video Background with cursor parallax */}
-      <motion.div className="absolute inset-0" style={{ x: bgX, y: bgY, scale: 1.08 }}>
+      <motion.div className="absolute inset-0" style={{ x: bgX, y: bgY, scale: scrollScale }}>
         <video
           autoPlay
           loop
@@ -72,10 +80,10 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         }}
       />
 
-      {/* Content with subtle 3D tilt */}
+      {/* Content with subtle 3D tilt + scroll fade */}
       <motion.div
         className="relative z-10 flex flex-col items-center text-center px-4 pt-20"
-        style={{ rotateX, rotateY, perspective: 1200 }}
+        style={{ rotateX, rotateY, perspective: 1200, opacity: scrollOpacity }}
       >
         <motion.h1
           className="font-display text-[7rem] md:text-[10rem] font-bold tracking-[0.15em] leading-none text-foreground"
