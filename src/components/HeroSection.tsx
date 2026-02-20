@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { ChevronRight } from "lucide-react";
-import heroBg from "@/assets/hero-bg.jpg";
+import heroVideo from "@/assets/infinity-logo-video.mp4";
 
 interface HeroSectionProps {
   onNavigate: (section: string) => void;
@@ -9,6 +9,17 @@ interface HeroSectionProps {
 
 const HeroSection = ({ onNavigate }: HeroSectionProps) => {
   const [scrolled, setScrolled] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const mouseX = useMotionValue(0.5);
+  const mouseY = useMotionValue(0.5);
+
+  // Cursor-reactive transforms
+  const bgX = useTransform(mouseX, [0, 1], [-15, 15]);
+  const bgY = useTransform(mouseY, [0, 1], [-15, 15]);
+  const glowX = useTransform(mouseX, [0, 1], ["0%", "100%"]);
+  const glowY = useTransform(mouseY, [0, 1], ["0%", "100%"]);
+  const rotateX = useTransform(mouseY, [0, 1], [3, -3]);
+  const rotateY = useTransform(mouseX, [0, 1], [-3, 3]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,31 +29,62 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!sectionRef.current) return;
+    const rect = sectionRef.current.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width);
+    mouseY.set((e.clientY - rect.top) / rect.height);
+  };
+
   return (
     <section
+      ref={sectionRef}
       id="ground-zero"
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+      onMouseMove={handleMouseMove}
     >
-      {/* Background */}
-      <div className="absolute inset-0">
-        <img
-          src={heroBg}
-          alt=""
+      {/* Video Background with cursor parallax */}
+      <motion.div className="absolute inset-0" style={{ x: bgX, y: bgY, scale: 1.08 }}>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
           className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-background/50" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-background" />
-      </div>
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
+      </motion.div>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center text-center px-4 pt-20">
+      {/* Overlays */}
+      <div className="absolute inset-0 bg-background/40" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background" />
+
+      {/* Cursor-reactive glow */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: useTransform(
+            [glowX, glowY],
+            ([x, y]) =>
+              `radial-gradient(600px circle at ${x} ${y}, hsl(174 72% 56% / 0.08), transparent 60%)`
+          ),
+        }}
+      />
+
+      {/* Content with subtle 3D tilt */}
+      <motion.div
+        className="relative z-10 flex flex-col items-center text-center px-4 pt-20"
+        style={{ rotateX, rotateY, perspective: 1200 }}
+      >
         <motion.h1
           className="font-display text-[7rem] md:text-[10rem] font-bold tracking-[0.15em] leading-none text-foreground"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.3 }}
           style={{
-            textShadow: "0 0 80px hsl(174 72% 56% / 0.15), 0 0 120px hsl(280 60% 60% / 0.1)",
+            textShadow:
+              "0 0 80px hsl(174 72% 56% / 0.15), 0 0 120px hsl(280 60% 60% / 0.1)",
           }}
         >
           INFINITY
@@ -99,7 +141,7 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </motion.div>
 
       {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
