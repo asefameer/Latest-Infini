@@ -11,6 +11,7 @@ interface Particle {
   id: number;
   x: number;
   y: number;
+  color: string;
 }
 
 let particleId = 0;
@@ -19,6 +20,8 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
   const [scrolled, setScrolled] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const lastSpawn = useRef(0);
 
   // Scroll-based parallax zoom
@@ -44,17 +47,46 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
     return () => clearTimeout(timer);
   }, [particles]);
 
+  const sampleVideoColor = useCallback((clientX: number, clientY: number): string => {
+    const video = videoRef.current;
+    if (!video || !sectionRef.current) return "rgb(100, 220, 220)";
+    let canvas = canvasRef.current;
+    if (!canvas) return "rgb(100, 220, 220)";
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return "rgb(100, 220, 220)";
+
+    // Draw current video frame
+    canvas.width = video.videoWidth || 1920;
+    canvas.height = video.videoHeight || 1080;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Map cursor position to video coordinates
+    const rect = sectionRef.current.getBoundingClientRect();
+    const ratioX = (clientX - rect.left) / rect.width;
+    const ratioY = (clientY - rect.top) / rect.height;
+    const sx = Math.floor(ratioX * canvas.width);
+    const sy = Math.floor(ratioY * canvas.height);
+    const pixel = ctx.getImageData(Math.max(0, sx), Math.max(0, sy), 1, 1).data;
+
+    // Boost saturation for more vivid particles
+    const r = Math.min(255, pixel[0] + 30);
+    const g = Math.min(255, pixel[1] + 30);
+    const b = Math.min(255, pixel[2] + 30);
+    return `rgb(${r}, ${g}, ${b})`;
+  }, []);
+
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     const now = Date.now();
-    if (now - lastSpawn.current < 60) return; // throttle
+    if (now - lastSpawn.current < 60) return;
     lastSpawn.current = now;
     if (!sectionRef.current) return;
     const rect = sectionRef.current.getBoundingClientRect();
+    const color = sampleVideoColor(e.clientX, e.clientY);
     setParticles((prev) => [
-      ...prev.slice(-20), // cap at 20
-      { id: particleId++, x: e.clientX - rect.left, y: e.clientY - rect.top },
+      ...prev.slice(-20),
+      { id: particleId++, x: e.clientX - rect.left, y: e.clientY - rect.top, color },
     ]);
-  }, []);
+  }, [sampleVideoColor]);
 
   return (
     <section
@@ -66,13 +98,16 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
       {/* Video Background — no movement, just scroll zoom */}
       <motion.div className="absolute inset-0" style={{ scale: scrollScale }}>
         <video
+          ref={videoRef}
           autoPlay
           muted
           playsInline
+          crossOrigin="anonymous"
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src={heroVideo} type="video/mp4" />
         </video>
+        <canvas ref={canvasRef} className="hidden" />
       </motion.div>
 
       {/* Subtle bottom fade for readability */}
@@ -87,8 +122,8 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
             style={{
               left: p.x,
               top: p.y,
-              background: "radial-gradient(circle, hsl(174 72% 70%), hsl(280 60% 65%))",
-              boxShadow: "0 0 8px hsl(174 72% 56% / 0.6), 0 0 20px hsl(280 60% 60% / 0.3)",
+              background: `radial-gradient(circle, ${p.color}, transparent)`,
+              boxShadow: `0 0 8px ${p.color}, 0 0 20px ${p.color}`,
             }}
             initial={{ opacity: 1, scale: 1, y: 0 }}
             animate={{ opacity: 0, scale: 0, y: -30 + Math.random() * -20, x: (Math.random() - 0.5) * 40 }}
