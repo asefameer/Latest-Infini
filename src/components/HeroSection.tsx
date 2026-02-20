@@ -55,7 +55,6 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
       <motion.div className="absolute inset-0" style={{ x: bgX, y: bgY, scale: scrollScale }}>
         <video
           autoPlay
-          loop
           muted
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
@@ -64,9 +63,8 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         </video>
       </motion.div>
 
-      {/* Overlays */}
-      <div className="absolute inset-0 bg-background/40" />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background" />
+      {/* Subtle bottom fade only for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/80" />
 
       {/* Cursor-reactive color shift overlay */}
       <motion.div
