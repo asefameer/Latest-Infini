@@ -3,6 +3,9 @@ import SplashScreen from "@/components/SplashScreen";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import TrinitySection from "@/components/TrinitySection";
+import MagneticCursor from "@/components/MagneticCursor";
+import GrainOverlay from "@/components/GrainOverlay";
+import SmoothScroll from "@/components/SmoothScroll";
 
 const Index = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -40,31 +43,35 @@ const Index = () => {
   };
 
   return (
-    <div className="bg-background min-h-screen">
-      <SplashScreen isVisible={showSplash} />
-      {!showSplash && (
-        <>
-          <Navbar activeSection={activeSection} onNavigate={handleNavigate} />
-          <HeroSection onNavigate={handleNavigate} />
-          <TrinitySection />
+    <SmoothScroll>
+      <div className="bg-background min-h-screen">
+        <SplashScreen isVisible={showSplash} />
+        {!showSplash && (
+          <>
+            <MagneticCursor />
+            <GrainOverlay />
+            <Navbar activeSection={activeSection} onNavigate={handleNavigate} />
+            <HeroSection onNavigate={handleNavigate} />
+            <TrinitySection />
 
-          {/* Placeholder sections for future phases */}
-          <section id="editions" className="min-h-screen flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="font-display text-5xl font-bold text-foreground mb-4">Editions</h2>
-              <p className="text-muted-foreground">E-commerce store coming soon</p>
-            </div>
-          </section>
+            {/* Placeholder sections for future phases */}
+            <section id="editions" className="min-h-screen flex items-center justify-center">
+              <div className="text-center">
+                <h2 className="font-display text-5xl font-bold text-foreground mb-4">Editions</h2>
+                <p className="text-muted-foreground">E-commerce store coming soon</p>
+              </div>
+            </section>
 
-          <section id="encounter" className="min-h-screen flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="font-display text-5xl font-bold text-foreground mb-4">Encounter</h2>
-              <p className="text-muted-foreground">Event ticketing coming soon</p>
-            </div>
-          </section>
-        </>
-      )}
-    </div>
+            <section id="encounter" className="min-h-screen flex items-center justify-center">
+              <div className="text-center">
+                <h2 className="font-display text-5xl font-bold text-foreground mb-4">Encounter</h2>
+                <p className="text-muted-foreground">Event ticketing coming soon</p>
+              </div>
+            </section>
+          </>
+        )}
+      </div>
+    </SmoothScroll>
   );
 };
 
