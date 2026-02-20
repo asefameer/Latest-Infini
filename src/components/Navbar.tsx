@@ -35,18 +35,22 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
           <button
             key={item.id}
             onClick={() => onNavigate(item.id)}
-            className={`relative px-5 py-2 text-sm font-medium transition-all duration-300 rounded-full ${
+            className={`relative px-5 py-2 text-sm font-medium transition-all duration-300 rounded-full border ${
               activeSection === item.id
-                ? "bg-border text-foreground"
-                : "text-muted-foreground hover:text-foreground"
+                ? "text-foreground border-[hsl(var(--infinity-cyan)/0.35)]"
+                : "text-muted-foreground hover:text-foreground border-[hsl(var(--infinity-cyan)/0.12)] hover:border-[hsl(var(--infinity-cyan)/0.25)]"
             }`}
+            style={
+              activeSection === item.id
+                ? {
+                    background: "linear-gradient(135deg, hsl(var(--infinity-cyan) / 0.1), hsl(var(--infinity-purple) / 0.06))",
+                    boxShadow: "0 0 14px hsl(var(--infinity-cyan) / 0.15), inset 0 0 10px hsl(var(--infinity-cyan) / 0.05)",
+                  }
+                : {
+                    background: "hsl(var(--infinity-cyan) / 0.03)",
+                  }
+            }
           >
-            {/* Gradient border for active state */}
-            {activeSection === item.id && (
-              <span className="absolute inset-0 rounded-full p-[1px] bg-gradient-to-r from-infinity-cyan to-infinity-purple -z-10">
-                <span className="block w-full h-full rounded-full bg-muted" />
-              </span>
-            )}
             {item.label}
           </button>
         ))}
