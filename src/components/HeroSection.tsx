@@ -68,14 +68,24 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
       <div className="absolute inset-0 bg-background/40" />
       <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background" />
 
-      {/* Cursor-reactive glow */}
+      {/* Cursor-reactive color shift overlay */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none mix-blend-color"
+        style={{
+          background: useTransform(
+            [glowX, glowY],
+            ([x, y]) =>
+              `radial-gradient(800px circle at ${x} ${y}, hsl(174 72% 56% / 0.35), transparent 50%), radial-gradient(600px circle at ${x} ${y}, hsl(280 60% 60% / 0.25), transparent 60%)`
+          ),
+        }}
+      />
       <motion.div
         className="absolute inset-0 pointer-events-none"
         style={{
           background: useTransform(
             [glowX, glowY],
             ([x, y]) =>
-              `radial-gradient(600px circle at ${x} ${y}, hsl(174 72% 56% / 0.08), transparent 60%)`
+              `radial-gradient(500px circle at ${x} ${y}, hsl(330 70% 55% / 0.08), transparent 50%)`
           ),
         }}
       />
