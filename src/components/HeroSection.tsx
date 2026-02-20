@@ -411,7 +411,7 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
 
       {/* ── Layer 4: Central content ── */}
       <motion.div
-        className="relative z-10 flex flex-col items-center justify-center text-center mt-48 md:mt-56"
+        className="relative z-10 flex flex-col items-center justify-center text-center mt-64 md:mt-72"
         style={{ opacity: scrollOpacity, y: scrollY }}
       >
         {/* Tagline */}
