@@ -22,7 +22,7 @@ const ScrollReveal = ({
   offsetX = 0,
   rotateY = 0,
   scale = 1,
-  blur = 0,
+  blur: _blur = 0, // kept for API compat but no longer applied
   startOffset = "0 1",
   endOffset = "0 0.65",
 }: ScrollRevealProps) => {
@@ -33,7 +33,6 @@ const ScrollReveal = ({
     offset: [startOffset as any, endOffset as any],
   });
 
-  // Smooth spring-based scrub for buttery transitions
   const smoothProgress = useSpring(scrollYProgress, springConfig);
 
   const opacity = useTransform(smoothProgress, [0, 1], [0, 1]);
@@ -41,8 +40,6 @@ const ScrollReveal = ({
   const x = useTransform(smoothProgress, [0, 1], [offsetX, 0]);
   const rY = useTransform(smoothProgress, [0, 1], [rotateY, 0]);
   const s = useTransform(smoothProgress, [0, 1], [scale, 1]);
-  const blurVal = useTransform(smoothProgress, [0, 1], [blur, 0]);
-  const filterStr = useTransform(blurVal, (v) => `blur(${v}px)`);
 
   return (
     <motion.div
@@ -54,10 +51,9 @@ const ScrollReveal = ({
         x,
         rotateY: rY,
         scale: s,
-        filter: filterStr,
         perspective: rotateY ? 800 : undefined,
         transformStyle: rotateY ? "preserve-3d" : undefined,
-        willChange: "transform, opacity, filter",
+        willChange: "transform, opacity",
       }}
     >
       {children}
