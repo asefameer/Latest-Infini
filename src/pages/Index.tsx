@@ -6,7 +6,6 @@ import TrinitySection from "@/components/TrinitySection";
 import GrainOverlay from "@/components/GrainOverlay";
 import SmoothScroll from "@/components/SmoothScroll";
 import GlobalSparkles from "@/components/GlobalSparkles";
-import ScrollReveal from "@/components/ScrollReveal";
 import DefineStyleSection from "@/components/DefineStyleSection";
 
 const Index = () => {
@@ -18,7 +17,6 @@ const Index = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Track active section on scroll
   useEffect(() => {
     const handleScroll = () => {
       const sections = ["ground-zero", "the-trinity", "define-style"];
@@ -50,20 +48,14 @@ const Index = () => {
         <SplashScreen isVisible={showSplash} />
         {!showSplash && (
           <>
-            <GrainOverlay />
-            <GlobalSparkles />
             <Navbar activeSection={activeSection} onNavigate={handleNavigate} />
             <HeroSection onNavigate={handleNavigate} />
-
-            {/* Trinity - slightly lighter bg */}
             <div
               className="transition-colors duration-1000"
               style={{ background: "hsl(var(--section-mid))" }}
             >
               <TrinitySection />
             </div>
-
-            {/* Define Your Style */}
             <DefineStyleSection />
           </>
         )}
