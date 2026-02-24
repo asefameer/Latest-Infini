@@ -174,6 +174,48 @@ const EventForm = () => {
           )}
         </div>
 
+        {/* Discount */}
+        <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+          <h2 className="font-semibold text-foreground">Event / Ticket Discount</h2>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label>Discount Type</Label>
+              <Select value={(form as any).discountType || 'none'} onValueChange={v => set('discountType', v === 'none' ? undefined : v)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Discount</SelectItem>
+                  <SelectItem value="percentage">Percentage (%)</SelectItem>
+                  <SelectItem value="fixed">Fixed Amount (৳)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {(form as any).discountType && (form as any).discountType !== 'none' && (
+              <>
+                <div className="space-y-2">
+                  <Label>Value</Label>
+                  <Input type="number" value={(form as any).discountValue || ''} onChange={e => set('discountValue', +e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Promo Code</Label>
+                  <Input value={(form as any).discountCode || ''} onChange={e => set('discountCode', e.target.value.toUpperCase())} placeholder="Optional" />
+                </div>
+              </>
+            )}
+          </div>
+          {(form as any).discountType && (form as any).discountType !== 'none' && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Start Date</Label>
+                <Input type="date" value={(form as any).discountStart || ''} onChange={e => set('discountStart', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>End Date</Label>
+                <Input type="date" value={(form as any).discountEnd || ''} onChange={e => set('discountEnd', e.target.value)} />
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Lineup */}
         <div className="bg-card border border-border rounded-xl p-6 space-y-4">
           <h2 className="font-semibold text-foreground">Lineup</h2>
