@@ -162,27 +162,19 @@ const UnifiedHeroCanvas = ({
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
 
-      // Pass 1: Wide colored stroke
-      ctx.save();
-      ctx.globalAlpha = 0.35;
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = 12;
-      strokePath(pts);
-      ctx.restore();
-
-      // Pass 2: Medium bright stroke
-      ctx.save();
-      ctx.globalAlpha = 0.7;
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = 5;
-      strokePath(pts);
-      ctx.restore();
-
-      // Pass 3: Sharp bright core
+      // Pass 1: Crisp gradient stroke
       ctx.save();
       ctx.globalAlpha = 1;
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 4;
+      strokePath(pts);
+      ctx.restore();
+
+      // Pass 2: Sharp white core
+      ctx.save();
+      ctx.globalAlpha = 0.95;
       ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1.4;
       strokePath(pts);
       ctx.restore();
 
@@ -319,7 +311,6 @@ const UnifiedHeroCanvas = ({
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full"
-      style={{ mixBlendMode: "screen" }}
     />
   );
 };
