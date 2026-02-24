@@ -60,3 +60,22 @@ func azure functionapp publish <YOUR_FUNCTION_APP_NAME>
 | POST | `/api/banners` | Create banner |
 | PUT | `/api/banners/{id}` | Update banner |
 | DELETE | `/api/banners/{id}` | Delete banner |
+| GET | `/api/crm/customers` | List customers (?segment) |
+| GET | `/api/crm/customers/{id}` | Get customer |
+| POST | `/api/crm/customers` | Create customer |
+| PUT | `/api/crm/customers/{id}` | Update customer |
+| DELETE | `/api/crm/customers/{id}` | Delete customer |
+| GET | `/api/crm/conversations` | List conversations (?status) |
+| GET | `/api/crm/conversations/{id}` | Get conversation with messages |
+| PUT | `/api/crm/conversations/{id}/status` | Update conversation status |
+| POST | `/api/crm/conversations/{id}/messages` | Add message to conversation |
+| GET | `/api/crm/email-campaigns` | List email campaigns |
+| POST | `/api/crm/email-campaigns` | Create campaign |
+| PUT | `/api/crm/email-campaigns/{id}` | Update/schedule campaign |
+| GET | `/api/crm/push-notifications` | List push notifications |
+| POST | `/api/crm/push-notifications` | Create notification |
+| PUT | `/api/crm/push-notifications/{id}` | Update notification |
+| GET | `/api/crm/kb-articles` | List KB articles |
+| POST | `/api/crm/kb-articles` | Create article |
+| PUT | `/api/crm/kb-articles/{id}` | Update article |
+| DELETE | `/api/crm/kb-articles/{id}` | Delete article |

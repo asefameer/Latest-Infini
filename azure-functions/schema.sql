@@ -106,3 +106,75 @@ CREATE TABLE Banners (
 );
 
 CREATE INDEX IX_Banners_placement ON Banners (placement);
+
+-- Customers
+CREATE TABLE Customers (
+  id            NVARCHAR(50)   PRIMARY KEY,
+  name          NVARCHAR(200)  NOT NULL,
+  email         NVARCHAR(255)  NOT NULL,
+  phone         NVARCHAR(50)   NOT NULL DEFAULT '',
+  avatar        NVARCHAR(500)  NULL,
+  segment       NVARCHAR(20)   NOT NULL DEFAULT 'new',   -- 'vip' | 'regular' | 'new' | 'inactive'
+  totalSpent    INT            NOT NULL DEFAULT 0,
+  orderCount    INT            NOT NULL DEFAULT 0,
+  lastActive    NVARCHAR(20)   NOT NULL,
+  joinedAt      NVARCHAR(20)   NOT NULL,
+  tags          NVARCHAR(MAX)  NOT NULL DEFAULT '[]',     -- JSON array
+  notes         NVARCHAR(MAX)  NOT NULL DEFAULT ''
+);
+
+CREATE INDEX IX_Customers_segment ON Customers (segment);
+CREATE INDEX IX_Customers_email ON Customers (email);
+
+-- Conversations (Chatbot)
+CREATE TABLE Conversations (
+  id            NVARCHAR(50)   PRIMARY KEY,
+  customerId    NVARCHAR(50)   NOT NULL,
+  customerName  NVARCHAR(200)  NOT NULL,
+  status        NVARCHAR(20)   NOT NULL DEFAULT 'open',   -- 'open' | 'resolved' | 'escalated'
+  startedAt     NVARCHAR(30)   NOT NULL,
+  lastMessageAt NVARCHAR(30)   NOT NULL,
+  messages      NVARCHAR(MAX)  NOT NULL DEFAULT '[]',     -- JSON array of messages
+  FOREIGN KEY (customerId) REFERENCES Customers(id)
+);
+
+CREATE INDEX IX_Conversations_status ON Conversations (status);
+CREATE INDEX IX_Conversations_customerId ON Conversations (customerId);
+
+-- Email Campaigns
+CREATE TABLE EmailCampaigns (
+  id              NVARCHAR(50)   PRIMARY KEY,
+  name            NVARCHAR(200)  NOT NULL,
+  subject         NVARCHAR(300)  NOT NULL,
+  status          NVARCHAR(20)   NOT NULL DEFAULT 'draft', -- 'draft' | 'scheduled' | 'sent'
+  segment         NVARCHAR(50)   NOT NULL,
+  scheduledAt     NVARCHAR(30)   NULL,
+  sentAt          NVARCHAR(30)   NULL,
+  recipientCount  INT            NOT NULL DEFAULT 0,
+  openRate        FLOAT          NULL,
+  clickRate       FLOAT          NULL
+);
+
+-- Push Notifications
+CREATE TABLE PushNotifications (
+  id              NVARCHAR(50)   PRIMARY KEY,
+  title           NVARCHAR(200)  NOT NULL,
+  body            NVARCHAR(500)  NOT NULL,
+  status          NVARCHAR(20)   NOT NULL DEFAULT 'draft', -- 'draft' | 'scheduled' | 'sent'
+  segment         NVARCHAR(50)   NOT NULL,
+  scheduledAt     NVARCHAR(30)   NULL,
+  sentAt          NVARCHAR(30)   NULL,
+  recipientCount  INT            NOT NULL DEFAULT 0
+);
+
+-- Knowledge Base Articles
+CREATE TABLE KBArticles (
+  id            NVARCHAR(50)   PRIMARY KEY,
+  title         NVARCHAR(300)  NOT NULL,
+  category      NVARCHAR(100)  NOT NULL,
+  content       NVARCHAR(MAX)  NOT NULL DEFAULT '',
+  isPublished   BIT            NOT NULL DEFAULT 0,
+  updatedAt     NVARCHAR(20)   NOT NULL
+);
+
+CREATE INDEX IX_KBArticles_category ON KBArticles (category);
