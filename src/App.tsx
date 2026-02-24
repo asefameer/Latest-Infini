@@ -36,6 +36,9 @@ import ProductForm from "./pages/admin/ProductForm";
 import EventsAdmin from "./pages/admin/EventsAdmin";
 import EventForm from "./pages/admin/EventForm";
 import BannersAdmin from "./pages/admin/BannersAdmin";
+import CRMCustomers from "./pages/admin/CRMCustomers";
+import CRMChatbot from "./pages/admin/CRMChatbot";
+import CRMMessaging from "./pages/admin/CRMMessaging";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +83,9 @@ const App = () => (
                   <Route path="events" element={<EventsAdmin />} />
                   <Route path="events/:eventId" element={<EventForm />} />
                   <Route path="banners" element={<BannersAdmin />} />
+                  <Route path="crm/customers" element={<CRMCustomers />} />
+                  <Route path="crm/chatbot" element={<CRMChatbot />} />
+                  <Route path="crm/messaging" element={<CRMMessaging />} />
                 </Route>
               </Routes>
             </BrowserRouter>
