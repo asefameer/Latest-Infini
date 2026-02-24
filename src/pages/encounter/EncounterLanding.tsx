@@ -5,62 +5,40 @@ import EventCard from '@/components/EventCard';
 import SkeletonGrid from '@/components/SkeletonGrid';
 import EmptyState from '@/components/EmptyState';
 import ScrollReveal from '@/components/ScrollReveal';
-import { events, getFeaturedEvents } from '@/data/events';
+import { useEvents, useFeaturedEvents } from '@/services/api/hooks';
 import { ChevronDown, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import MagneticButton from '@/components/MagneticButton';
 
 const EncounterLanding = () => {
-  const featured = getFeaturedEvents()[0];
+  const { data: allEvents = [], isLoading } = useEvents();
+  const { data: featuredEvents = [] } = useFeaturedEvents();
+  const featured = featuredEvents[0];
   const [sort, setSort] = useState<'upcoming' | 'newest'>('upcoming');
   const [cityFilter, setCityFilter] = useState('');
-  const [loading] = useState(false);
 
-  const cities = [...new Set(events.map(e => e.city))];
+  const cities = [...new Set(allEvents.map(e => e.city))];
 
   const filtered = useMemo(() => {
-    let result = [...events];
+    let result = [...allEvents];
     if (cityFilter) result = result.filter(e => e.city === cityFilter);
     if (sort === 'upcoming') result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     return result;
-  }, [sort, cityFilter]);
+  }, [allEvents, sort, cityFilter]);
 
   return (
     <>
-      <SEOHead
-        title="Encounter"
-        description="Discover and attend curated events by Infinity. Music, art, fitness, and more across Bangladesh."
-        canonical="/encounter"
-      />
-
+      <SEOHead title="Encounter" description="Discover and attend curated events by Infinity. Music, art, fitness, and more across Bangladesh." canonical="/encounter" />
       {featured && (
-        <HeroBlock
-          title={featured.title}
-          subtitle={`${new Date(featured.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · ${featured.venue}, ${featured.city}`}
-          image={featured.bannerImage}
-          height="medium"
-        >
+        <HeroBlock title={featured.title} subtitle={`${new Date(featured.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · ${featured.venue}, ${featured.city}`} image={featured.bannerImage} height="medium">
           <MagneticButton strength={0.3}>
-            <Link
-              to={`/encounter/e/${featured.slug}`}
-              className="group relative inline-flex items-center gap-2 mt-8 rounded-full text-sm font-medium"
-            >
-              <div
-                className="absolute -inset-[1px] rounded-full opacity-80 group-hover:opacity-100 transition-opacity"
-                style={{
-                  background: 'linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)))',
-                  backgroundSize: '200% 200%',
-                  animation: 'gradient-shift 3s ease infinite',
-                }}
-              />
-              <span className="relative px-8 py-3 rounded-full bg-background/90 group-hover:bg-background/80 transition-colors flex items-center gap-2">
-                <Calendar className="w-4 h-4" /> Get Tickets
-              </span>
+            <Link to={`/encounter/e/${featured.slug}`} className="group relative inline-flex items-center gap-2 mt-8 rounded-full text-sm font-medium">
+              <div className="absolute -inset-[1px] rounded-full opacity-80 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)))', backgroundSize: '200% 200%', animation: 'gradient-shift 3s ease infinite' }} />
+              <span className="relative px-8 py-3 rounded-full bg-background/90 group-hover:bg-background/80 transition-colors flex items-center gap-2"><Calendar className="w-4 h-4" /> Get Tickets</span>
             </Link>
           </MagneticButton>
         </HeroBlock>
       )}
-
       <section className="py-16 px-6" style={{ background: 'hsl(var(--section-mid))' }}>
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
@@ -82,13 +60,8 @@ const EncounterLanding = () => {
               </div>
             </div>
           </div>
-
           <ScrollReveal>
-            {loading ? (
-              <SkeletonGrid count={6} type="event" />
-            ) : filtered.length === 0 ? (
-              <EmptyState title="No events found" description="Try changing your filters or check back soon for new events." />
-            ) : (
+            {isLoading ? <SkeletonGrid count={6} type="event" /> : filtered.length === 0 ? <EmptyState title="No events found" description="Try changing your filters or check back soon for new events." /> : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filtered.map(e => <EventCard key={e.id} event={e} />)}
               </div>

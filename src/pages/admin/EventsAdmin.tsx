@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { events as initialEvents } from '@/data/events';
+import { useEvents, useDeleteEvent } from '@/services/api/hooks';
 import type { Event } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,8 @@ import { toast } from 'sonner';
 const BRAND_LABELS: Record<string, string> = { nova: 'Nova', 'live-the-moment': 'Live the Moment', 'x-force': 'X-Force' };
 
 const EventsAdmin = () => {
-  const [items, setItems] = useState<Event[]>(initialEvents);
+  const { data: items = [], isLoading } = useEvents();
+  const deleteMutation = useDeleteEvent();
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() =>
@@ -21,19 +22,18 @@ const EventsAdmin = () => {
 
   const handleDelete = (id: string) => {
     if (!window.confirm('Delete this event?')) return;
-    setItems(prev => prev.filter(e => e.id !== id));
-    toast.success('Event deleted');
+    deleteMutation.mutate(id, { onSuccess: () => toast.success('Event deleted') });
   };
 
   const totalTickets = (e: Event) => e.ticketTiers.reduce((s, t) => s + t.remaining, 0);
+
+  if (isLoading) return <div className="text-muted-foreground py-12 text-center">Loading events…</div>;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-display font-bold text-foreground">Events & Tickets</h1>
-        <Link to="/admin/events/new">
-          <Button size="sm" className="gap-2"><Plus className="w-4 h-4" /> Add Event</Button>
-        </Link>
+        <Link to="/admin/events/new"><Button size="sm" className="gap-2"><Plus className="w-4 h-4" /> Add Event</Button></Link>
       </div>
 
       <div className="relative mb-4 max-w-md">
@@ -57,25 +57,18 @@ const EventsAdmin = () => {
               </div>
               <div className="flex items-center gap-4 mt-3">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Ticket className="w-3.5 h-3.5" />
-                  {ev.ticketTiers.length} tiers · {totalTickets(ev)} remaining
+                  <Ticket className="w-3.5 h-3.5" /> {ev.ticketTiers.length} tiers · {totalTickets(ev)} remaining
                 </div>
                 {ev.isFeatured && <Badge className="text-xs bg-secondary/20 text-secondary border-0">Featured</Badge>}
               </div>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <Link to={`/admin/events/${ev.id}`}>
-                <Button variant="ghost" size="icon" className="h-8 w-8"><Pencil className="w-4 h-4" /></Button>
-              </Link>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(ev.id)}>
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              <Link to={`/admin/events/${ev.id}`}><Button variant="ghost" size="icon" className="h-8 w-8"><Pencil className="w-4 h-4" /></Button></Link>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(ev.id)}><Trash2 className="w-4 h-4" /></Button>
             </div>
           </div>
         ))}
-        {filtered.length === 0 && (
-          <div className="text-center text-muted-foreground py-12">No events found</div>
-        )}
+        {filtered.length === 0 && <div className="text-center text-muted-foreground py-12">No events found</div>}
       </div>
     </div>
   );
