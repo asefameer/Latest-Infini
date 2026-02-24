@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Send } from 'lucide-react';
+import MagneticButton from '@/components/MagneticButton';
 
 interface NewsletterModuleProps {
   variant?: 'section' | 'inline';
@@ -33,13 +34,15 @@ const NewsletterModule = ({ variant = 'section' }: NewsletterModuleProps) => {
               required
               className="flex-1 md:w-64 rounded-full bg-muted/50 border border-border/40 px-5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
-            <button
-              type="submit"
-              className="rounded-full px-5 py-2.5 text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity flex items-center gap-2"
-            >
-              <Send className="w-4 h-4" />
-              Join
-            </button>
+            <MagneticButton strength={0.2}>
+              <button
+                type="submit"
+                className="rounded-full px-5 py-2.5 text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity flex items-center gap-2"
+              >
+                <Send className="w-4 h-4" />
+                Join
+              </button>
+            </MagneticButton>
           </form>
         )}
       </div>
@@ -47,8 +50,17 @@ const NewsletterModule = ({ variant = 'section' }: NewsletterModuleProps) => {
   }
 
   return (
-    <section className="py-20 px-6">
-      <div className="container mx-auto text-center max-w-xl">
+    <section
+      className="relative py-20 px-6 overflow-hidden"
+      style={{ background: 'hsl(var(--section-light))' }}
+    >
+      {/* Ambient glow */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full blur-[150px] opacity-10 pointer-events-none"
+        style={{ background: 'hsl(var(--infinity-pink))' }}
+      />
+
+      <div className="container mx-auto text-center max-w-xl relative z-10">
         <h3 className="font-display text-3xl md:text-4xl font-bold tracking-tight mb-4">Join the Movement</h3>
         <p className="text-muted-foreground mb-8">Be the first to know about new drops, exclusive events, and stories from the Infinity universe.</p>
         {submitted ? (
@@ -63,12 +75,14 @@ const NewsletterModule = ({ variant = 'section' }: NewsletterModuleProps) => {
               required
               className="flex-1 rounded-full bg-muted/50 border border-border/40 px-6 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
-            <button
-              type="submit"
-              className="rounded-full px-8 py-3 text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-            >
-              Subscribe
-            </button>
+            <MagneticButton strength={0.2}>
+              <button
+                type="submit"
+                className="rounded-full px-8 py-3 text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+              >
+                Subscribe
+              </button>
+            </MagneticButton>
           </form>
         )}
       </div>

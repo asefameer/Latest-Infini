@@ -3,9 +3,6 @@ import SplashScreen from "@/components/SplashScreen";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import TrinitySection from "@/components/TrinitySection";
-import GrainOverlay from "@/components/GrainOverlay";
-import SmoothScroll from "@/components/SmoothScroll";
-import GlobalSparkles from "@/components/GlobalSparkles";
 import DefineStyleSection from "@/components/DefineStyleSection";
 
 const Index = () => {
@@ -43,24 +40,22 @@ const Index = () => {
   };
 
   return (
-    <SmoothScroll>
-      <div className="min-h-screen">
-        <SplashScreen isVisible={showSplash} />
-        {!showSplash && (
-          <>
-            <Navbar activeSection={activeSection} onNavigate={handleNavigate} />
-            <HeroSection onNavigate={handleNavigate} />
-            <div
-              className="transition-colors duration-1000"
-              style={{ background: "hsl(var(--section-mid))" }}
-            >
-              <TrinitySection />
-            </div>
-            <DefineStyleSection />
-          </>
-        )}
-      </div>
-    </SmoothScroll>
+    <div className="min-h-screen">
+      <SplashScreen isVisible={showSplash} />
+      {!showSplash && (
+        <>
+          <Navbar activeSection={activeSection} onNavigate={handleNavigate} />
+          <HeroSection onNavigate={handleNavigate} />
+          <div
+            className="transition-colors duration-1000"
+            style={{ background: "hsl(var(--section-mid))" }}
+          >
+            <TrinitySection />
+          </div>
+          <DefineStyleSection />
+        </>
+      )}
+    </div>
   );
 };
 

@@ -30,7 +30,7 @@ const TrinityHub = () => {
       />
 
       {/* Brand Cards */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-6" style={{ background: 'hsl(var(--section-mid))' }}>
         <div className="container mx-auto">
           <ScrollReveal>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -46,6 +46,13 @@ const TrinityHub = () => {
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+                  {/* Hover glow */}
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(to top, hsl(var(--infinity-cyan) / 0.1), transparent 60%)',
+                    }}
+                  />
                   <div className="absolute bottom-0 left-0 right-0 p-8">
                     <h3 className="font-display text-2xl md:text-3xl font-bold mb-2">{brand.name}</h3>
                     <p className="text-muted-foreground text-sm mb-4">{brand.tagline}</p>
