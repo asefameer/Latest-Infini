@@ -4,6 +4,7 @@ import SEOHead from '@/components/SEOHead';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import ProductCard from '@/components/ProductCard';
 import EmptyState from '@/components/EmptyState';
+import ErrorState from '@/components/ErrorState';
 import SkeletonGrid from '@/components/SkeletonGrid';
 import { useCategories, useProducts } from '@/services/api/hooks';
 import { SlidersHorizontal, ChevronDown } from 'lucide-react';
@@ -13,7 +14,7 @@ type SortOption = 'featured' | 'newest' | 'price-asc' | 'price-desc';
 const CategoryPage = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>();
   const { data: categories = [] } = useCategories();
-  const { data: allProducts = [], isLoading } = useProducts();
+  const { data: allProducts = [], isLoading, isError, refetch } = useProducts();
   const category = categories.find(c => c.slug === categorySlug);
   const [sort, setSort] = useState<SortOption>('featured');
   const [showFilters, setShowFilters] = useState(false);
@@ -79,6 +80,8 @@ const CategoryPage = () => {
           <div className="flex-1">
             {isLoading ? (
               <SkeletonGrid count={8} type="product" />
+            ) : isError ? (
+              <ErrorState title="Couldn't load products" onRetry={() => refetch()} />
             ) : filtered.length === 0 ? (
               <EmptyState title="No products found" description="Try adjusting your filters or browse another category." actionLabel="View All" actionLink="/editions" />
             ) : (

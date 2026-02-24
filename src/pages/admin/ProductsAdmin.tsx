@@ -8,11 +8,12 @@ import { Plus, Search, Pencil, Trash2, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { useProducts, useDeleteProduct } from '@/services/api/hooks';
+import ErrorState from '@/components/ErrorState';
 
 const BRAND_LABELS: Record<string, string> = { nova: 'Nova', 'live-the-moment': 'Live the Moment', 'x-force': 'X-Force' };
 
 const ProductsAdmin = () => {
-  const { data: items = [], isLoading } = useProducts();
+  const { data: items = [], isLoading, isError, refetch } = useProducts();
   const deleteMutation = useDeleteProduct();
   const [search, setSearch] = useState('');
   const [brandFilter, setBrandFilter] = useState<string>('all');
@@ -31,6 +32,7 @@ const ProductsAdmin = () => {
   };
 
   if (isLoading) return <div className="text-muted-foreground py-12 text-center">Loading products…</div>;
+  if (isError) return <ErrorState title="Couldn't load products" onRetry={() => refetch()} />;
 
   return (
     <div>

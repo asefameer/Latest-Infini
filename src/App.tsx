@@ -42,7 +42,19 @@ import CRMMessaging from "./pages/admin/CRMMessaging";
 import CRMAnalytics from "./pages/admin/CRMAnalytics";
 import DiscountsAdmin from "./pages/admin/DiscountsAdmin";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+      staleTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <HelmetProvider>

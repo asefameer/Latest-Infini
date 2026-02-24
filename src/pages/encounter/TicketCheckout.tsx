@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import SEOHead from '@/components/SEOHead';
 import EmptyState from '@/components/EmptyState';
+import ErrorState from '@/components/ErrorState';
 import PromoCodeInput from '@/components/PromoCodeInput';
 import { useEvents } from '@/services/api/hooks';
 
@@ -9,12 +10,14 @@ const TicketCheckout = () => {
   const { eventId } = useParams<{ eventId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { data: events = [] } = useEvents();
+  const { data: events = [], isLoading, isError, refetch } = useEvents();
   const [form, setForm] = useState({ name: '', email: '', phone: '', paymentMethod: 'bkash' });
   const [appliedPromo, setAppliedPromo] = useState<{ code: string; type: 'percentage' | 'fixed'; value: number } | null>(null);
 
   const event = events.find(e => e.id === eventId);
 
+  if (isLoading) return <div className="text-muted-foreground py-20 text-center">Loading…</div>;
+  if (isError) return <ErrorState title="Couldn't load event data" onRetry={() => refetch()} />;
   if (!event) return <EmptyState title="Event Not Found" description="This event doesn't exist." actionLabel="Browse Events" actionLink="/encounter" />;
 
   let tierQty: Record<string, number> = {};

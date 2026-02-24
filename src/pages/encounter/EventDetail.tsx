@@ -3,16 +3,18 @@ import { useParams, Link } from 'react-router-dom';
 import SEOHead from '@/components/SEOHead';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import EmptyState from '@/components/EmptyState';
+import ErrorState from '@/components/ErrorState';
 import { useEventBySlug } from '@/services/api/hooks';
 import { Calendar, Clock, MapPin, Minus, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 
 const EventDetail = () => {
   const { eventSlug } = useParams<{ eventSlug: string }>();
-  const { data: event, isLoading } = useEventBySlug(eventSlug || '');
+  const { data: event, isLoading, isError, refetch } = useEventBySlug(eventSlug || '');
   const [tierQty, setTierQty] = useState<Record<string, number>>({});
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   if (isLoading) return <div className="text-muted-foreground py-20 text-center">Loading…</div>;
+  if (isError) return <ErrorState title="Couldn't load event" onRetry={() => refetch()} />;
   if (!event) return <EmptyState title="Event Not Found" description="This event doesn't exist." actionLabel="Browse Events" actionLink="/encounter" />;
 
   const totalTickets = Object.values(tierQty).reduce((s, q) => s + q, 0);

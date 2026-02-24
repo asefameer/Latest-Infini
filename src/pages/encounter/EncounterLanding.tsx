@@ -4,6 +4,7 @@ import HeroBlock from '@/components/blocks/HeroBlock';
 import EventCard from '@/components/EventCard';
 import SkeletonGrid from '@/components/SkeletonGrid';
 import EmptyState from '@/components/EmptyState';
+import ErrorState from '@/components/ErrorState';
 import ScrollReveal from '@/components/ScrollReveal';
 import { useEvents, useFeaturedEvents } from '@/services/api/hooks';
 import { ChevronDown, Calendar } from 'lucide-react';
@@ -11,7 +12,7 @@ import { Link } from 'react-router-dom';
 import MagneticButton from '@/components/MagneticButton';
 
 const EncounterLanding = () => {
-  const { data: allEvents = [], isLoading } = useEvents();
+  const { data: allEvents = [], isLoading, isError, refetch } = useEvents();
   const { data: featuredEvents = [] } = useFeaturedEvents();
   const featured = featuredEvents[0];
   const [sort, setSort] = useState<'upcoming' | 'newest'>('upcoming');
@@ -61,7 +62,7 @@ const EncounterLanding = () => {
             </div>
           </div>
           <ScrollReveal>
-            {isLoading ? <SkeletonGrid count={6} type="event" /> : filtered.length === 0 ? <EmptyState title="No events found" description="Try changing your filters or check back soon for new events." /> : (
+            {isLoading ? <SkeletonGrid count={6} type="event" /> : isError ? <ErrorState title="Couldn't load events" onRetry={() => refetch()} /> : filtered.length === 0 ? <EmptyState title="No events found" description="Try changing your filters or check back soon for new events." /> : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filtered.map(e => <EventCard key={e.id} event={e} />)}
               </div>

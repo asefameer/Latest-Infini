@@ -8,14 +8,15 @@ import EventCarousel from '@/components/blocks/EventCarousel';
 import NewsletterModule from '@/components/blocks/NewsletterModule';
 import ScrollReveal from '@/components/ScrollReveal';
 import { ArrowRight } from 'lucide-react';
-import { getBrandById, brands } from '@/data/brands';
+import { brands } from '@/data/brands';
 import { getProductsByBrand } from '@/data/products';
 import { getEventsByBrand } from '@/data/events';
 import EmptyState from '@/components/EmptyState';
+import ErrorState from '@/components/ErrorState';
 
 const BrandPage = () => {
   const { brandSlug } = useParams<{ brandSlug: string }>();
-  const brand = getBrandById(brandSlug || '');
+  const brand = brands.find(b => b.id === brandSlug);
 
   if (!brand) {
     return <EmptyState title="Brand Not Found" description="The brand you're looking for doesn't exist." actionLabel="Back to Trinity" actionLink="/the-trinity" />;

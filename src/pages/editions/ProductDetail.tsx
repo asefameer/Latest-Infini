@@ -4,6 +4,7 @@ import SEOHead from '@/components/SEOHead';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import ProductCarousel from '@/components/blocks/ProductCarousel';
 import EmptyState from '@/components/EmptyState';
+import ErrorState from '@/components/ErrorState';
 import ScrollReveal from '@/components/ScrollReveal';
 import { useCart } from '@/components/CartContext';
 import { useProductBySlug, useProducts } from '@/services/api/hooks';
@@ -11,7 +12,7 @@ import { Heart, Minus, Plus, ChevronDown, ChevronUp, Truck, RefreshCw } from 'lu
 
 const ProductDetail = () => {
   const { productSlug } = useParams<{ productSlug: string }>();
-  const { data: product, isLoading } = useProductBySlug(productSlug || '');
+  const { data: product, isLoading, isError, refetch } = useProductBySlug(productSlug || '');
   const { data: allProducts = [] } = useProducts();
   const { dispatch } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -20,6 +21,7 @@ const ProductDetail = () => {
   const [added, setAdded] = useState(false);
 
   if (isLoading) return <div className="text-muted-foreground py-20 text-center">Loading…</div>;
+  if (isError) return <ErrorState title="Couldn't load product" onRetry={() => refetch()} />;
   if (!product) return <EmptyState title="Product Not Found" description="The product you're looking for doesn't exist." actionLabel="Browse Editions" actionLink="/editions" />;
 
   const handleAddToCart = () => {

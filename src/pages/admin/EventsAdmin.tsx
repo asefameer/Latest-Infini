@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useEvents, useDeleteEvent } from '@/services/api/hooks';
+import ErrorState from '@/components/ErrorState';
 import type { Event } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,7 @@ import { toast } from 'sonner';
 const BRAND_LABELS: Record<string, string> = { nova: 'Nova', 'live-the-moment': 'Live the Moment', 'x-force': 'X-Force' };
 
 const EventsAdmin = () => {
-  const { data: items = [], isLoading } = useEvents();
+  const { data: items = [], isLoading, isError, refetch } = useEvents();
   const deleteMutation = useDeleteEvent();
   const [search, setSearch] = useState('');
 
@@ -28,6 +29,7 @@ const EventsAdmin = () => {
   const totalTickets = (e: Event) => e.ticketTiers.reduce((s, t) => s + t.remaining, 0);
 
   if (isLoading) return <div className="text-muted-foreground py-12 text-center">Loading events…</div>;
+  if (isError) return <ErrorState title="Couldn't load events" onRetry={() => refetch()} />;
 
   return (
     <div>
