@@ -1,17 +1,19 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { products as initialProducts } from '@/data/products';
 import type { Product } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Pencil, Trash2, Filter } from 'lucide-react';
 import { toast } from 'sonner';
+import { useState } from 'react';
+import { useProducts, useDeleteProduct } from '@/services/api/hooks';
 
 const BRAND_LABELS: Record<string, string> = { nova: 'Nova', 'live-the-moment': 'Live the Moment', 'x-force': 'X-Force' };
 
 const ProductsAdmin = () => {
-  const [items, setItems] = useState<Product[]>(initialProducts);
+  const { data: items = [], isLoading } = useProducts();
+  const deleteMutation = useDeleteProduct();
   const [search, setSearch] = useState('');
   const [brandFilter, setBrandFilter] = useState<string>('all');
 
@@ -25,9 +27,10 @@ const ProductsAdmin = () => {
 
   const handleDelete = (id: string) => {
     if (!window.confirm('Delete this product?')) return;
-    setItems(prev => prev.filter(p => p.id !== id));
-    toast.success('Product deleted');
+    deleteMutation.mutate(id, { onSuccess: () => toast.success('Product deleted') });
   };
+
+  if (isLoading) return <div className="text-muted-foreground py-12 text-center">Loading products…</div>;
 
   return (
     <div>
@@ -38,7 +41,6 @@ const ProductsAdmin = () => {
         </Link>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-4">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -60,7 +62,6 @@ const ProductsAdmin = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -88,24 +89,16 @@ const ProductsAdmin = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <Badge variant="outline" className="text-xs">{BRAND_LABELS[p.brand]}</Badge>
-                  </td>
+                  <td className="px-4 py-3"><Badge variant="outline" className="text-xs">{BRAND_LABELS[p.brand]}</Badge></td>
                   <td className="px-4 py-3 text-muted-foreground capitalize">{p.category}</td>
                   <td className="px-4 py-3 text-right font-mono text-foreground">৳{p.price.toLocaleString()}</td>
                   <td className="px-4 py-3 text-center">
-                    <Badge variant={p.inStock ? 'default' : 'destructive'} className="text-xs">
-                      {p.inStock ? 'In Stock' : 'Out'}
-                    </Badge>
+                    <Badge variant={p.inStock ? 'default' : 'destructive'} className="text-xs">{p.inStock ? 'In Stock' : 'Out'}</Badge>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link to={`/admin/products/${p.id}`}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8"><Pencil className="w-4 h-4" /></Button>
-                      </Link>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(p.id)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <Link to={`/admin/products/${p.id}`}><Button variant="ghost" size="icon" className="h-8 w-8"><Pencil className="w-4 h-4" /></Button></Link>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(p.id)}><Trash2 className="w-4 h-4" /></Button>
                     </div>
                   </td>
                 </tr>
