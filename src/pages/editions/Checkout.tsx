@@ -2,24 +2,22 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SEOHead from '@/components/SEOHead';
 import { useCart } from '@/components/CartContext';
+import { useCreateOrder } from '@/services/api/hooks';
 import PromoCodeInput from '@/components/PromoCodeInput';
-import { Check } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import type { Order, OrderLineItem } from '@/types';
 
 const steps = ['Info', 'Shipping', 'Payment', 'Review'];
 
 const Checkout = () => {
   const { state, subtotal, total, dispatch } = useCart();
   const navigate = useNavigate();
+  const createOrder = useCreateOrder();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({ name: '', email: '', phone: '', line1: '', line2: '', city: '', district: '', postalCode: '', paymentMethod: 'bkash' });
 
   const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
-
-  const handlePlaceOrder = () => {
-    const orderId = `ORD-${Date.now()}`;
-    dispatch({ type: 'CLEAR_CART' });
-    navigate(`/order/confirmed/${orderId}`);
-  };
 
   const [appliedPromo, setAppliedPromo] = useState<{ code: string; type: 'percentage' | 'fixed'; value: number } | null>(
     state.discount > 0 && state.promoCode ? { code: state.promoCode, type: 'percentage', value: state.discount } : null
@@ -30,7 +28,8 @@ const Checkout = () => {
       ? Math.round(subtotal * (appliedPromo.value / 100))
       : Math.min(appliedPromo.value, subtotal)
     : 0;
-  const finalTotal = subtotal - promoDiscount;
+  const shippingCost = subtotal >= 5000 ? 0 : 150;
+  const finalTotal = subtotal - promoDiscount + shippingCost;
 
   const handleApplyPromo = (promo: { code: string; type: 'percentage' | 'fixed'; value: number }) => {
     setAppliedPromo(promo);
@@ -40,6 +39,59 @@ const Checkout = () => {
   const handleRemovePromo = () => {
     setAppliedPromo(null);
     dispatch({ type: 'APPLY_PROMO', code: '' });
+  };
+
+  const handlePlaceOrder = () => {
+    const now = new Date().toISOString();
+    const items: OrderLineItem[] = state.items.map(item => ({
+      productId: item.productId,
+      productName: item.product.name,
+      productSlug: item.product.slug,
+      quantity: item.quantity,
+      price: item.product.price,
+      selectedVariants: item.selectedVariants,
+      image: item.product.images?.[0] || '/placeholder.svg',
+    }));
+
+    const orderData: Partial<Order> = {
+      id: `ORD-${Date.now()}`,
+      customerEmail: form.email,
+      customerName: form.name,
+      status: 'processing',
+      paymentMethod: form.paymentMethod === 'card' ? 'stripe' : 'bkash' as Order['paymentMethod'],
+      paymentStatus: form.paymentMethod === 'cod' ? 'pending' : 'paid',
+      subtotal,
+      discount: promoDiscount,
+      shippingCost,
+      total: finalTotal,
+      currency: 'BDT',
+      promoCode: appliedPromo?.code,
+      items,
+      shippingAddress: {
+        id: `addr-${Date.now()}`,
+        label: 'Checkout',
+        fullName: form.name,
+        phone: form.phone,
+        line1: form.line1,
+        line2: form.line2,
+        city: form.city,
+        district: form.district,
+        postalCode: form.postalCode,
+      },
+      notes: '',
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    createOrder.mutate(orderData, {
+      onSuccess: (order) => {
+        dispatch({ type: 'CLEAR_CART' });
+        navigate(`/order/confirmed/${order.id}`);
+      },
+      onError: () => {
+        toast.error('Failed to place order. Please try again.');
+      },
+    });
   };
 
   return (
@@ -125,6 +177,7 @@ const Checkout = () => {
                       <span>-৳{promoDiscount.toLocaleString()}</span>
                     </div>
                   )}
+                  <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{shippingCost === 0 ? 'Free' : `৳${shippingCost}`}</span></div>
                   <div className="flex justify-between font-semibold text-base pt-1"><span>Total</span><span>৳{finalTotal.toLocaleString()}</span></div>
                 </div>
                 <PromoCodeInput
@@ -139,7 +192,14 @@ const Checkout = () => {
                 <p><strong className="text-foreground">Ship to:</strong> {form.line1}, {form.city}</p>
                 <p><strong className="text-foreground">Payment:</strong> {form.paymentMethod}</p>
               </div>
-              <button onClick={handlePlaceOrder} className="w-full rounded-full py-3 text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity">Place Order</button>
+              <button
+                onClick={handlePlaceOrder}
+                disabled={createOrder.isPending}
+                className="w-full rounded-full py-3 text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {createOrder.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                {createOrder.isPending ? 'Placing Order…' : 'Place Order'}
+              </button>
             </div>
           )}
         </div>
