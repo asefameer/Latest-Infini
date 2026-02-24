@@ -180,3 +180,20 @@ INSERT INTO PushNotifications (id, title, body, status, segment, scheduledAt, se
 ('pn1','Flash Sale Live!','50% off selected items for the next 4 hours.','sent','all',NULL,'2026-02-20',5200),
 ('pn2','Your tickets are ready','Download your LTM Paris tickets now.','sent','event-goer',NULL,'2026-02-21',310),
 ('pn3','New X-Force arrivals','Check out the latest X-Force collection.','scheduled','xforce-fan','2026-03-05',NULL,1800);
+
+-- Orders
+INSERT INTO Orders (id, customerId, customerEmail, customerName, status, paymentMethod, paymentStatus, subtotal, discount, shippingCost, total, currency, promoCode, items, shippingAddress, notes, createdAt, updatedAt) VALUES
+('ORD-2026-0001','c1','aya@example.com','Aya Nakamura','delivered','stripe','paid',6700,0,150,6850,'BDT',NULL,
+ '[{"productId":"p-1","productName":"Eclipse Hoodie","productSlug":"nova-eclipse-hoodie","quantity":1,"price":4500,"selectedVariants":{"Size":"M","Color":"Obsidian"},"image":"/placeholder.svg"},{"productId":"p-2","productName":"Phantom Tee","productSlug":"nova-phantom-tee","quantity":1,"price":2200,"selectedVariants":{"Size":"M","Color":"Black"},"image":"/placeholder.svg"}]',
+ '{"id":"a1","label":"Home","fullName":"Aya Nakamura","phone":"+33 6 12 34 56 78","line1":"12 Rue de Rivoli","city":"Paris","district":"Île-de-France","postalCode":"75001"}',
+ '','2026-02-10T14:30:00Z','2026-02-15T09:00:00Z'),
+
+('ORD-2026-0045','c2','marcus@example.com','Marcus Chen','processing','stripe','paid',3800,0,150,3950,'BDT',NULL,
+ '[{"productId":"p-4","productName":"Titan Joggers","productSlug":"xforce-titan-joggers","quantity":1,"price":3800,"selectedVariants":{"Size":"L","Color":"Black"},"image":"/placeholder.svg"}]',
+ '{"id":"a2","label":"Home","fullName":"Marcus Chen","phone":"+1 555 234 5678","line1":"450 Broadway","city":"New York","district":"NY","postalCode":"10013"}',
+ '','2026-02-22T09:15:00Z','2026-02-22T09:15:00Z'),
+
+('ORD-2026-0052','c5','sofia@example.com','Sofia Reyes','shipped','bkash','paid',12000,2400,0,9600,'BDT','NOVA20',
+ '[{"productId":"p-11","productName":"DROP-001 Jacket","productSlug":"xforce-drop-001","quantity":1,"price":12000,"selectedVariants":{"Size":"M"},"image":"/placeholder.svg"}]',
+ '{"id":"a3","label":"Home","fullName":"Sofia Reyes","phone":"+34 612 345 678","line1":"Calle Gran Vía 28","city":"Madrid","district":"Madrid","postalCode":"28013"}',
+ 'VIP customer — expedite shipping','2026-02-23T16:00:00Z','2026-02-24T10:30:00Z');

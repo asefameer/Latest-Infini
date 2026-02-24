@@ -178,3 +178,30 @@ CREATE TABLE KBArticles (
 );
 
 CREATE INDEX IX_KBArticles_category ON KBArticles (category);
+
+-- Orders
+CREATE TABLE Orders (
+  id              NVARCHAR(50)   PRIMARY KEY,
+  customerId      NVARCHAR(50)   NULL,
+  customerEmail   NVARCHAR(255)  NOT NULL,
+  customerName    NVARCHAR(200)  NOT NULL,
+  status          NVARCHAR(20)   NOT NULL DEFAULT 'processing', -- 'processing' | 'shipped' | 'delivered' | 'cancelled'
+  paymentMethod   NVARCHAR(50)   NOT NULL DEFAULT 'stripe',     -- 'stripe' | 'bkash'
+  paymentStatus   NVARCHAR(20)   NOT NULL DEFAULT 'pending',    -- 'pending' | 'paid' | 'refunded'
+  subtotal        INT            NOT NULL DEFAULT 0,
+  discount        INT            NOT NULL DEFAULT 0,
+  shippingCost    INT            NOT NULL DEFAULT 0,
+  total           INT            NOT NULL DEFAULT 0,
+  currency        NVARCHAR(5)    NOT NULL DEFAULT 'BDT',
+  promoCode       NVARCHAR(50)   NULL,
+  items           NVARCHAR(MAX)  NOT NULL DEFAULT '[]',          -- JSON array of line items
+  shippingAddress NVARCHAR(MAX)  NOT NULL DEFAULT '{}',          -- JSON object
+  notes           NVARCHAR(MAX)  NOT NULL DEFAULT '',
+  createdAt       NVARCHAR(30)   NOT NULL,
+  updatedAt       NVARCHAR(30)   NOT NULL
+);
+
+CREATE INDEX IX_Orders_customerId ON Orders (customerId);
+CREATE INDEX IX_Orders_customerEmail ON Orders (customerEmail);
+CREATE INDEX IX_Orders_status ON Orders (status);
+CREATE INDEX IX_Orders_createdAt ON Orders (createdAt DESC);

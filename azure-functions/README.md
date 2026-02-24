@@ -89,3 +89,9 @@ Public GET endpoints (products, events, categories, brands, discount code valida
 | POST | `/api/crm/kb-articles` | Create article |
 | PUT | `/api/crm/kb-articles/{id}` | Update article |
 | DELETE | `/api/crm/kb-articles/{id}` | Delete article |
+| GET | `/api/orders` | List orders (?status, ?customerId, ?email) 🔒 |
+| GET | `/api/orders/{id}` | Get order by ID 🔒 |
+| POST | `/api/orders` | Create order (from checkout) |
+| PUT | `/api/orders/{id}` | Update order 🔒 |
+| PUT | `/api/orders/{id}/cancel` | Cancel order (customer) |
+| GET | `/api/orders/customer/{email}` | Get orders by customer email |

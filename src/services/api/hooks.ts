@@ -4,8 +4,8 @@
  * Both admin and customer-facing pages use these hooks.
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { productsApi, eventsApi, categoriesApi, brandsApi, discountsApi, bannersApi, crmApi } from './index';
-import type { Product, Event } from '@/types';
+import { productsApi, eventsApi, categoriesApi, brandsApi, discountsApi, bannersApi, crmApi, ordersApi } from './index';
+import type { Product, Event, Order } from '@/types';
 import type { Discount } from '@/pages/admin/DiscountsAdmin';
 
 // ── Products ──
@@ -81,3 +81,21 @@ export const useConversations = () => useQuery({ queryKey: ['crm', 'conversation
 export const useEmailCampaigns = () => useQuery({ queryKey: ['crm', 'email-campaigns'], queryFn: crmApi.emailCampaigns.getAll });
 export const usePushNotifications = () => useQuery({ queryKey: ['crm', 'push-notifications'], queryFn: crmApi.pushNotifications.getAll });
 export const useKBArticles = () => useQuery({ queryKey: ['crm', 'kb-articles'], queryFn: crmApi.kbArticles.getAll });
+
+// ── Orders ──
+export const useOrders = () => useQuery({ queryKey: ['orders'], queryFn: ordersApi.getAll });
+export const useOrder = (id: string) => useQuery({ queryKey: ['orders', id], queryFn: () => ordersApi.getById(id), enabled: !!id });
+export const useOrdersByEmail = (email: string) => useQuery({ queryKey: ['orders', 'email', email], queryFn: () => ordersApi.getByEmail(email), enabled: !!email });
+
+export const useCreateOrder = () => {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (order: Partial<Order>) => ordersApi.create(order), onSuccess: () => qc.invalidateQueries({ queryKey: ['orders'] }) });
+};
+export const useUpdateOrder = () => {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: ({ id, data }: { id: string; data: Partial<Order> }) => ordersApi.update(id, data), onSuccess: () => qc.invalidateQueries({ queryKey: ['orders'] }) });
+};
+export const useCancelOrder = () => {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (id: string) => ordersApi.cancel(id), onSuccess: () => qc.invalidateQueries({ queryKey: ['orders'] }) });
+};

@@ -69,15 +69,35 @@ export interface CartItem {
   selectedVariants: Record<string, string>;
 }
 
+export interface OrderLineItem {
+  productId: string;
+  productName: string;
+  productSlug: string;
+  quantity: number;
+  price: number;
+  selectedVariants: Record<string, string>;
+  image?: string;
+}
+
 export interface Order {
   id: string;
-  items: CartItem[];
+  customerId?: string;
+  customerEmail: string;
+  customerName: string;
+  status: 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  paymentMethod: 'stripe' | 'bkash';
+  paymentStatus: 'pending' | 'paid' | 'refunded';
   subtotal: number;
   discount: number;
+  shippingCost: number;
   total: number;
-  status: 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  createdAt: string;
+  currency: string;
+  promoCode?: string;
+  items: OrderLineItem[];
   shippingAddress: Address;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface TicketOrder {

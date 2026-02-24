@@ -19,9 +19,10 @@ import {
   productStore, eventStore, categoryStore, brandStore,
   discountStore, bannerStore, customerStore, conversationStore,
   emailCampaignStore, pushNotificationStore, kbArticleStore,
+  orderStore,
   subscribe,
 } from './mock-store';
-import type { Product, Event, Category, BrandContent } from '@/types';
+import type { Product, Event, Category, BrandContent, Order } from '@/types';
 import type { Discount } from '@/pages/admin/DiscountsAdmin';
 import type { Banner } from './mock-store';
 
@@ -139,6 +140,27 @@ export const crmApi = {
     create: async (a: any) => useMock ? kbArticleStore.create(a) : httpClient.post('/crm/kb-articles', a),
     update: async (id: string, d: any) => useMock ? kbArticleStore.update(id, d) : httpClient.put(`/crm/kb-articles/${id}`, d),
     delete: async (id: string) => useMock ? kbArticleStore.delete(id) : httpClient.delete(`/crm/kb-articles/${id}`),
+  },
+};
+
+// ── Orders ──
+export const ordersApi = {
+  getAll: async (): Promise<Order[]> =>
+    useMock ? orderStore.getAll() : httpClient.get('/orders'),
+  getById: async (id: string): Promise<Order | null> =>
+    useMock ? orderStore.getById(id) : httpClient.get(`/orders/${id}`),
+  getByEmail: async (email: string): Promise<Order[]> =>
+    useMock ? orderStore.getByEmail(email) : httpClient.get(`/orders/customer/${encodeURIComponent(email)}`),
+  create: async (order: Partial<Order>): Promise<Order> =>
+    useMock ? orderStore.create(order as Order) : httpClient.post('/orders', order),
+  update: async (id: string, data: Partial<Order>): Promise<Order> =>
+    useMock ? orderStore.update(id, data) : httpClient.put(`/orders/${id}`, data),
+  cancel: async (id: string): Promise<{ id: string; status: string }> => {
+    if (useMock) {
+      orderStore.update(id, { status: 'cancelled', updatedAt: new Date().toISOString() });
+      return { id, status: 'cancelled' };
+    }
+    return httpClient.put(`/orders/${id}/cancel`, {});
   },
 };
 

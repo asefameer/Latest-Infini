@@ -6,7 +6,7 @@
  * 1. The API service methods will call httpClient instead of this store.
  * 2. This file becomes unused and can be removed.
  */
-import type { Product, Event, Category, BrandContent } from '@/types';
+import type { Product, Event, Category, BrandContent, Order } from '@/types';
 import type { Discount } from '@/pages/admin/DiscountsAdmin';
 import type { Customer, ChatConversation, EmailCampaign, PushNotification, KBArticle } from '@/data/crm-mock';
 
@@ -119,3 +119,44 @@ export const conversationStore = crud(() => _conversations, v => { _conversation
 export const emailCampaignStore = crud(() => _emailCampaigns, v => { _emailCampaigns = v; });
 export const pushNotificationStore = crud(() => _pushNotifications, v => { _pushNotifications = v; });
 export const kbArticleStore = crud(() => _kbArticles, v => { _kbArticles = v; });
+
+// ── Orders ──
+let _orders: Order[] = [
+  {
+    id: 'ORD-2026-0001', customerId: 'c1', customerEmail: 'aya@example.com', customerName: 'Aya Nakamura',
+    status: 'delivered', paymentMethod: 'stripe', paymentStatus: 'paid',
+    subtotal: 6700, discount: 0, shippingCost: 150, total: 6850, currency: 'BDT',
+    items: [
+      { productId: 'p-1', productName: 'Eclipse Hoodie', productSlug: 'nova-eclipse-hoodie', quantity: 1, price: 4500, selectedVariants: { Size: 'M', Color: 'Obsidian' }, image: '/placeholder.svg' },
+      { productId: 'p-2', productName: 'Phantom Tee', productSlug: 'nova-phantom-tee', quantity: 1, price: 2200, selectedVariants: { Size: 'M', Color: 'Black' }, image: '/placeholder.svg' },
+    ],
+    shippingAddress: { id: 'a1', label: 'Home', fullName: 'Aya Nakamura', phone: '+33 6 12 34 56 78', line1: '12 Rue de Rivoli', city: 'Paris', district: 'Île-de-France', postalCode: '75001' },
+    notes: '', createdAt: '2026-02-10T14:30:00Z', updatedAt: '2026-02-15T09:00:00Z',
+  },
+  {
+    id: 'ORD-2026-0045', customerId: 'c2', customerEmail: 'marcus@example.com', customerName: 'Marcus Chen',
+    status: 'processing', paymentMethod: 'stripe', paymentStatus: 'paid',
+    subtotal: 3800, discount: 0, shippingCost: 150, total: 3950, currency: 'BDT',
+    items: [
+      { productId: 'p-4', productName: 'Titan Joggers', productSlug: 'xforce-titan-joggers', quantity: 1, price: 3800, selectedVariants: { Size: 'L', Color: 'Black' }, image: '/placeholder.svg' },
+    ],
+    shippingAddress: { id: 'a2', label: 'Home', fullName: 'Marcus Chen', phone: '+1 555 234 5678', line1: '450 Broadway', city: 'New York', district: 'NY', postalCode: '10013' },
+    notes: '', createdAt: '2026-02-22T09:15:00Z', updatedAt: '2026-02-22T09:15:00Z',
+  },
+  {
+    id: 'ORD-2026-0052', customerId: 'c5', customerEmail: 'sofia@example.com', customerName: 'Sofia Reyes',
+    status: 'shipped', paymentMethod: 'bkash', paymentStatus: 'paid',
+    subtotal: 12000, discount: 2400, shippingCost: 0, total: 9600, currency: 'BDT', promoCode: 'NOVA20',
+    items: [
+      { productId: 'p-11', productName: 'DROP-001 Jacket', productSlug: 'xforce-drop-001', quantity: 1, price: 12000, selectedVariants: { Size: 'M' }, image: '/placeholder.svg' },
+    ],
+    shippingAddress: { id: 'a3', label: 'Home', fullName: 'Sofia Reyes', phone: '+34 612 345 678', line1: 'Calle Gran Vía 28', city: 'Madrid', district: 'Madrid', postalCode: '28013' },
+    notes: 'VIP customer — expedite shipping', createdAt: '2026-02-23T16:00:00Z', updatedAt: '2026-02-24T10:30:00Z',
+  },
+];
+
+export const orderStore = {
+  ...crud(() => _orders, v => { _orders = v; }),
+  getByEmail: (email: string) => _orders.filter(o => o.customerEmail === email),
+  getByCustomerId: (id: string) => _orders.filter(o => o.customerId === id),
+};
