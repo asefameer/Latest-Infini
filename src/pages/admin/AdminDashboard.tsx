@@ -1,4 +1,4 @@
-import { ShoppingBag, CalendarDays, Image, TrendingUp, UserPlus, MessageCircle, CreditCard, ArrowRight } from 'lucide-react';
+import { ShoppingBag, CalendarDays, Image, TrendingUp, UserPlus, MessageCircle, CreditCard, ArrowRight, Activity, Eye, Users, UserCheck } from 'lucide-react';
 import { products } from '@/data/products';
 import { events } from '@/data/events';
 import { Link } from 'react-router-dom';
@@ -10,6 +10,13 @@ const stats = [
   { label: 'Events', value: events.length, icon: CalendarDays, href: '/admin/events', color: 'from-secondary to-secondary/60' },
   { label: 'Banners', value: 3, icon: Image, href: '/admin/banners', color: 'from-[hsl(var(--infinity-pink))] to-[hsl(var(--infinity-pink))]/60' },
   { label: 'Trending', value: products.filter(p => p.isTrending).length, icon: TrendingUp, href: '/admin/products', color: 'from-primary to-secondary' },
+];
+
+const trafficMetrics = [
+  { label: 'DAU', description: 'Daily Active Users', value: '1,247', delta: '+8.3%', icon: Activity, color: 'bg-primary/10 text-primary' },
+  { label: 'MAU', description: 'Monthly Active Users', value: '18,420', delta: '+12.1%', icon: Users, color: 'bg-secondary/10 text-secondary' },
+  { label: 'Page Views', description: 'Today', value: '9,832', delta: '+5.6%', icon: Eye, color: 'bg-accent text-accent-foreground' },
+  { label: 'Unique Visitors', description: 'Today', value: '3,614', delta: '+3.9%', icon: UserCheck, color: 'bg-primary/10 text-primary' },
 ];
 
 type ActivityType = 'order' | 'signup' | 'chat';
@@ -73,7 +80,7 @@ const AdminDashboard = () => {
     <div>
       <h1 className="text-2xl font-display font-bold text-foreground mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {stats.map(s => (
           <Link
             key={s.label}
@@ -86,6 +93,22 @@ const AdminDashboard = () => {
             <p className="text-2xl font-bold text-foreground">{s.value}</p>
             <p className="text-sm text-muted-foreground">{s.label}</p>
           </Link>
+        ))}
+      </div>
+
+      {/* Traffic & Engagement Metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {trafficMetrics.map(m => (
+          <div key={m.label} className="bg-card border border-border rounded-xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', m.color)}>
+                <m.icon className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-medium text-primary">{m.delta}</span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{m.value}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{m.description}</p>
+          </div>
         ))}
       </div>
 
