@@ -39,6 +39,7 @@ import BannersAdmin from "./pages/admin/BannersAdmin";
 import CRMCustomers from "./pages/admin/CRMCustomers";
 import CRMChatbot from "./pages/admin/CRMChatbot";
 import CRMMessaging from "./pages/admin/CRMMessaging";
+import CRMAnalytics from "./pages/admin/CRMAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +87,7 @@ const App = () => (
                   <Route path="crm/customers" element={<CRMCustomers />} />
                   <Route path="crm/chatbot" element={<CRMChatbot />} />
                   <Route path="crm/messaging" element={<CRMMessaging />} />
+                  <Route path="crm/analytics" element={<CRMAnalytics />} />
                 </Route>
               </Routes>
             </BrowserRouter>

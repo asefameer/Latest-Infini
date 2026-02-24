@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation, Link } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import {
   LayoutDashboard, ShoppingBag, CalendarDays, Image, LogOut, ChevronLeft, Menu,
-  Users, MessageCircle, Mail,
+  Users, MessageCircle, Mail, BarChart3,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ const navItems = [
   { label: 'Customers', icon: Users, path: '/admin/crm/customers' },
   { label: 'Chatbot', icon: MessageCircle, path: '/admin/crm/chatbot' },
   { label: 'Messaging', icon: Mail, path: '/admin/crm/messaging' },
+  { label: 'Analytics', icon: BarChart3, path: '/admin/crm/analytics' },
 ];
 
 const AdminLayout = () => {
