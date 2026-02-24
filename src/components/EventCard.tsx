@@ -12,11 +12,26 @@ const EventCard = ({ event }: { event: Event }) => {
           <img
             src={event.bannerImage}
             alt={event.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
           />
+          {/* Hover glow */}
+          <div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to top, hsl(var(--infinity-purple) / 0.12), transparent 50%)',
+            }}
+          />
           {event.isFeatured && (
-            <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-medium">Featured</span>
+            <span
+              className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-medium"
+              style={{
+                background: 'linear-gradient(135deg, hsl(var(--infinity-purple)), hsl(var(--infinity-pink)))',
+                color: 'hsl(var(--secondary-foreground))',
+              }}
+            >
+              Featured
+            </span>
           )}
         </div>
         <div>

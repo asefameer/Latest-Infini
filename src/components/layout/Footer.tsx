@@ -3,7 +3,7 @@ import { Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
 import NewsletterModule from '@/components/blocks/NewsletterModule';
 
 const Footer = () => (
-  <footer className="border-t border-border/30 bg-background">
+  <footer className="border-t border-border/30" style={{ background: 'hsl(var(--section-mid))' }}>
     <div className="container mx-auto px-6 py-16">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
         {/* Brand */}
@@ -14,7 +14,12 @@ const Footer = () => (
           </p>
           <div className="flex items-center gap-4 mt-6">
             {[Instagram, Facebook, Twitter, Youtube].map((Icon, i) => (
-              <a key={i} href="#" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Social link">
+              <a
+                key={i}
+                href="#"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Social link"
+              >
                 <Icon className="w-5 h-5" />
               </a>
             ))}
