@@ -162,23 +162,27 @@ const UnifiedHeroCanvas = ({
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
 
-      // Pass 1: Outer soft glow
+      // Pass 1: Wide colored stroke
       ctx.save();
-      ctx.globalAlpha = 0.4;
-      ctx.shadowColor = `hsl(${hue1}, 80%, 60%)`;
-      ctx.shadowBlur = 40;
+      ctx.globalAlpha = 0.35;
       ctx.strokeStyle = grad;
-      ctx.lineWidth = 15;
+      ctx.lineWidth = 12;
       strokePath(pts);
       ctx.restore();
 
-      // Pass 2: Inner core + tight glow
+      // Pass 2: Medium bright stroke
       ctx.save();
-      ctx.globalAlpha = 0.9;
-      ctx.shadowColor = `hsl(${hue3}, 90%, 70%)`;
-      ctx.shadowBlur = 10;
+      ctx.globalAlpha = 0.7;
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 5;
+      strokePath(pts);
+      ctx.restore();
+
+      // Pass 3: Sharp bright core
+      ctx.save();
+      ctx.globalAlpha = 1;
       ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2;
       strokePath(pts);
       ctx.restore();
 
@@ -261,9 +265,7 @@ const UnifiedHeroCanvas = ({
           const alpha = 0.4 + Math.sin(t * 2 + p.pathAngle * 3) * 0.3;
           ctx.save();
           ctx.globalAlpha = alpha;
-          ctx.fillStyle = `hsl(${p.hue}, 90%, 70%)`;
-          ctx.shadowColor = `hsl(${p.hue}, 90%, 70%)`;
-          ctx.shadowBlur = 12; // Nice glow
+          ctx.fillStyle = `hsl(${p.hue}, 95%, 75%)`;
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
           ctx.fill();
@@ -294,10 +296,8 @@ const UnifiedHeroCanvas = ({
           if (p.y > h) p.y = 0;
 
           ctx.save();
-          ctx.globalAlpha = 0.3 + p.life * 0.4;
-          ctx.fillStyle = `hsl(${p.hue}, 80%, 65%)`;
-          ctx.shadowColor = `hsl(${p.hue}, 80%, 65%)`;
-          ctx.shadowBlur = 8;
+          ctx.globalAlpha = 0.4 + p.life * 0.5;
+          ctx.fillStyle = `hsl(${p.hue}, 90%, 72%)`;
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
           ctx.fill();
