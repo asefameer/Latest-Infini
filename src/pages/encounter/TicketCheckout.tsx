@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import SEOHead from '@/components/SEOHead';
 import EmptyState from '@/components/EmptyState';
+import PromoCodeInput from '@/components/PromoCodeInput';
 import { useEvents } from '@/services/api/hooks';
 
 const TicketCheckout = () => {
@@ -9,8 +10,10 @@ const TicketCheckout = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { data: events = [] } = useEvents();
-  const event = events.find(e => e.id === eventId);
   const [form, setForm] = useState({ name: '', email: '', phone: '', paymentMethod: 'bkash' });
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; type: 'percentage' | 'fixed'; value: number } | null>(null);
+
+  const event = events.find(e => e.id === eventId);
 
   if (!event) return <EmptyState title="Event Not Found" description="This event doesn't exist." actionLabel="Browse Events" actionLink="/encounter" />;
 
@@ -18,7 +21,14 @@ const TicketCheckout = () => {
   try { tierQty = JSON.parse(searchParams.get('tiers') || '{}'); } catch {}
 
   const selections = event.ticketTiers.filter(t => tierQty[t.id] > 0).map(t => ({ ...t, qty: tierQty[t.id] }));
-  const total = selections.reduce((s, t) => s + t.price * t.qty, 0);
+  const subtotal = selections.reduce((s, t) => s + t.price * t.qty, 0);
+
+  const promoDiscount = appliedPromo
+    ? appliedPromo.type === 'percentage'
+      ? Math.round(subtotal * (appliedPromo.value / 100))
+      : Math.min(appliedPromo.value, subtotal)
+    : 0;
+  const total = subtotal - promoDiscount;
 
   const handleConfirm = () => { navigate(`/encounter/confirmed/TKT-${Date.now()}`); };
 
@@ -30,7 +40,23 @@ const TicketCheckout = () => {
         <p className="text-muted-foreground text-sm mb-8">{event.title}</p>
         <div className="p-4 rounded-xl border border-border/30 bg-card/50 mb-8 space-y-2">
           {selections.map(s => <div key={s.id} className="flex justify-between text-sm"><span>{s.name} × {s.qty}</span><span>৳{(s.price * s.qty).toLocaleString()}</span></div>)}
-          <div className="border-t border-border/30 pt-2 flex justify-between font-semibold"><span>Total</span><span>৳{total.toLocaleString()}</span></div>
+          <div className="border-t border-border/30 pt-2 space-y-1">
+            <div className="flex justify-between text-sm"><span className="text-muted-foreground">Subtotal</span><span>৳{subtotal.toLocaleString()}</span></div>
+            {promoDiscount > 0 && (
+              <div className="flex justify-between text-sm text-primary">
+                <span>Discount ({appliedPromo!.type === 'percentage' ? `${appliedPromo!.value}%` : `৳${appliedPromo!.value}`})</span>
+                <span>-৳{promoDiscount.toLocaleString()}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-semibold"><span>Total</span><span>৳{total.toLocaleString()}</span></div>
+          </div>
+          <PromoCodeInput
+            appliesTo="tickets"
+            subtotal={subtotal}
+            onApply={setAppliedPromo}
+            onRemove={() => setAppliedPromo(null)}
+            appliedCode={appliedPromo?.code}
+          />
         </div>
         <div className="space-y-4">
           <h2 className="font-display font-semibold text-lg">Buyer Information</h2>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SEOHead from '@/components/SEOHead';
 import { useCart } from '@/components/CartContext';
+import PromoCodeInput from '@/components/PromoCodeInput';
 import { Check } from 'lucide-react';
 
 const steps = ['Info', 'Shipping', 'Payment', 'Review'];
@@ -20,7 +21,26 @@ const Checkout = () => {
     navigate(`/order/confirmed/${orderId}`);
   };
 
-  const discountAmount = Math.round(subtotal * (state.discount / 100));
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; type: 'percentage' | 'fixed'; value: number } | null>(
+    state.discount > 0 && state.promoCode ? { code: state.promoCode, type: 'percentage', value: state.discount } : null
+  );
+
+  const promoDiscount = appliedPromo
+    ? appliedPromo.type === 'percentage'
+      ? Math.round(subtotal * (appliedPromo.value / 100))
+      : Math.min(appliedPromo.value, subtotal)
+    : 0;
+  const finalTotal = subtotal - promoDiscount;
+
+  const handleApplyPromo = (promo: { code: string; type: 'percentage' | 'fixed'; value: number }) => {
+    setAppliedPromo(promo);
+    dispatch({ type: 'APPLY_PROMO', code: promo.code });
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    dispatch({ type: 'APPLY_PROMO', code: '' });
+  };
 
   return (
     <>
@@ -99,9 +119,21 @@ const Checkout = () => {
                 ))}
                 <div className="border-t border-border/30 pt-2 space-y-1 text-sm">
                   <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>৳{subtotal.toLocaleString()}</span></div>
-                  {state.discount > 0 && <div className="flex justify-between text-primary"><span>Discount</span><span>-৳{discountAmount.toLocaleString()}</span></div>}
-                  <div className="flex justify-between font-semibold text-base pt-1"><span>Total</span><span>৳{total.toLocaleString()}</span></div>
+                  {promoDiscount > 0 && (
+                    <div className="flex justify-between text-primary">
+                      <span>Discount ({appliedPromo!.type === 'percentage' ? `${appliedPromo!.value}%` : `৳${appliedPromo!.value}`})</span>
+                      <span>-৳{promoDiscount.toLocaleString()}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-semibold text-base pt-1"><span>Total</span><span>৳{finalTotal.toLocaleString()}</span></div>
                 </div>
+                <PromoCodeInput
+                  appliesTo="products"
+                  subtotal={subtotal}
+                  onApply={handleApplyPromo}
+                  onRemove={handleRemovePromo}
+                  appliedCode={appliedPromo?.code}
+                />
               </div>
               <div className="text-sm space-y-1 text-muted-foreground">
                 <p><strong className="text-foreground">Ship to:</strong> {form.line1}, {form.city}</p>
