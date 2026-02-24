@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom';
+import Navbar from '@/components/Navbar';
 import Footer from '@/components/layout/Footer';
 import ChatbotLauncher from '@/components/layout/ChatbotLauncher';
 
@@ -8,10 +9,11 @@ const SiteLayout = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <main className="flex-1">
+      {!isHome && <Navbar activeSection="" onNavigate={() => {}} />}
+      <main className={`flex-1 ${!isHome ? 'pt-[72px]' : ''}`}>
         <Outlet />
       </main>
-      {!isHome && <Footer />}
+      <Footer />
       <ChatbotLauncher />
     </div>
   );
