@@ -12,6 +12,7 @@
 import { app, HttpRequest } from '@azure/functions';
 import { getDb } from '../shared/db.js';
 import { corsResponse, handleOptions, parseBody, errorResponse } from '../shared/http.js';
+import { requireAdmin } from '../shared/auth.js';
 
 // ── List / Filter ──
 app.http('events-list', {
@@ -82,8 +83,7 @@ app.http('events-create', {
   methods: ['POST', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'events',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
+  handler: requireAdmin(async (req) => {
 
     const body = await parseBody<any>(req);
     const db = await getDb();
@@ -110,7 +110,7 @@ app.http('events-create', {
       `);
 
     return corsResponse(201, body);
-  },
+  }),
 });
 
 // ── Update ──
@@ -118,8 +118,7 @@ app.http('events-update', {
   methods: ['PUT', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'events/{id}',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
+  handler: requireAdmin(async (req) => {
 
     const id = req.params.id;
     const body = await parseBody<any>(req);
@@ -154,7 +153,7 @@ app.http('events-update', {
 
     await request.query(`UPDATE Events SET ${setClauses.join(', ')} WHERE id = @id`);
     return corsResponse(200, { id, ...body });
-  },
+  }),
 });
 
 // ── Delete ──
@@ -162,14 +161,12 @@ app.http('events-delete', {
   methods: ['DELETE', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'events/{id}',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
-
+  handler: requireAdmin(async (req) => {
     const id = req.params.id;
     const db = await getDb();
     await db.request().input('id', id).query('DELETE FROM Events WHERE id = @id');
     return corsResponse(204);
-  },
+  }),
 });
 
 // ── Row parser ──

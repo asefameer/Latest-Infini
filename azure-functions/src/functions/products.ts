@@ -12,6 +12,7 @@
 import { app, HttpRequest, InvocationContext } from '@azure/functions';
 import { getDb } from '../shared/db.js';
 import { corsResponse, handleOptions, parseBody, errorResponse } from '../shared/http.js';
+import { requireAdmin } from '../shared/auth.js';
 
 // ── List / Filter ──
 app.http('products-list', {
@@ -92,8 +93,7 @@ app.http('products-create', {
   methods: ['POST', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'products',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
+  handler: requireAdmin(async (req) => {
 
     const body = await parseBody<any>(req);
     const db = await getDb();
@@ -121,7 +121,7 @@ app.http('products-create', {
       `);
 
     return corsResponse(201, { ...body });
-  },
+  }),
 });
 
 // ── Update ──
@@ -129,8 +129,7 @@ app.http('products-update', {
   methods: ['PUT', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'products/{id}',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
+  handler: requireAdmin(async (req) => {
 
     const id = req.params.id;
     const body = await parseBody<any>(req);
@@ -159,7 +158,7 @@ app.http('products-update', {
 
     await request.query(`UPDATE Products SET ${setClauses.join(', ')} WHERE id = @id`);
     return corsResponse(200, { id, ...body });
-  },
+  }),
 });
 
 // ── Delete ──
@@ -167,14 +166,12 @@ app.http('products-delete', {
   methods: ['DELETE', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'products/{id}',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
-
+  handler: requireAdmin(async (req) => {
     const id = req.params.id;
     const db = await getDb();
     await db.request().input('id', id).query('DELETE FROM Products WHERE id = @id');
     return corsResponse(204);
-  },
+  }),
 });
 
 // ── Row parser (JSON columns → JS objects) ──
