@@ -31,6 +31,16 @@ func azure functionapp publish <YOUR_FUNCTION_APP_NAME>
 | `SQL_DATABASE` | Database name |
 | `SQL_USER` | SQL admin username |
 | `SQL_PASSWORD` | SQL admin password |
+| `B2C_TENANT_NAME` | Azure AD B2C tenant name (e.g. `mycompanyb2c`) |
+| `B2C_POLICY_NAME` | B2C user flow policy (e.g. `B2C_1_signupsignin`) |
+| `B2C_CLIENT_ID` | Application (client) ID registered in B2C |
+| `B2C_ADMIN_ROLE` | Role claim value for admin access (default: `Admin`) |
+
+## Authentication
+
+Admin-only endpoints (POST/PUT/DELETE for products, events, discounts, banners, and all CRM endpoints) are protected by Azure AD B2C JWT validation. Requests must include a valid `Authorization: Bearer <token>` header with the `Admin` role claim.
+
+Public GET endpoints (products, events, categories, brands, discount code validation) remain unauthenticated.
 
 ## Endpoints
 

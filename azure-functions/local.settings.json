@@ -6,7 +6,11 @@
     "SQL_SERVER": "your-server.database.windows.net",
     "SQL_DATABASE": "infinity-db",
     "SQL_USER": "your-admin",
-    "SQL_PASSWORD": "your-password"
+    "SQL_PASSWORD": "your-password",
+    "B2C_TENANT_NAME": "your-b2c-tenant",
+    "B2C_POLICY_NAME": "B2C_1_signupsignin",
+    "B2C_CLIENT_ID": "your-client-id",
+    "B2C_ADMIN_ROLE": "Admin"
   },
   "Host": {
     "CORS": "*",

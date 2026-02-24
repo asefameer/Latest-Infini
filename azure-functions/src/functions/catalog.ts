@@ -4,6 +4,7 @@
 import { app, HttpRequest } from '@azure/functions';
 import { getDb } from '../shared/db.js';
 import { corsResponse, handleOptions, parseBody, errorResponse } from '../shared/http.js';
+import { requireAdmin } from '../shared/auth.js';
 
 // ── Categories ──
 app.http('categories-list', {
@@ -70,8 +71,7 @@ app.http('banners-create', {
   methods: ['POST', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'banners',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
+  handler: requireAdmin(async (req) => {
     const body = await parseBody<any>(req);
     const db = await getDb();
     await db.request()
@@ -84,15 +84,14 @@ app.http('banners-create', {
       .input('order', body.order || 1)
       .query('INSERT INTO Banners (id, title, imageUrl, link, placement, isActive, [order]) VALUES (@id, @title, @imageUrl, @link, @placement, @isActive, @order)');
     return corsResponse(201, body);
-  },
+  }),
 });
 
 app.http('banners-update', {
   methods: ['PUT', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'banners/{id}',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
+  handler: requireAdmin(async (req) => {
     const id = req.params.id;
     const body = await parseBody<any>(req);
     const db = await getDb();
@@ -106,17 +105,16 @@ app.http('banners-update', {
     if (setClauses.length === 0) return errorResponse(400, 'No fields');
     await request.query(`UPDATE Banners SET ${setClauses.join(', ')} WHERE id = @id`);
     return corsResponse(200, { id, ...body });
-  },
+  }),
 });
 
 app.http('banners-delete', {
   methods: ['DELETE', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'banners/{id}',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
+  handler: requireAdmin(async (req) => {
     const db = await getDb();
     await db.request().input('id', req.params.id).query('DELETE FROM Banners WHERE id = @id');
     return corsResponse(204);
-  },
+  }),
 });

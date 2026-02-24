@@ -11,6 +11,7 @@
 import { app, HttpRequest } from '@azure/functions';
 import { getDb } from '../shared/db.js';
 import { corsResponse, handleOptions, parseBody, errorResponse } from '../shared/http.js';
+import { requireAdmin } from '../shared/auth.js';
 
 app.http('discounts-list', {
   methods: ['GET', 'OPTIONS'],
@@ -44,8 +45,7 @@ app.http('discounts-create', {
   methods: ['POST', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'discounts',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
+  handler: requireAdmin(async (req) => {
     const body = await parseBody<any>(req);
     const db = await getDb();
     await db.request()
@@ -67,15 +67,14 @@ app.http('discounts-create', {
         VALUES (@id, @code, @description, @type, @value, @currency, @appliesTo, @minPurchase, @maxUses, @usedCount, @startDate, @endDate, @isActive)
       `);
     return corsResponse(201, body);
-  },
+  }),
 });
 
 app.http('discounts-update', {
   methods: ['PUT', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'discounts/{id}',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
+  handler: requireAdmin(async (req) => {
     const id = req.params.id;
     const body = await parseBody<any>(req);
     const db = await getDb();
@@ -91,18 +90,17 @@ app.http('discounts-update', {
 
     await request.query(`UPDATE Discounts SET ${setClauses.join(', ')} WHERE id = @id`);
     return corsResponse(200, { id, ...body });
-  },
+  }),
 });
 
 app.http('discounts-delete', {
   methods: ['DELETE', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'discounts/{id}',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
+  handler: requireAdmin(async (req) => {
     const id = req.params.id;
     const db = await getDb();
     await db.request().input('id', id).query('DELETE FROM Discounts WHERE id = @id');
     return corsResponse(204);
-  },
+  }),
 });
