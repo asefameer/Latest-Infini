@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation, Link } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import {
   LayoutDashboard, ShoppingBag, CalendarDays, Image, LogOut, ChevronLeft, Menu,
-  Users, MessageCircle, Mail, BarChart3, Tag,
+  Users, MessageCircle, Mail, BarChart3, Tag, ClipboardList,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ const navItems = [
   { label: 'Events & Tickets', icon: CalendarDays, path: '/admin/events', badge: 0 },
   { label: 'Banners & Media', icon: Image, path: '/admin/banners', badge: 0 },
   { label: 'Discounts', icon: Tag, path: '/admin/discounts', badge: 0 },
+  { label: 'Orders', icon: ClipboardList, path: '/admin/orders', badge: 0 },
   { label: 'Customers', icon: Users, path: '/admin/crm/customers', badge: 0 },
   { label: 'Chatbot', icon: MessageCircle, path: '/admin/crm/chatbot', badge: 3 },
   { label: 'Messaging', icon: Mail, path: '/admin/crm/messaging', badge: 0 },
