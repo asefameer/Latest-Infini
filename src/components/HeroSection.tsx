@@ -535,7 +535,7 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         <MagneticButton strength={0.4}>
           <button
             onClick={() => onNavigate("editions")}
-            className="rounded-full px-8 py-3 text-sm font-medium tracking-wide bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+            className="btn-infinity rounded-full px-8 py-3 text-sm font-medium tracking-wide bg-background/80 text-foreground transition-all"
           >
             EDITIONS
           </button>
@@ -543,7 +543,7 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         <MagneticButton strength={0.4}>
           <button
             onClick={() => onNavigate("encounter")}
-            className="rounded-full px-8 py-3 text-sm font-medium tracking-wide border border-foreground/20 hover:bg-foreground/10 transition-colors"
+            className="btn-infinity rounded-full px-8 py-3 text-sm font-medium tracking-wide bg-background/80 text-foreground transition-all"
           >
             ENCOUNTER
           </button>
