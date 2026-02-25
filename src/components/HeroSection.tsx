@@ -137,11 +137,21 @@ const UnifiedHeroCanvas = ({
       };
 
       const strokePath = (pts: { x: number; y: number }[]) => {
+        if (pts.length < 2) return;
         ctx.beginPath();
-        for (let i = 0; i < pts.length; i++) {
-          if (i === 0) ctx.moveTo(pts[i].x, pts[i].y);
-          else ctx.lineTo(pts[i].x, pts[i].y);
+        ctx.moveTo(pts[0].x, pts[0].y);
+        // Use quadratic curves through midpoints for smooth edges
+        for (let i = 0; i < pts.length - 1; i++) {
+          const midX = (pts[i].x + pts[i + 1].x) / 2;
+          const midY = (pts[i].y + pts[i + 1].y) / 2;
+          ctx.quadraticCurveTo(pts[i].x, pts[i].y, midX, midY);
         }
+        // Close smoothly back to start
+        ctx.quadraticCurveTo(
+          pts[pts.length - 1].x, pts[pts.length - 1].y,
+          (pts[pts.length - 1].x + pts[0].x) / 2,
+          (pts[pts.length - 1].y + pts[0].y) / 2
+        );
         ctx.stroke();
       };
 
@@ -243,7 +253,40 @@ const UnifiedHeroCanvas = ({
         }
       }
 
-      // ── Draw all particles — restored shadowBlur for nice glow ──
+      // ── Cross-section clash: particles near the center crossing scatter automatically ──
+      const crossX = cx;
+      const crossY = cy;
+      const crossRadius = Math.min(scaleX, scaleY) * 0.12; // zone around center crossing
+      
+      const pathParticlesAll = particlesRef.current.filter(p => p.mode === "path" && p.throwTimer <= 0);
+      // Collect particles currently in the cross-section zone
+      const inCrossSection: Particle[] = [];
+      for (const p of pathParticlesAll) {
+        const pos = getInfinityPos(p.pathAngle + t * 1.5, t, cx, cy, scaleX, scaleY);
+        if (Math.hypot(pos.x - crossX, pos.y - crossY) < crossRadius) {
+          inCrossSection.push(p);
+        }
+      }
+      
+      // When 2+ particles are near the crossing, randomly scatter some outward
+      if (inCrossSection.length >= 2 && Math.random() < 0.15) {
+        const toThrow = inCrossSection[Math.floor(Math.random() * inCrossSection.length)];
+        // Keep at least 20 path particles
+        if (pathParticlesAll.length > 20) {
+          const pos = getInfinityPos(toThrow.pathAngle + t * 1.5, t, cx, cy, scaleX, scaleY);
+          // Scatter in a random direction from center
+          const scatterAngle = Math.random() * Math.PI * 2;
+          const speed = 4 + Math.random() * 5;
+          toThrow.mode = "free";
+          toThrow.x = pos.x;
+          toThrow.y = pos.y;
+          toThrow.vx = Math.cos(scatterAngle) * speed;
+          toThrow.vy = Math.sin(scatterAngle) * speed;
+          toThrow.throwTimer = 250;
+        }
+      }
+
+      // ── Draw all particles ──
       for (const p of particlesRef.current) {
         p.hue = (p.hue + 0.3) % 360;
 
