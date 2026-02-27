@@ -86,13 +86,14 @@ const DefineStyleSection = () => {
         </p>
       </ScrollReveal>
 
-      {/* Two video cards */}
+      {/* Two video cards — enter from opposite sides */}
       <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 max-w-5xl w-full">
-        {cards.map((card) => (
-          <ScrollReveal key={card.title} offsetY={80} blur={10} className="w-full max-w-[300px] md:max-w-[360px]">
-            <VideoCard video={card.video} title={card.title} tilt={card.tilt} />
-          </ScrollReveal>
-        ))}
+        <ScrollReveal offsetX={-200} offsetY={40} className="w-full max-w-[300px] md:max-w-[360px]">
+          <VideoCard video={cards[0].video} title={cards[0].title} tilt={cards[0].tilt} />
+        </ScrollReveal>
+        <ScrollReveal offsetX={200} offsetY={40} className="w-full max-w-[300px] md:max-w-[360px]">
+          <VideoCard video={cards[1].video} title={cards[1].title} tilt={cards[1].tilt} />
+        </ScrollReveal>
       </div>
     </section>
   );
