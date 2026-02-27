@@ -91,6 +91,8 @@ In `infinity-portal-app-prod-001` → Configuration → Application Settings:
 
 In your GitHub repo → Settings → Secrets → Actions:
 
+### Production
+
 | Secret | Description |
 |--------|-------------|
 | `AZURE_CREDENTIALS` | Service principal JSON for `az login` |
@@ -101,6 +103,23 @@ In your GitHub repo → Settings → Secrets → Actions:
 | `VITE_APPINSIGHTS_CONNECTION_STRING` | From Application Insights → Properties |
 | `VITE_AZURE_SEARCH_URL` | `https://search-portal-prod-i001.search.windows.net` |
 | `VITE_AZURE_SEARCH_KEY` | AI Search **query** key (read-only, safe for frontend) |
+
+### Staging (for PR previews)
+
+| Secret | Description |
+|--------|-------------|
+| `VITE_API_BASE_URL_STAGING` | Staging Functions URL, e.g. `https://infinity-portal-app-staging-001.azurewebsites.net/api` |
+| `VITE_AZURE_STORAGE_URL_STAGING` | `https://stportalinfinitystaging.blob.core.windows.net` |
+
+### Staging Azure Resources Required
+
+| Resource | Name | Purpose |
+|----------|------|---------|
+| Storage Account | `stportalinfinitystaging` | PR preview static files (enable Static Website) |
+| Function App | `infinity-portal-app-staging-001` | Staging API (create a `staging` deployment slot) |
+| Front Door Endpoint | `infinity-frontend-staging` | Staging CDN endpoint on `afd-portal-prod` |
+
+Each PR gets its own path (`/pr-{number}/`) inside the staging storage. A comment with the preview URL is automatically posted on the PR. Files are cleaned up when the PR is closed.
 
 ## Step 6 — Azure AI Search Setup
 
