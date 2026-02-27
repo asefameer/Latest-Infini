@@ -28,6 +28,7 @@ export interface Product extends SEOFields {
   inStock: boolean;
   isNew?: boolean;
   isTrending?: boolean;
+  isLive?: boolean;
 }
 
 export interface Category {
