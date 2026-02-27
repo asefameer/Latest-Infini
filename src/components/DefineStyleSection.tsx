@@ -73,23 +73,23 @@ const DefineStyleSection = () => {
   return (
     <section
       id="define-style"
-      className="relative min-h-screen flex flex-col items-center justify-center py-24 px-8"
+      className="relative min-h-screen flex flex-col items-center justify-center py-16 md:py-24 px-4 md:px-8"
       style={{ background: "hsl(var(--section-dark))" }}
     >
       {/* Heading */}
-      <ScrollReveal className="text-center mb-16" offsetY={60} blur={8}>
-        <h2 className="font-display text-5xl md:text-6xl font-bold text-foreground mb-4">
+      <ScrollReveal className="text-center mb-10 md:mb-16" offsetY={60} blur={8}>
+        <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
           Define Your Style
         </h2>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-sm md:text-lg">
           Choose your world. Live your way.
         </p>
       </ScrollReveal>
 
       {/* Two video cards */}
-      <div className="flex flex-col md:flex-row items-center justify-center gap-12 max-w-5xl w-full">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 max-w-5xl w-full">
         {cards.map((card) => (
-          <ScrollReveal key={card.title} offsetY={80} blur={10} className="w-full max-w-[360px]">
+          <ScrollReveal key={card.title} offsetY={80} blur={10} className="w-full max-w-[300px] md:max-w-[360px]">
             <VideoCard video={card.video} title={card.title} tilt={card.tilt} />
           </ScrollReveal>
         ))}
