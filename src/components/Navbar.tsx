@@ -20,7 +20,7 @@ const navItems = [
       { label: "X-Force", route: "/the-trinity/x-force" },
     ],
   },
-  { id: "define-style", label: "Define Your Style", route: "/editions" },
+  { id: "editions", label: "Editions", route: "/editions" },
   { id: "encounter", label: "Encounter", route: "/encounter" },
 ];
 
@@ -45,7 +45,7 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
 
   const handleNav = (item: typeof navItems[0]) => {
     setMobileOpen(false);
-    if (isHome && (item.id === "ground-zero" || item.id === "the-trinity" || item.id === "define-style")) {
+    if (isHome && (item.id === "ground-zero" || item.id === "the-trinity")) {
       onNavigate(item.id);
     } else {
       navigate(item.route);
