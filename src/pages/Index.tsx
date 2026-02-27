@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import SplashScreen from "@/components/SplashScreen";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import HomepageBanner from "@/components/HomepageBanner";
 import TrinitySection from "@/components/TrinitySection";
 import DefineStyleSection from "@/components/DefineStyleSection";
 
@@ -46,6 +47,7 @@ const Index = () => {
         <>
           <Navbar activeSection={activeSection} onNavigate={handleNavigate} />
           <HeroSection onNavigate={handleNavigate} />
+          <HomepageBanner />
           <div
             className="transition-colors duration-1000"
             style={{ background: "hsl(var(--section-mid))" }}

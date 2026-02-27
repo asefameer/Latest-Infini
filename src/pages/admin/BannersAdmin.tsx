@@ -6,22 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Plus, Trash2, GripVertical, Save, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
-
-interface Banner {
-  id: string;
-  title: string;
-  imageUrl: string;
-  linkUrl: string;
-  placement: 'hero' | 'editions' | 'encounter' | 'trinity';
-  isActive: boolean;
-  order: number;
-}
-
-const initialBanners: Banner[] = [
-  { id: 'b-1', title: 'Hero Slide 1', imageUrl: '/placeholder.svg', linkUrl: '/', placement: 'hero', isActive: true, order: 0 },
-  { id: 'b-2', title: 'Editions Banner', imageUrl: '/placeholder.svg', linkUrl: '/editions', placement: 'editions', isActive: true, order: 1 },
-  { id: 'b-3', title: 'Encounter Promo', imageUrl: '/placeholder.svg', linkUrl: '/encounter', placement: 'encounter', isActive: true, order: 2 },
-];
+import { useBanners } from '@/services/api/hooks';
+import { bannersApi } from '@/services/api';
+import { useQueryClient } from '@tanstack/react-query';
+import type { Banner } from '@/services/api/mock-store';
 
 const PLACEMENT_LABELS: Record<string, string> = {
   hero: 'Homepage Hero',
@@ -31,49 +19,47 @@ const PLACEMENT_LABELS: Record<string, string> = {
 };
 
 const BannersAdmin = () => {
-  const [banners, setBanners] = useState<Banner[]>(initialBanners);
+  const { data: banners = [] } = useBanners();
+  const qc = useQueryClient();
   const [editing, setEditing] = useState<string | null>(null);
 
-  const addBanner = () => {
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['banners'] });
+
+  const addBanner = async () => {
     const newBanner: Banner = {
       id: `b-new-${Date.now()}`,
       title: '',
+      subtitle: '',
       imageUrl: '',
-      linkUrl: '',
+      link: '',
       placement: 'hero',
       isActive: true,
       order: banners.length,
     };
-    setBanners(prev => [...prev, newBanner]);
+    await bannersApi.create(newBanner);
+    invalidate();
     setEditing(newBanner.id);
   };
 
-  const update = (id: string, field: string, value: any) => {
-    setBanners(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
+  const update = async (id: string, field: string, value: any) => {
+    await bannersApi.update(id, { [field]: value });
+    invalidate();
   };
 
-  const remove = (id: string) => {
+  const remove = async (id: string) => {
     if (!window.confirm('Delete this banner?')) return;
-    setBanners(prev => prev.filter(b => b.id !== id));
+    await bannersApi.delete(id);
+    invalidate();
     toast.success('Banner deleted');
-  };
-
-  const saveAll = () => {
-    toast.success('Banners saved');
   };
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-display font-bold text-foreground">Banners & Media</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={addBanner} className="gap-2">
-            <Plus className="w-4 h-4" /> Add Banner
-          </Button>
-          <Button size="sm" onClick={saveAll} className="gap-2">
-            <Save className="w-4 h-4" /> Save All
-          </Button>
-        </div>
+        <Button variant="outline" size="sm" onClick={addBanner} className="gap-2">
+          <Plus className="w-4 h-4" /> Add Banner
+        </Button>
       </div>
 
       <div className="space-y-4">
@@ -136,14 +122,18 @@ const BannersAdmin = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
+                  <Label className="text-xs">Subtitle</Label>
+                  <Input value={banner.subtitle || ''} onChange={e => update(banner.id, 'subtitle', e.target.value)} placeholder="Short description shown below the title" />
+                </div>
+                <div className="space-y-2">
                   <Label className="text-xs">Image URL</Label>
                   <Input value={banner.imageUrl} onChange={e => update(banner.id, 'imageUrl', e.target.value)} placeholder="https://..." />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs">Link URL</Label>
-                  <Input value={banner.linkUrl} onChange={e => update(banner.id, 'linkUrl', e.target.value)} placeholder="/editions" />
+                  <Input value={banner.link} onChange={e => update(banner.id, 'link', e.target.value)} placeholder="/editions" />
                 </div>
-                {banner.imageUrl && (
+                {banner.imageUrl && banner.imageUrl !== '/placeholder.svg' && (
                   <div className="rounded-lg overflow-hidden border border-border max-h-40">
                     <img src={banner.imageUrl} alt="Preview" className="w-full h-40 object-cover" />
                   </div>

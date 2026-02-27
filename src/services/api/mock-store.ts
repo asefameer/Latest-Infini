@@ -47,6 +47,7 @@ let _kbArticles: KBArticle[] = [...mockKBArticles];
 export interface Banner {
   id: string;
   title: string;
+  subtitle?: string;
   imageUrl: string;
   link: string;
   placement: 'hero' | 'editions' | 'encounter' | 'trinity';
@@ -55,9 +56,9 @@ export interface Banner {
 }
 
 let _banners: Banner[] = [
-  { id: 'b1', title: 'Nova Spring Collection', imageUrl: '/placeholder.svg', link: '/editions', placement: 'hero', isActive: true, order: 1 },
-  { id: 'b2', title: 'Encounter Events', imageUrl: '/placeholder.svg', link: '/encounter', placement: 'encounter', isActive: true, order: 1 },
-  { id: 'b3', title: 'Trinity Story', imageUrl: '/placeholder.svg', link: '/the-trinity', placement: 'trinity', isActive: true, order: 1 },
+  { id: 'b1', title: 'Nova Spring Collection', subtitle: 'Premium streetwear crafted for the bold. Explore the new season.', imageUrl: '/placeholder.svg', link: '/editions', placement: 'hero', isActive: true, order: 1 },
+  { id: 'b2', title: 'Encounter Events', subtitle: 'Curated experiences across the nation.', imageUrl: '/placeholder.svg', link: '/encounter', placement: 'encounter', isActive: true, order: 1 },
+  { id: 'b3', title: 'Trinity Story', subtitle: 'Three brands. One universe.', imageUrl: '/placeholder.svg', link: '/the-trinity', placement: 'trinity', isActive: true, order: 1 },
 ];
 
 // ── CRUD Helpers ──
