@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUploadField } from '@/components/admin/ImageUploadField';
+import { MultiImageDropZone } from '@/components/admin/MultiImageDropZone';
 
 const emptyProduct: Omit<Product, 'id'> = {
   slug: '', name: '', brand: 'nova', category: 'apparel', price: 0,
@@ -141,6 +142,12 @@ const ProductForm = () => {
         <div className="bg-card border border-border rounded-xl p-6 space-y-4">
           <h2 className="font-semibold text-foreground">Images</h2>
           <p className="text-xs text-muted-foreground">Upload images or enter URLs. The first image is the primary.</p>
+          <MultiImageDropZone
+            onImagesUploaded={urls => {
+              const existing = form.images.filter(img => img && img !== '/placeholder.svg' && img !== '');
+              set('images', [...existing, ...urls]);
+            }}
+          />
           {form.images.map((img, idx) => (
             <div key={idx} className="flex gap-2 items-start">
               <div className="flex-1">
