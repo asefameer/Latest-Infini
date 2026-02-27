@@ -130,7 +130,12 @@
   100% { background-position: 64px 64px; }
 }
 
-/* Infinity glassmorphic button */
+@keyframes progress-ring {
+  from { stroke-dashoffset: 50.265; }
+  to { stroke-dashoffset: 0; }
+}
+
+
 .btn-infinity {
   position: relative;
   isolation: isolate;

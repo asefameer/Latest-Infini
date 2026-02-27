@@ -56,7 +56,7 @@ export interface Banner {
 }
 
 let _banners: Banner[] = [
-  { id: 'b1', title: 'Nova Spring Collection', subtitle: 'Premium streetwear crafted for the bold. Explore the new season.', imageUrl: '/placeholder.svg', link: '/editions', placement: 'hero', isActive: true, order: 1 },
+  { id: 'b1', title: 'Nova Spring Collection', subtitle: 'Premium streetwear crafted for the bold. Explore the new season.', imageUrl: '', link: '/editions', placement: 'hero', isActive: true, order: 1 },
   { id: 'b2', title: 'Encounter Events', subtitle: 'Curated experiences across the nation.', imageUrl: '/placeholder.svg', link: '/encounter', placement: 'encounter', isActive: true, order: 1 },
   { id: 'b3', title: 'Trinity Story', subtitle: 'Three brands. One universe.', imageUrl: '/placeholder.svg', link: '/the-trinity', placement: 'trinity', isActive: true, order: 1 },
 ];
