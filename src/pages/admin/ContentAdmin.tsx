@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Save, Plus, Trash2, GripVertical } from 'lucide-react';
+import { Save, Plus, Trash2, GripVertical, Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
 import {
   useAllSiteContent,
   useUpdateSiteContent,
@@ -23,7 +23,80 @@ import {
   type SiteContentRow,
   type NavigationItemRow,
   type HomepageBannerRow,
+  uploadCmsImage,
 } from '@/hooks/use-cms';
+
+// ── Reusable Image Upload Component ──
+const ImageUploadField = ({
+  value,
+  onChange,
+  label = 'Image',
+}: {
+  value: string;
+  onChange: (url: string) => void;
+  label?: string;
+}) => {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5 MB');
+      return;
+    }
+    setUploading(true);
+    try {
+      const url = await uploadCmsImage(file);
+      onChange(url);
+      toast.success('Image uploaded');
+    } catch (err: any) {
+      toast.error(err.message ?? 'Upload failed');
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <Label className="text-xs text-muted-foreground">{label}</Label>
+      <div className="flex gap-2">
+        <Input
+          placeholder="https://... or upload →"
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          className="flex-1"
+        />
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          disabled={uploading}
+          onClick={() => fileRef.current?.click()}
+          title="Upload image"
+        >
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+        </Button>
+      </div>
+      {value && value.startsWith('http') && (
+        <img src={value} alt="Preview" className="w-full max-h-32 object-cover rounded border border-border mt-1" />
+      )}
+    </div>
+  );
+};
 
 // ── Site Content Tab ──
 const SiteContentEditor = () => {
@@ -214,58 +287,62 @@ const BannersEditor = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader><CardTitle className="text-sm">Add Banner</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Input placeholder="Name" value={newBanner.name} onChange={e => setNewBanner(r => ({ ...r, name: e.target.value }))} />
-          <Input placeholder="Tagline" value={newBanner.tagline} onChange={e => setNewBanner(r => ({ ...r, tagline: e.target.value }))} />
-          <Input placeholder="Image URL" value={newBanner.image_url} onChange={e => setNewBanner(r => ({ ...r, image_url: e.target.value }))} />
-          <Input placeholder="Link" value={newBanner.link} onChange={e => setNewBanner(r => ({ ...r, link: e.target.value }))} />
-          <Input placeholder="Accent HSL (e.g. 180 100% 50%)" value={newBanner.accent_color} onChange={e => setNewBanner(r => ({ ...r, accent_color: e.target.value }))} />
-          <Input type="number" placeholder="Order" value={newBanner.sort_order} onChange={e => setNewBanner(r => ({ ...r, sort_order: +e.target.value }))} />
-          <div className="flex items-center gap-2">
-            <Switch checked={newBanner.is_active} onCheckedChange={v => setNewBanner(r => ({ ...r, is_active: v }))} />
-            <span className="text-sm">Active</span>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Input placeholder="Name" value={newBanner.name} onChange={e => setNewBanner(r => ({ ...r, name: e.target.value }))} />
+            <Input placeholder="Tagline" value={newBanner.tagline} onChange={e => setNewBanner(r => ({ ...r, tagline: e.target.value }))} />
+            <Input placeholder="Link" value={newBanner.link} onChange={e => setNewBanner(r => ({ ...r, link: e.target.value }))} />
+            <Input placeholder="Accent HSL (e.g. 180 100% 50%)" value={newBanner.accent_color} onChange={e => setNewBanner(r => ({ ...r, accent_color: e.target.value }))} />
           </div>
-          <Button onClick={handleAdd} size="sm"><Plus className="w-4 h-4 mr-1" /> Add</Button>
+          <ImageUploadField
+            value={newBanner.image_url}
+            onChange={url => setNewBanner(r => ({ ...r, image_url: url }))}
+            label="Banner Image"
+          />
+          <div className="flex items-center gap-4">
+            <Input type="number" placeholder="Order" value={newBanner.sort_order} onChange={e => setNewBanner(r => ({ ...r, sort_order: +e.target.value }))} className="w-24" />
+            <div className="flex items-center gap-2">
+              <Switch checked={newBanner.is_active} onCheckedChange={v => setNewBanner(r => ({ ...r, is_active: v }))} />
+              <span className="text-sm">Active</span>
+            </div>
+            <Button onClick={handleAdd} size="sm"><Plus className="w-4 h-4 mr-1" /> Add</Button>
+          </div>
         </CardContent>
       </Card>
 
       {banners.map(banner => (
         <Card key={banner.id}>
           <CardContent className="pt-4 space-y-3">
-            <div className="flex items-center gap-3">
-              {banner.image_url && (
-                <img src={banner.image_url} alt={banner.name} className="w-24 h-14 object-cover rounded" />
-              )}
-              <div className="flex-1 grid grid-cols-2 gap-2">
-                <div>
-                  <Label className="text-xs text-muted-foreground">Name</Label>
-                  <Input defaultValue={banner.name} onBlur={e => e.target.value !== banner.name && handleUpdate(banner, { name: e.target.value })} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Name</Label>
+                <Input defaultValue={banner.name} onBlur={e => e.target.value !== banner.name && handleUpdate(banner, { name: e.target.value })} />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Tagline</Label>
+                <Input defaultValue={banner.tagline} onBlur={e => e.target.value !== banner.tagline && handleUpdate(banner, { tagline: e.target.value })} />
+              </div>
+              <ImageUploadField
+                value={banner.image_url}
+                onChange={url => handleUpdate(banner, { image_url: url })}
+                label="Banner Image"
+              />
+              <div>
+                <Label className="text-xs text-muted-foreground">Link</Label>
+                <Input defaultValue={banner.link} onBlur={e => e.target.value !== banner.link && handleUpdate(banner, { link: e.target.value })} />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Accent Color (HSL)</Label>
+                <Input defaultValue={banner.accent_color} onBlur={e => e.target.value !== banner.accent_color && handleUpdate(banner, { accent_color: e.target.value })} />
+              </div>
+              <div className="flex items-end gap-3">
+                <div className="flex items-center gap-2">
+                  <Switch checked={banner.is_active} onCheckedChange={v => handleUpdate(banner, { is_active: v })} />
+                  <span className="text-sm">Active</span>
                 </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Tagline</Label>
-                  <Input defaultValue={banner.tagline} onBlur={e => e.target.value !== banner.tagline && handleUpdate(banner, { tagline: e.target.value })} />
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Image URL</Label>
-                  <Input defaultValue={banner.image_url} onBlur={e => e.target.value !== banner.image_url && handleUpdate(banner, { image_url: e.target.value })} />
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Link</Label>
-                  <Input defaultValue={banner.link} onBlur={e => e.target.value !== banner.link && handleUpdate(banner, { link: e.target.value })} />
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Accent Color (HSL)</Label>
-                  <Input defaultValue={banner.accent_color} onBlur={e => e.target.value !== banner.accent_color && handleUpdate(banner, { accent_color: e.target.value })} />
-                </div>
-                <div className="flex items-end gap-3">
-                  <div className="flex items-center gap-2">
-                    <Switch checked={banner.is_active} onCheckedChange={v => handleUpdate(banner, { is_active: v })} />
-                    <span className="text-sm">Active</span>
-                  </div>
-                  <Button size="icon" variant="ghost" className="text-destructive" onClick={() => deleteMut.mutate(banner.id, { onSuccess: () => toast.success('Deleted') })}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+                <Button size="icon" variant="ghost" className="text-destructive" onClick={() => deleteMut.mutate(banner.id, { onSuccess: () => toast.success('Deleted') })}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           </CardContent>
