@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ImageUploadField } from '@/components/admin/ImageUploadField';
 
 const emptyEvent: Omit<Event, 'id'> = {
   slug: '', title: '', brand: 'nova', date: '', time: '', venue: '', city: '',
@@ -88,7 +89,7 @@ const EventForm = () => {
             <div className="space-y-2"><Label>City</Label><Input value={form.city} onChange={e => set('city', e.target.value)} /></div>
           </div>
           <div className="space-y-2"><Label>Description</Label><Textarea rows={4} value={form.description} onChange={e => set('description', e.target.value)} /></div>
-          <div className="space-y-2"><Label>Banner Image URL</Label><Input value={form.bannerImage} onChange={e => set('bannerImage', e.target.value)} /></div>
+          <ImageUploadField value={form.bannerImage} onChange={url => set('bannerImage', url)} label="Banner Image" />
           <div className="flex items-center gap-2"><Switch checked={form.isFeatured || false} onCheckedChange={v => set('isFeatured', v)} /><Label>Featured Event</Label></div>
         </div>
 
@@ -150,7 +151,7 @@ const EventForm = () => {
           <p className="text-xs text-muted-foreground">Override auto-generated SEO metadata. Leave blank to use defaults.</p>
           <div className="space-y-2"><Label>Meta Title <span className="text-xs text-muted-foreground">(max 60 chars)</span></Label><Input value={form.seoTitle || ''} onChange={e => set('seoTitle', e.target.value || undefined)} placeholder={form.title} maxLength={60} /></div>
           <div className="space-y-2"><Label>Meta Description <span className="text-xs text-muted-foreground">(max 160 chars)</span></Label><Textarea rows={2} value={form.seoDescription || ''} onChange={e => set('seoDescription', e.target.value || undefined)} placeholder={form.description?.slice(0, 160)} maxLength={160} /></div>
-          <div className="space-y-2"><Label>OG Image URL</Label><Input value={form.ogImage || ''} onChange={e => set('ogImage', e.target.value || undefined)} placeholder={form.bannerImage || 'https://...'} /></div>
+          <ImageUploadField value={form.ogImage || ''} onChange={url => set('ogImage', url || undefined)} label="OG Image" />
         </div>
 
         <div className="flex justify-end gap-3">

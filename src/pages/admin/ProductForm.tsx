@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ImageUploadField } from '@/components/admin/ImageUploadField';
 
 const emptyProduct: Omit<Product, 'id'> = {
   slug: '', name: '', brand: 'nova', category: 'apparel', price: 0,
@@ -139,8 +140,30 @@ const ProductForm = () => {
 
         <div className="bg-card border border-border rounded-xl p-6 space-y-4">
           <h2 className="font-semibold text-foreground">Images</h2>
-          <p className="text-xs text-muted-foreground">Enter image URLs, one per line</p>
-          <Textarea rows={3} value={form.images.join('\n')} onChange={e => set('images', e.target.value.split('\n').filter(Boolean))} />
+          <p className="text-xs text-muted-foreground">Upload images or enter URLs. The first image is the primary.</p>
+          {form.images.map((img, idx) => (
+            <div key={idx} className="flex gap-2 items-start">
+              <div className="flex-1">
+                <ImageUploadField
+                  value={img}
+                  onChange={url => {
+                    const imgs = [...form.images];
+                    imgs[idx] = url;
+                    set('images', imgs);
+                  }}
+                  label={idx === 0 ? 'Primary Image' : `Image ${idx + 1}`}
+                />
+              </div>
+              {form.images.length > 1 && (
+                <Button type="button" variant="ghost" size="icon" className="mt-6 text-destructive" onClick={() => set('images', form.images.filter((_, i) => i !== idx))}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          ))}
+          <Button type="button" variant="outline" size="sm" onClick={() => set('images', [...form.images, ''])} className="gap-1">
+            <Plus className="w-3.5 h-3.5" /> Add Image
+          </Button>
         </div>
 
         <div className="bg-card border border-border rounded-xl p-6 space-y-4">
@@ -153,7 +176,7 @@ const ProductForm = () => {
           <p className="text-xs text-muted-foreground">Override auto-generated SEO metadata. Leave blank to use defaults.</p>
           <div className="space-y-2"><Label>Meta Title <span className="text-xs text-muted-foreground">(max 60 chars)</span></Label><Input value={form.seoTitle || ''} onChange={e => set('seoTitle', e.target.value || undefined)} placeholder={form.name} maxLength={60} /></div>
           <div className="space-y-2"><Label>Meta Description <span className="text-xs text-muted-foreground">(max 160 chars)</span></Label><Textarea rows={2} value={form.seoDescription || ''} onChange={e => set('seoDescription', e.target.value || undefined)} placeholder={form.description?.slice(0, 160)} maxLength={160} /></div>
-          <div className="space-y-2"><Label>OG Image URL</Label><Input value={form.ogImage || ''} onChange={e => set('ogImage', e.target.value || undefined)} placeholder={form.images?.[0] || 'https://...'} /></div>
+          <ImageUploadField value={form.ogImage || ''} onChange={url => set('ogImage', url || undefined)} label="OG Image" />
         </div>
 
         <div className="flex justify-end gap-3">
