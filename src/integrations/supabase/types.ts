@@ -216,6 +216,7 @@ export type Database = {
           id: string
           images: Json
           in_stock: boolean
+          is_live: boolean
           is_new: boolean
           is_trending: boolean
           name: string
@@ -239,6 +240,7 @@ export type Database = {
           id?: string
           images?: Json
           in_stock?: boolean
+          is_live?: boolean
           is_new?: boolean
           is_trending?: boolean
           name: string
@@ -262,6 +264,7 @@ export type Database = {
           id?: string
           images?: Json
           in_stock?: boolean
+          is_live?: boolean
           is_new?: boolean
           is_trending?: boolean
           name?: string

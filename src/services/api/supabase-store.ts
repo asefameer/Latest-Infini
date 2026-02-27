@@ -37,6 +37,7 @@ export function toProduct(row: any): Product {
     inStock: row.in_stock,
     isNew: row.is_new,
     isTrending: row.is_trending,
+    isLive: row.is_live ?? false,
     seoTitle: row.seo_title ?? undefined,
     seoDescription: row.seo_description ?? undefined,
     ogImage: row.og_image ?? undefined,
@@ -62,6 +63,7 @@ export function toDbProduct(p: Partial<Product>): Record<string, any> {
   if ('inStock' in p) row.in_stock = p.inStock;
   if ('isNew' in p) row.is_new = p.isNew;
   if ('isTrending' in p) row.is_trending = p.isTrending;
+  if ('isLive' in p) row.is_live = p.isLive;
   if ('seoTitle' in p) row.seo_title = p.seoTitle ?? null;
   if ('seoDescription' in p) row.seo_description = p.seoDescription ?? null;
   if ('ogImage' in p) row.og_image = p.ogImage ?? null;
