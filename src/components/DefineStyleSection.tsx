@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import ScrollReveal from "@/components/ScrollReveal";
 import { useSiteContent, contentToMap } from "@/hooks/use-cms";
@@ -12,13 +13,15 @@ const cards = [
     title: "LIVE THE MOMENT",
     subtitle: "Experience life as it happens",
     video: ltmCardVideo,
-    tilt: -6, // tilted left
+    tilt: -6,
+    route: "/the-trinity/live-the-moment",
   },
   {
     title: "X FORCE",
     subtitle: "Push beyond limits",
     video: xforceCardVideo,
-    tilt: 6, // tilted right
+    tilt: 6,
+    route: "/the-trinity/x-force",
   },
 ];
 
@@ -94,10 +97,14 @@ const DefineStyleSection = () => {
       {/* Two video cards — enter from opposite sides */}
       <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 max-w-5xl w-full">
         <ScrollReveal offsetX={-200} offsetY={40} className="w-full max-w-[300px] md:max-w-[360px]">
-          <VideoCard video={cards[0].video} title={cards[0].title} tilt={cards[0].tilt} />
+          <Link to={cards[0].route}>
+            <VideoCard video={cards[0].video} title={cards[0].title} tilt={cards[0].tilt} />
+          </Link>
         </ScrollReveal>
         <ScrollReveal offsetX={200} offsetY={40} className="w-full max-w-[300px] md:max-w-[360px]">
-          <VideoCard video={cards[1].video} title={cards[1].title} tilt={cards[1].tilt} />
+          <Link to={cards[1].route}>
+            <VideoCard video={cards[1].video} title={cards[1].title} tilt={cards[1].tilt} />
+          </Link>
         </ScrollReveal>
       </div>
     </section>
