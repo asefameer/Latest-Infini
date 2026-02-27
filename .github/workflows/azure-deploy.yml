@@ -1,0 +1,127 @@
+name: Deploy to Azure (Front Door + Blob Storage + Functions)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
+  AZURE_STORAGE_ACCOUNT: stportalinfinityprod001
+  AZURE_CDN_PROFILE: afd-portal-prod
+  AZURE_CDN_ENDPOINT: infinity-frontend
+  AZURE_RESOURCE_GROUP: rg-portal-app-prod
+  AZURE_FUNCTIONAPP_NAME: infinity-portal-app-prod-001
+
+jobs:
+  # ── Build & Deploy Frontend to Blob Storage ──
+  deploy_frontend:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build & Deploy Frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_AZURE_AD_TENANT: ${{ secrets.VITE_AZURE_AD_TENANT }}
+          VITE_AZURE_AD_CLIENT_ID: ${{ secrets.VITE_AZURE_AD_CLIENT_ID }}
+          VITE_AZURE_STORAGE_URL: ${{ secrets.VITE_AZURE_STORAGE_URL }}
+          VITE_APPINSIGHTS_CONNECTION_STRING: ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}
+          VITE_AZURE_SEARCH_URL: ${{ secrets.VITE_AZURE_SEARCH_URL }}
+          VITE_AZURE_SEARCH_KEY: ${{ secrets.VITE_AZURE_SEARCH_KEY }}
+        run: npm run build
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Upload to Blob Storage ($web container)
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --account-name ${{ env.AZURE_STORAGE_ACCOUNT }} \
+              --destination '$web' \
+              --source ./dist \
+              --overwrite true \
+              --content-cache-control "public, max-age=31536000, immutable" \
+              --pattern "assets/*"
+
+            az storage blob upload-batch \
+              --account-name ${{ env.AZURE_STORAGE_ACCOUNT }} \
+              --destination '$web' \
+              --source ./dist \
+              --overwrite true \
+              --content-cache-control "no-cache" \
+              --pattern "*.html"
+
+            az storage blob upload-batch \
+              --account-name ${{ env.AZURE_STORAGE_ACCOUNT }} \
+              --destination '$web' \
+              --source ./dist \
+              --overwrite true \
+              --content-cache-control "no-cache" \
+              --pattern "*.json"
+
+      - name: Purge Azure Front Door cache
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az afd endpoint purge \
+              --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+              --profile-name ${{ env.AZURE_CDN_PROFILE }} \
+              --endpoint-name ${{ env.AZURE_CDN_ENDPOINT }} \
+              --content-paths "/*"
+
+  # ── Build & Deploy Azure Functions ──
+  deploy_functions:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build & Deploy Azure Functions
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install & build Functions
+        working-directory: azure-functions
+        run: |
+          npm ci
+          npm run build
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: azure-functions
+          respect-funcignore: true
+
+  # ── Close PR staging ──
+  close_pull_request:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close PR staging
+    steps:
+      - name: Log PR closed
+        run: echo "PR staging environment closed"

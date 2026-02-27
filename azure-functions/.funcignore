@@ -1,0 +1,10 @@
+.git*
+.vscode
+local.settings.json
+node_modules
+src/**/*.ts
+!src/**/*.js
+tsconfig.json
+README.md
+schema.sql
+seed.sql
