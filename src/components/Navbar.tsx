@@ -20,8 +20,8 @@ const navItems = [
       { label: "X-Force", route: "/the-trinity/x-force" },
     ],
   },
-  { id: "editions", label: "Editions", route: "/editions" },
-  { id: "encounter", label: "Encounter", route: "/encounter" },
+  { id: "editions", label: "Editions", route: "/editions", revealLabel: "ecommerce" },
+  { id: "encounter", label: "Encounter", route: "/encounter", revealLabel: "events" },
 ];
 
 const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
@@ -98,7 +98,7 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
                   />
                   <button
                     onClick={() => handleNav(item)}
-                    className={`relative px-5 py-2 text-sm font-medium transition-all duration-300 rounded-full ${
+                    className={`relative px-5 py-2 text-sm font-medium transition-all duration-300 rounded-full overflow-hidden ${
                       isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                     }`}
                     style={{
@@ -107,7 +107,16 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
                         : "hsl(var(--background) / 0.7)",
                     }}
                   >
-                    {item.label}
+                    {/* Reveal label behind */}
+                    {item.revealLabel && (
+                      <span className="absolute inset-0 flex items-center justify-center text-[10px] uppercase tracking-[0.25em] font-semibold text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-1 group-hover:translate-y-0">
+                        {item.revealLabel}
+                      </span>
+                    )}
+                    {/* Main label */}
+                    <span className={item.revealLabel ? "relative transition-all duration-500 group-hover:-translate-y-[110%] group-hover:opacity-0" : "relative"}>
+                      {item.label}
+                    </span>
                   </button>
                 </MagneticButton>
 
