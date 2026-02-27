@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import ScrollReveal from "@/components/ScrollReveal";
 import MagneticButton from "@/components/MagneticButton";
+import { useSiteContent, contentToMap } from "@/hooks/use-cms";
 
 interface HeroSectionProps {
   onNavigate: (section: string) => void;
@@ -411,6 +412,32 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
   // Mask size based on hover
   const maskSize = isHovering ? 220 : 0;
 
+  // CMS content
+  const { data: heroContent } = useSiteContent('hero');
+  const hcm = heroContent ? contentToMap(heroContent) : {};
+  const ht = hcm['hero'] ?? {};
+
+  const HeroTagline = () => (
+    <div className="absolute bottom-32 left-0 right-0 z-10 flex flex-col items-center text-center px-4">
+      <motion.p
+        className="font-body text-xs sm:text-sm md:text-base tracking-[0.3em] sm:tracking-[0.5em] text-muted-foreground uppercase"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, delay: 0.6 }}
+      >
+        {ht['tagline'] ?? 'Towards infinite possibilities'}
+      </motion.p>
+      <motion.p
+        className="hidden md:block font-body text-xs tracking-[0.3em] text-muted-foreground/50 uppercase mt-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 1.2 }}
+      >
+        {ht['cursor_hint'] ?? 'move cursor to reveal'}
+      </motion.p>
+    </div>
+  );
+
   return (
     <>
     <section
@@ -462,24 +489,7 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
       </motion.div>
 
       {/* ── Layer 4: Tagline only ── */}
-      <div className="absolute bottom-32 left-0 right-0 z-10 flex flex-col items-center text-center px-4">
-        <motion.p
-          className="font-body text-xs sm:text-sm md:text-base tracking-[0.3em] sm:tracking-[0.5em] text-muted-foreground uppercase"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.6 }}
-        >
-          Towards infinite possibilities
-        </motion.p>
-        <motion.p
-          className="hidden md:block font-body text-xs tracking-[0.3em] text-muted-foreground/50 uppercase mt-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.2 }}
-        >
-          move cursor to reveal
-        </motion.p>
-      </div>
+      <HeroTagline />
 
 
       {/* ── Scroll indicator ── */}
@@ -537,7 +547,7 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
             onClick={() => onNavigate("editions")}
             className="btn-infinity rounded-full px-8 py-3 text-sm font-medium tracking-wide bg-background/80 text-foreground transition-all"
           >
-            EDITIONS
+            {ht['cta_editions'] ?? 'EDITIONS'}
           </button>
         </MagneticButton>
         <MagneticButton strength={0.4}>
@@ -545,7 +555,7 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
             onClick={() => onNavigate("encounter")}
             className="btn-infinity rounded-full px-8 py-3 text-sm font-medium tracking-wide bg-background/80 text-foreground transition-all"
           >
-            ENCOUNTER
+            {ht['cta_encounter'] ?? 'ENCOUNTER'}
           </button>
         </MagneticButton>
       </ScrollReveal>

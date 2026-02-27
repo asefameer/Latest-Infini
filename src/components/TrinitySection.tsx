@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useRef } from "react";
 import { useScroll, useTransform, useSpring } from "framer-motion";
 import ScrollReveal from "@/components/ScrollReveal";
-
+import { useSiteContent, contentToMap } from "@/hooks/use-cms";
 import nova01 from "@/assets/nova-01.png";
 import nova02 from "@/assets/nova-02.png";
 import ltm01 from "@/assets/ltm-01.png";
@@ -12,27 +12,27 @@ import xforce02 from "@/assets/xforce-02.png";
 
 const springConfig = { stiffness: 60, damping: 18, mass: 0.6 };
 
-const cards = [
+const defaultCards = [
   {
+    key: "nova",
     title: "NOVA",
     image1: nova01,
     image2: nova02,
-    description:
-      "NOVA is a lifestyle platform that goes beyond the ordinary to create Bangladesh's most exceptional experiences.",
+    description: "NOVA is a lifestyle platform that goes beyond the ordinary to create Bangladesh's most exceptional experiences.",
   },
   {
+    key: "ltm",
     title: "LIVE THE MOMENT",
     image1: ltm01,
     image2: ltm02,
-    description:
-      "Live the Moment is a lifestyle platform where you truly live every bit of the moment.",
+    description: "Live the Moment is a lifestyle platform where you truly live every bit of the moment.",
   },
   {
+    key: "xforce",
     title: "X FORCE",
     image1: xforce01,
     image2: xforce02,
-    description:
-      "X Force is not just a platform, but a tribe for those who refuse to settle. For the ones who push limits, chase adrenaline, and live their passion loud.",
+    description: "X Force is not just a platform, but a tribe for those who refuse to settle. For the ones who push limits, chase adrenaline, and live their passion loud.",
   },
 ];
 
@@ -86,6 +86,16 @@ const OverlayCard = ({
 };
 
 const TrinitySection = () => {
+  const { data: contentRows } = useSiteContent('trinity');
+  const cm = contentRows ? contentToMap(contentRows) : {};
+  const t = cm['trinity'] ?? {};
+
+  const cards = defaultCards.map(c => ({
+    ...c,
+    title: t[`${c.key}_name`] ?? c.title,
+    description: t[`${c.key}_description`] ?? c.description,
+  }));
+
   return (
     <section
       id="the-trinity"
@@ -94,10 +104,10 @@ const TrinitySection = () => {
       {/* Heading */}
       <ScrollReveal className="text-center mb-10 md:mb-16" offsetY={60} blur={8}>
         <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
-          The Trinity Collective
+          {t['heading'] ?? 'The Trinity Collective'}
         </h2>
         <p className="text-muted-foreground text-sm md:text-lg">
-          A singular destination for your multifaceted life.
+          {t['subheading'] ?? 'A singular destination for your multifaceted life.'}
         </p>
       </ScrollReveal>
 
@@ -105,7 +115,7 @@ const TrinitySection = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full">
         {cards.map((card) => (
           <ScrollReveal
-            key={card.title}
+            key={card.key}
             className="group cursor-pointer"
             offsetY={80}
             blur={10}
