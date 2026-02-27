@@ -39,7 +39,7 @@ const ProductDetail = () => {
 
   return (
     <>
-      <SEOHead title={product.name} description={product.description} canonical={`/editions/p/${product.slug}`} jsonLd={jsonLd} />
+      <SEOHead title={product.seoTitle || product.name} description={product.seoDescription || product.description} canonical={`/editions/p/${product.slug}`} ogImage={product.ogImage || product.images[0]} jsonLd={jsonLd} />
       <div className="container mx-auto px-6">
         <Breadcrumbs items={[{ label: 'Editions', href: '/editions' }, { label: product.category.replace('-', ' '), href: `/editions/c/${product.category}` }, { label: product.name }]} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">

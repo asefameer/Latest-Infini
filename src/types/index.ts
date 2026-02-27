@@ -5,7 +5,13 @@ export interface Variant {
   options: string[];
 }
 
-export interface Product {
+export interface SEOFields {
+  seoTitle?: string;
+  seoDescription?: string;
+  ogImage?: string;
+}
+
+export interface Product extends SEOFields {
   id: string;
   slug: string;
   name: string;
@@ -43,7 +49,7 @@ export interface TicketTier {
   maxPerOrder: number;
 }
 
-export interface Event {
+export interface Event extends SEOFields {
   id: string;
   slug: string;
   title: string;
