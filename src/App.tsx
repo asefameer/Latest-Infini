@@ -43,6 +43,7 @@ import CRMAnalytics from "./pages/admin/CRMAnalytics";
 import DiscountsAdmin from "./pages/admin/DiscountsAdmin";
 import OrdersAdmin from "./pages/admin/OrdersAdmin";
 import ContentAdmin from "./pages/admin/ContentAdmin";
+import LogoExport from "./pages/admin/LogoExport";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -106,6 +107,7 @@ const App = () => (
                   <Route path="crm/chatbot" element={<CRMChatbot />} />
                   <Route path="crm/messaging" element={<CRMMessaging />} />
                   <Route path="crm/analytics" element={<CRMAnalytics />} />
+                  <Route path="logo-export" element={<LogoExport />} />
                 </Route>
               </Routes>
             </BrowserRouter>
