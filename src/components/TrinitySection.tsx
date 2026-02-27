@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 import { useScroll, useTransform, useSpring } from "framer-motion";
 import ScrollReveal from "@/components/ScrollReveal";
 import { useSiteContent, contentToMap } from "@/hooks/use-cms";
@@ -19,6 +20,7 @@ const defaultCards = [
     image1: nova01,
     image2: nova02,
     description: "NOVA is a lifestyle platform that goes beyond the ordinary to create Bangladesh's most exceptional experiences.",
+    route: "/the-trinity/nova",
   },
   {
     key: "ltm",
@@ -26,6 +28,7 @@ const defaultCards = [
     image1: ltm01,
     image2: ltm02,
     description: "Live the Moment is a lifestyle platform where you truly live every bit of the moment.",
+    route: "/the-trinity/live-the-moment",
   },
   {
     key: "xforce",
@@ -33,6 +36,7 @@ const defaultCards = [
     image1: xforce01,
     image2: xforce02,
     description: "X Force is not just a platform, but a tribe for those who refuse to settle. For the ones who push limits, chase adrenaline, and live their passion loud.",
+    route: "/the-trinity/x-force",
   },
 ];
 
@@ -116,18 +120,20 @@ const TrinitySection = () => {
         {cards.map((card) => (
           <ScrollReveal
             key={card.key}
-            className="group cursor-pointer"
+            className="group"
             offsetY={80}
             blur={10}
           >
-            <OverlayCard image1={card.image1} image2={card.image2} alt={card.title} />
+            <Link to={card.route} className="block cursor-pointer">
+              <OverlayCard image1={card.image1} image2={card.image2} alt={card.title} />
 
-            <h3 className="font-display text-xl font-bold text-foreground mb-2 tracking-wide">
-              {card.title}
-            </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {card.description}
-            </p>
+              <h3 className="font-display text-xl font-bold text-foreground mb-2 tracking-wide group-hover:text-primary transition-colors">
+                {card.title}
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {card.description}
+              </p>
+            </Link>
           </ScrollReveal>
         ))}
       </div>

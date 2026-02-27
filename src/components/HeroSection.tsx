@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
+import { Link } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
 import MagneticButton from "@/components/MagneticButton";
 import { useSiteContent, contentToMap } from "@/hooks/use-cms";
@@ -521,15 +522,20 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         rotateY={40}
         blur={16}
       >
-        {["NOVA", "LIVE THE MOMENT", "XFORCE"].map((name, i) => (
-          <span key={name} className="flex items-center gap-3 sm:gap-6">
+        {[
+          { name: "NOVA", route: "/the-trinity/nova" },
+          { name: "LIVE THE MOMENT", route: "/the-trinity/live-the-moment" },
+          { name: "XFORCE", route: "/the-trinity/x-force" },
+        ].map((brand, i) => (
+          <span key={brand.name} className="flex items-center gap-3 sm:gap-6">
             {i > 0 && <span className="w-px h-4 bg-muted-foreground/30" />}
-            <span
+            <Link
+              to={brand.route}
               className="text-[10px] sm:text-xs font-display font-bold tracking-[0.15em] sm:tracking-[0.3em] text-foreground/60 hover:text-primary transition-colors cursor-pointer"
               data-magnetic
             >
-              {name}
-            </span>
+              {brand.name}
+            </Link>
           </span>
         ))}
       </ScrollReveal>
@@ -543,20 +549,20 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
         blur={16}
       >
         <MagneticButton strength={0.4}>
-          <button
-            onClick={() => onNavigate("editions")}
-            className="btn-infinity rounded-full px-8 py-3 text-sm font-medium tracking-wide bg-background/80 text-foreground transition-all"
+          <Link
+            to="/editions"
+            className="btn-infinity rounded-full px-8 py-3 text-sm font-medium tracking-wide bg-background/80 text-foreground transition-all inline-block"
           >
             {ht['cta_editions'] ?? 'EDITIONS'}
-          </button>
+          </Link>
         </MagneticButton>
         <MagneticButton strength={0.4}>
-          <button
-            onClick={() => onNavigate("encounter")}
-            className="btn-infinity rounded-full px-8 py-3 text-sm font-medium tracking-wide bg-background/80 text-foreground transition-all"
+          <Link
+            to="/encounter"
+            className="btn-infinity rounded-full px-8 py-3 text-sm font-medium tracking-wide bg-background/80 text-foreground transition-all inline-block"
           >
             {ht['cta_encounter'] ?? 'ENCOUNTER'}
-          </button>
+          </Link>
         </MagneticButton>
       </ScrollReveal>
     </section>
