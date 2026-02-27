@@ -28,7 +28,7 @@ const EventDetail = () => {
 
   return (
     <>
-      <SEOHead title={event.title} description={event.description} canonical={`/encounter/e/${event.slug}`} jsonLd={jsonLd} />
+      <SEOHead title={event.seoTitle || event.title} description={event.seoDescription || event.description} canonical={`/encounter/e/${event.slug}`} ogImage={event.ogImage || event.bannerImage} jsonLd={jsonLd} />
       <div className="relative aspect-[21/9] md:aspect-[3/1] bg-muted">
         <img src={event.bannerImage} alt={event.title} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />

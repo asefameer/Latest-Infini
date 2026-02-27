@@ -145,6 +145,14 @@ const EventForm = () => {
           <Input placeholder="Comma-separated artists" value={(form.lineup || []).join(', ')} onChange={e => set('lineup', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} />
         </div>
 
+        <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+          <h2 className="font-semibold text-foreground">SEO Settings</h2>
+          <p className="text-xs text-muted-foreground">Override auto-generated SEO metadata. Leave blank to use defaults.</p>
+          <div className="space-y-2"><Label>Meta Title <span className="text-xs text-muted-foreground">(max 60 chars)</span></Label><Input value={form.seoTitle || ''} onChange={e => set('seoTitle', e.target.value || undefined)} placeholder={form.title} maxLength={60} /></div>
+          <div className="space-y-2"><Label>Meta Description <span className="text-xs text-muted-foreground">(max 160 chars)</span></Label><Textarea rows={2} value={form.seoDescription || ''} onChange={e => set('seoDescription', e.target.value || undefined)} placeholder={form.description?.slice(0, 160)} maxLength={160} /></div>
+          <div className="space-y-2"><Label>OG Image URL</Label><Input value={form.ogImage || ''} onChange={e => set('ogImage', e.target.value || undefined)} placeholder={form.bannerImage || 'https://...'} /></div>
+        </div>
+
         <div className="flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={() => navigate('/admin/events')}>Cancel</Button>
           <Button type="submit" disabled={saving} className="gap-2"><Save className="w-4 h-4" /> {saving ? 'Saving…' : 'Save Event'}</Button>
