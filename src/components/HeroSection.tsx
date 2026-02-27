@@ -462,9 +462,9 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
       </motion.div>
 
       {/* ── Layer 4: Tagline only ── */}
-      <div className="absolute bottom-32 left-0 right-0 z-10 flex flex-col items-center text-center">
+      <div className="absolute bottom-32 left-0 right-0 z-10 flex flex-col items-center text-center px-4">
         <motion.p
-          className="font-body text-sm md:text-base tracking-[0.5em] text-muted-foreground uppercase"
+          className="font-body text-xs sm:text-sm md:text-base tracking-[0.3em] sm:tracking-[0.5em] text-muted-foreground uppercase"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.6 }}
@@ -472,7 +472,7 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
           Towards infinite possibilities
         </motion.p>
         <motion.p
-          className="font-body text-xs tracking-[0.3em] text-muted-foreground/50 uppercase mt-4"
+          className="hidden md:block font-body text-xs tracking-[0.3em] text-muted-foreground/50 uppercase mt-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.2 }}
@@ -502,20 +502,20 @@ const HeroSection = ({ onNavigate }: HeroSectionProps) => {
     </section>
 
     {/* ── Below-fold reveal section ── */}
-    <section className="relative z-10 flex flex-col items-center text-center py-24 bg-background">
+    <section className="relative z-10 flex flex-col items-center text-center py-16 md:py-24 bg-background px-4">
       {/* Sub-brands - scroll-synced 3D from left */}
       <ScrollReveal
-        className="flex items-center gap-6"
+        className="flex flex-wrap items-center justify-center gap-3 sm:gap-6"
         offsetY={60}
         offsetX={-120}
         rotateY={40}
         blur={16}
       >
         {["NOVA", "LIVE THE MOMENT", "XFORCE"].map((name, i) => (
-          <span key={name} className="flex items-center gap-6">
+          <span key={name} className="flex items-center gap-3 sm:gap-6">
             {i > 0 && <span className="w-px h-4 bg-muted-foreground/30" />}
             <span
-              className="text-xs font-display font-bold tracking-[0.3em] text-foreground/60 hover:text-primary transition-colors cursor-pointer"
+              className="text-[10px] sm:text-xs font-display font-bold tracking-[0.15em] sm:tracking-[0.3em] text-foreground/60 hover:text-primary transition-colors cursor-pointer"
               data-magnetic
             >
               {name}

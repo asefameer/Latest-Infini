@@ -89,14 +89,14 @@ const TrinitySection = () => {
   return (
     <section
       id="the-trinity"
-      className="relative min-h-screen flex flex-col items-center py-24 px-8 bg-background"
+      className="relative min-h-screen flex flex-col items-center py-16 md:py-24 px-4 md:px-8 bg-background"
     >
       {/* Heading */}
-      <ScrollReveal className="text-center mb-16" offsetY={60} blur={8}>
-        <h2 className="font-display text-5xl md:text-6xl font-bold text-foreground mb-4">
+      <ScrollReveal className="text-center mb-10 md:mb-16" offsetY={60} blur={8}>
+        <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
           The Trinity Collective
         </h2>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-sm md:text-lg">
           A singular destination for your multifaceted life.
         </p>
       </ScrollReveal>
