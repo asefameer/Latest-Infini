@@ -1,6 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+
+// ── Storage helpers ──
+const CMS_BUCKET = 'cms-images';
+
+export async function uploadCmsImage(file: File): Promise<string> {
+  const ext = file.name.split('.').pop() ?? 'jpg';
+  const path = `banners/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage.from(CMS_BUCKET).upload(path, file, {
+    cacheControl: '3600',
+    upsert: false,
+  });
+  if (error) throw error;
+  const { data } = supabase.storage.from(CMS_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
 // ── Types ──
 export interface SiteContentRow {
   id: string;
