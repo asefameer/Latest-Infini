@@ -6,17 +6,24 @@ import CTABand from '@/components/blocks/CTABand';
 import ScrollReveal from '@/components/ScrollReveal';
 import SkeletonGrid from '@/components/SkeletonGrid';
 import ErrorState from '@/components/ErrorState';
-import { useCategories, useTrendingProducts, useNewProducts } from '@/services/api/hooks';
+import { useCategories, useTrendingProducts, useNewProducts, useBannersByPlacement } from '@/services/api/hooks';
 
 const EditionsLanding = () => {
   const { data: categories = [], isLoading: catLoading, isError: catError, refetch: catRefetch } = useCategories();
   const { data: trending = [], isLoading: trendLoading } = useTrendingProducts();
   const { data: newDrops = [], isLoading: newLoading } = useNewProducts();
+  const { data: editionsBanners = [] } = useBannersByPlacement('editions');
+  const activeBanner = editionsBanners[0];
 
   return (
     <>
       <SEOHead title="Editions" description="Shop the complete Infinity collection. Premium streetwear, accessories, and footwear crafted in Bangladesh." canonical="/editions" />
-      <HeroBlock title="Editions" subtitle="Premium pieces crafted at the intersection of art and utility. Every edition tells a story." height="medium" />
+      <HeroBlock
+        title={activeBanner?.title || "Editions"}
+        subtitle="Premium pieces crafted at the intersection of art and utility. Every edition tells a story."
+        image={activeBanner?.imageUrl || undefined}
+        height="medium"
+      />
 
       <section className="py-20 px-6" style={{ background: 'hsl(var(--section-mid))' }}>
         <div className="container mx-auto">
