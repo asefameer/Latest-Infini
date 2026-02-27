@@ -74,6 +74,11 @@ export const useDeleteDiscount = () => {
 
 // ── Banners ──
 export const useBanners = () => useQuery({ queryKey: ['banners'], queryFn: bannersApi.getAll });
+export const useBannersByPlacement = (placement: string) => useQuery({
+  queryKey: ['banners', 'placement', placement],
+  queryFn: () => bannersApi.getByPlacement(placement),
+  enabled: !!placement,
+});
 
 // ── CRM ──
 export const useCustomers = () => useQuery({ queryKey: ['crm', 'customers'], queryFn: crmApi.customers.getAll });

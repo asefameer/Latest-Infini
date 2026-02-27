@@ -6,7 +6,7 @@ import SkeletonGrid from '@/components/SkeletonGrid';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import ScrollReveal from '@/components/ScrollReveal';
-import { useEvents, useFeaturedEvents } from '@/services/api/hooks';
+import { useEvents, useFeaturedEvents, useBannersByPlacement } from '@/services/api/hooks';
 import { ChevronDown, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import MagneticButton from '@/components/MagneticButton';
@@ -14,7 +14,9 @@ import MagneticButton from '@/components/MagneticButton';
 const EncounterLanding = () => {
   const { data: allEvents = [], isLoading, isError, refetch } = useEvents();
   const { data: featuredEvents = [] } = useFeaturedEvents();
+  const { data: encounterBanners = [] } = useBannersByPlacement('encounter');
   const featured = featuredEvents[0];
+  const activeBanner = encounterBanners[0];
   const [sort, setSort] = useState<'upcoming' | 'newest'>('upcoming');
   const [cityFilter, setCityFilter] = useState('');
 
@@ -31,7 +33,7 @@ const EncounterLanding = () => {
     <>
       <SEOHead title="Encounter" description="Discover and attend curated events by Infinity. Music, art, fitness, and more across Bangladesh." canonical="/encounter" />
       {featured && (
-        <HeroBlock title={featured.title} subtitle={`${new Date(featured.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · ${featured.venue}, ${featured.city}`} image={featured.bannerImage} height="medium">
+        <HeroBlock title={activeBanner?.title || featured.title} subtitle={`${new Date(featured.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · ${featured.venue}, ${featured.city}`} image={activeBanner?.imageUrl || featured.bannerImage} height="medium">
           <MagneticButton strength={0.3}>
             <Link to={`/encounter/e/${featured.slug}`} className="group relative inline-flex items-center gap-2 mt-8 rounded-full text-sm font-medium">
               <div className="absolute -inset-[1px] rounded-full opacity-80 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)))', backgroundSize: '200% 200%', animation: 'gradient-shift 3s ease infinite' }} />

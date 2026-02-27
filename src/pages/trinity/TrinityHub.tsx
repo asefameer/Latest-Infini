@@ -9,11 +9,14 @@ import { ArrowRight } from 'lucide-react';
 import { brands } from '@/data/brands';
 import { getFeaturedProducts } from '@/data/products';
 import { getFeaturedEvents } from '@/data/events';
+import { useBannersByPlacement } from '@/services/api/hooks';
 import heroImg from '@/assets/hero-crystal.jpg';
 
 const TrinityHub = () => {
   const featuredProducts = getFeaturedProducts();
   const featuredEvents = getFeaturedEvents();
+  const { data: trinityBanners = [] } = useBannersByPlacement('trinity');
+  const activeBanner = trinityBanners[0];
 
   return (
     <>
@@ -24,9 +27,9 @@ const TrinityHub = () => {
       />
 
       <HeroBlock
-        title="The Trinity"
+        title={activeBanner?.title || "The Trinity"}
         subtitle="Three brands. One universe. Each with its own energy, identity, and purpose — united under the infinite."
-        image={heroImg}
+        image={activeBanner?.imageUrl || heroImg}
       />
 
       {/* Brand Cards */}
