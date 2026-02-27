@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Static pages -->
+  <url><loc>https://infinity.bd/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://infinity.bd/the-trinity</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/the-trinity/nova</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://infinity.bd/the-trinity/live-the-moment</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://infinity.bd/the-trinity/x-force</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://infinity.bd/editions</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://infinity.bd/encounter</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+
+  <!-- Category pages -->
+  <url><loc>https://infinity.bd/editions/c/apparel</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://infinity.bd/editions/c/accessories</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://infinity.bd/editions/c/footwear</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://infinity.bd/editions/c/limited-drops</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+
+  <!-- Product pages -->
+  <url><loc>https://infinity.bd/editions/p/nova-eclipse-hoodie</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/editions/p/nova-phantom-tee</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/editions/p/ltm-aura-jacket</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/editions/p/xforce-titan-joggers</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/editions/p/nova-infinity-cap</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/editions/p/ltm-wrist-band</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/editions/p/xforce-runner-v1</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/editions/p/xforce-slide-pro</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/editions/p/nova-legacy-chain</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/editions/p/ltm-limitless-tee</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/editions/p/xforce-drop-001</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/editions/p/nova-genesis-shorts</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+  <!-- Event pages -->
+  <url><loc>https://infinity.bd/encounter/e/nova-neon-nights</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/encounter/e/ltm-sunrise-session</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/encounter/e/xforce-urban-run</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/encounter/e/nova-gallery-opening</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://infinity.bd/encounter/e/ltm-rooftop-cinema</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+</urlset>
