@@ -42,6 +42,7 @@ import CRMMessaging from "./pages/admin/CRMMessaging";
 import CRMAnalytics from "./pages/admin/CRMAnalytics";
 import DiscountsAdmin from "./pages/admin/DiscountsAdmin";
 import OrdersAdmin from "./pages/admin/OrdersAdmin";
+import ContentAdmin from "./pages/admin/ContentAdmin";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,6 +99,7 @@ const App = () => (
                   <Route path="events" element={<EventsAdmin />} />
                   <Route path="events/:eventId" element={<EventForm />} />
                   <Route path="banners" element={<BannersAdmin />} />
+                  <Route path="content" element={<ContentAdmin />} />
                   <Route path="discounts" element={<DiscountsAdmin />} />
                   <Route path="orders" element={<OrdersAdmin />} />
                   <Route path="crm/customers" element={<CRMCustomers />} />

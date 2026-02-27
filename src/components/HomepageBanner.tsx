@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, type PanInfo } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import trinityNova from '@/assets/trinity-nova.jpg';
 import trinityLtm from '@/assets/trinity-live-the-moment.jpg';
 import trinityXforce from '@/assets/trinity-xforce.jpg';
+import { useHomepageBanners, useSiteContent, contentToMap } from '@/hooks/use-cms';
 
 interface TrinitySlide {
   id: string;
@@ -15,37 +16,40 @@ interface TrinitySlide {
   accent: string;
 }
 
-const slides: TrinitySlide[] = [
-  {
-    id: 'nova',
-    name: 'NOVA',
-    tagline: 'Light Beyond Limits',
-    image: trinityNova,
-    link: '/the-trinity/nova',
-    accent: 'var(--infinity-cyan)',
-  },
-  {
-    id: 'live-the-moment',
-    name: 'Live The Moment',
-    tagline: 'Every Second Counts',
-    image: trinityLtm,
-    link: '/the-trinity/live-the-moment',
-    accent: 'var(--infinity-purple)',
-  },
-  {
-    id: 'x-force',
-    name: 'X-Force',
-    tagline: 'Defy. Disrupt. Dominate.',
-    image: trinityXforce,
-    link: '/the-trinity/x-force',
-    accent: 'var(--infinity-pink)',
-  },
+const fallbackSlides: TrinitySlide[] = [
+  { id: 'nova', name: 'NOVA', tagline: 'Light Beyond Limits', image: trinityNova, link: '/the-trinity/nova', accent: 'var(--infinity-cyan)' },
+  { id: 'live-the-moment', name: 'Live The Moment', tagline: 'Every Second Counts', image: trinityLtm, link: '/the-trinity/live-the-moment', accent: 'var(--infinity-purple)' },
+  { id: 'x-force', name: 'X-Force', tagline: 'Defy. Disrupt. Dominate.', image: trinityXforce, link: '/the-trinity/x-force', accent: 'var(--infinity-pink)' },
 ];
+
+// Map local image paths to imported assets
+const imageMap: Record<string, string> = {
+  '/assets/trinity-nova.jpg': trinityNova,
+  '/assets/trinity-live-the-moment.jpg': trinityLtm,
+  '/assets/trinity-xforce.jpg': trinityXforce,
+};
 
 const INTERVAL = 4000;
 const SWIPE_THRESHOLD = 40;
 
 const HomepageBanner = () => {
+  const { data: dbBanners } = useHomepageBanners();
+  const { data: bannerContent } = useSiteContent('banner');
+  const bcm = bannerContent ? contentToMap(bannerContent) : {};
+  const bt = bcm['banner'] ?? {};
+
+  const slides: TrinitySlide[] = useMemo(() => {
+    if (!dbBanners || dbBanners.length === 0) return fallbackSlides;
+    return dbBanners.map(b => ({
+      id: b.id,
+      name: b.name,
+      tagline: b.tagline,
+      image: imageMap[b.image_url] ?? b.image_url,
+      link: b.link,
+      accent: b.accent_color,
+    }));
+  }, [dbBanners]);
+
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [direction, setDirection] = useState(1); // 1 = down/next, -1 = up/prev
@@ -193,7 +197,7 @@ const HomepageBanner = () => {
                     className="text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.3em] mb-1.5 sm:mb-2 font-medium"
                     style={{ color: `hsl(${slide.accent})` }}
                   >
-                    The Trinity
+                    {bt['section_label'] ?? 'The Trinity'}
                   </p>
                   <h2 className="font-display text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-1 sm:mb-2">
                     {slide.name}
@@ -202,7 +206,7 @@ const HomepageBanner = () => {
                     {slide.tagline}
                   </p>
                   <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-foreground group-hover:gap-3 transition-all">
-                    Explore <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    {bt['cta_label'] ?? 'Explore'} <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </span>
                 </motion.div>
               </AnimatePresence>

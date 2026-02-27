@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import ScrollReveal from "@/components/ScrollReveal";
+import { useSiteContent, contentToMap } from "@/hooks/use-cms";
 import ltmCardVideo from "@/assets/ltm-card.mp4";
 import xforceCardVideo from "@/assets/xforce-card.mp4";
 
@@ -70,6 +71,10 @@ const VideoCard = ({ video, title, tilt }: { video: string; title: string; tilt:
 };
 
 const DefineStyleSection = () => {
+  const { data: contentRows } = useSiteContent('define_style');
+  const cm = contentRows ? contentToMap(contentRows) : {};
+  const t = cm['define_style'] ?? {};
+
   return (
     <section
       id="define-style"
@@ -79,10 +84,10 @@ const DefineStyleSection = () => {
       {/* Heading */}
       <ScrollReveal className="text-center mb-10 md:mb-16" offsetY={60} blur={8}>
         <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
-          Define Your Style
+          {t['heading'] ?? 'Define Your Style'}
         </h2>
         <p className="text-muted-foreground text-sm md:text-lg">
-          Choose your world. Live your way.
+          {t['subheading'] ?? 'Choose your world. Live your way.'}
         </p>
       </ScrollReveal>
 
