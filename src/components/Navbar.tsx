@@ -20,8 +20,8 @@ const navItems = [
       { label: "X-Force", route: "/the-trinity/x-force" },
     ],
   },
-  { id: "editions", label: "Editions", route: "/editions" },
-  { id: "encounter", label: "Encounter", route: "/encounter" },
+  { id: "editions", label: "Editions", route: "/editions", revealLabel: "Ecommerce" },
+  { id: "encounter", label: "Encounter", route: "/encounter", revealLabel: "Events" },
 ];
 
 const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
@@ -98,7 +98,7 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
                   />
                   <button
                     onClick={() => handleNav(item)}
-                    className={`relative px-5 py-2 text-sm font-medium transition-all duration-300 rounded-full ${
+                    className={`relative px-5 py-2 text-sm font-medium transition-all duration-300 rounded-full overflow-hidden ${
                       isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                     }`}
                     style={{
@@ -107,7 +107,23 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
                         : "hsl(var(--background) / 0.7)",
                     }}
                   >
-                    {item.label}
+                    {item.revealLabel ? (
+                      <span className="relative block">
+                        {/* Background "reveal" text */}
+                        <span
+                          className="absolute inset-0 flex items-center justify-center text-xs tracking-widest uppercase opacity-0 group-hover:opacity-40 transition-all duration-500 text-muted-foreground"
+                          aria-hidden="true"
+                        >
+                          {item.revealLabel}
+                        </span>
+                        {/* Main label slides up slightly on hover */}
+                        <span className="relative block transition-transform duration-300 group-hover:-translate-y-[2px]">
+                          {item.label}
+                        </span>
+                      </span>
+                    ) : (
+                      item.label
+                    )}
                   </button>
                 </MagneticButton>
 
