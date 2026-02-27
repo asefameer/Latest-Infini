@@ -1,17 +1,14 @@
 /**
  * Unified API Service
  * 
- * Single entry point for all data operations. Uses mock-store when VITE_API_BASE_URL 
- * is not set. When Azure Functions are deployed, set the env var and the httpClient
- * will handle all requests.
+ * Three-tier backend routing:
+ * 1. 'supabase' → Lovable Cloud (default, current deployment)
+ * 2. 'azure'    → Azure Functions (set VITE_API_BASE_URL)
+ * 3. 'mock'     → In-memory store (set VITE_USE_MOCK=true)
  * 
- * Azure Functions mapping (when deployed):
- * GET    /api/products          → productStore.getAll()
- * GET    /api/products/:id      → productStore.getById()
- * POST   /api/products          → productStore.create()
- * PUT    /api/products/:id      → productStore.update()
- * DELETE /api/products/:id      → productStore.delete()
- * (same pattern for events, discounts, banners, customers, etc.)
+ * All admin and customer-facing pages use the hooks in ./hooks.ts,
+ * which call these API functions. Switching backends requires zero
+ * changes to UI code.
  */
 import { API_CONFIG } from './config';
 import { httpClient } from './http-client';
@@ -22,145 +19,168 @@ import {
   orderStore,
   subscribe,
 } from './mock-store';
+import {
+  supabaseProductStore,
+  supabaseEventStore,
+  supabaseCategoryStore,
+} from './supabase-store';
 import type { Product, Event, Category, BrandContent, Order } from '@/types';
 import type { Discount } from '@/pages/admin/DiscountsAdmin';
 import type { Banner } from './mock-store';
 
-const useMock = API_CONFIG.USE_MOCK;
+const mode = API_CONFIG.BACKEND_MODE;
 
 // ── Products ──
 export const productsApi = {
   getAll: async (): Promise<Product[]> =>
-    useMock ? productStore.getAll() : httpClient.get('/products'),
+    mode === 'supabase' ? supabaseProductStore.getAll() :
+    mode === 'mock' ? productStore.getAll() : httpClient.get('/products'),
   getById: async (id: string): Promise<Product | null> =>
-    useMock ? productStore.getById(id) : httpClient.get(`/products/${id}`),
+    mode === 'supabase' ? supabaseProductStore.getById(id) :
+    mode === 'mock' ? productStore.getById(id) : httpClient.get(`/products/${id}`),
   getBySlug: async (slug: string): Promise<Product | null> =>
-    useMock ? productStore.getBySlug(slug) : httpClient.get(`/products/slug/${slug}`),
+    mode === 'supabase' ? supabaseProductStore.getBySlug(slug) :
+    mode === 'mock' ? productStore.getBySlug(slug) : httpClient.get(`/products/slug/${slug}`),
   getByCategory: async (cat: string): Promise<Product[]> =>
-    useMock ? productStore.getByCategory(cat) : httpClient.get(`/products?category=${cat}`),
+    mode === 'supabase' ? supabaseProductStore.getByCategory(cat) :
+    mode === 'mock' ? productStore.getByCategory(cat) : httpClient.get(`/products?category=${cat}`),
   getByBrand: async (brand: string): Promise<Product[]> =>
-    useMock ? productStore.getByBrand(brand) : httpClient.get(`/products?brand=${brand}`),
+    mode === 'supabase' ? supabaseProductStore.getByBrand(brand) :
+    mode === 'mock' ? productStore.getByBrand(brand) : httpClient.get(`/products?brand=${brand}`),
   getTrending: async (): Promise<Product[]> =>
-    useMock ? productStore.getTrending() : httpClient.get('/products?trending=true'),
+    mode === 'supabase' ? supabaseProductStore.getTrending() :
+    mode === 'mock' ? productStore.getTrending() : httpClient.get('/products?trending=true'),
   getNew: async (): Promise<Product[]> =>
-    useMock ? productStore.getNew() : httpClient.get('/products?new=true'),
+    mode === 'supabase' ? supabaseProductStore.getNew() :
+    mode === 'mock' ? productStore.getNew() : httpClient.get('/products?new=true'),
   getFeatured: async (): Promise<Product[]> =>
-    useMock ? productStore.getFeatured() : httpClient.get('/products?featured=true'),
+    mode === 'supabase' ? supabaseProductStore.getFeatured() :
+    mode === 'mock' ? productStore.getFeatured() : httpClient.get('/products?featured=true'),
   create: async (p: Product): Promise<Product> =>
-    useMock ? productStore.create(p) : httpClient.post('/products', p),
+    mode === 'supabase' ? supabaseProductStore.create(p) :
+    mode === 'mock' ? productStore.create(p) : httpClient.post('/products', p),
   update: async (id: string, data: Partial<Product>): Promise<Product> =>
-    useMock ? productStore.update(id, data) : httpClient.put(`/products/${id}`, data),
+    mode === 'supabase' ? supabaseProductStore.update(id, data) :
+    mode === 'mock' ? productStore.update(id, data) : httpClient.put(`/products/${id}`, data),
   delete: async (id: string): Promise<void> =>
-    useMock ? productStore.delete(id) : httpClient.delete(`/products/${id}`),
+    mode === 'supabase' ? supabaseProductStore.delete(id) :
+    mode === 'mock' ? productStore.delete(id) : httpClient.delete(`/products/${id}`),
 };
 
 // ── Events ──
 export const eventsApi = {
   getAll: async (): Promise<Event[]> =>
-    useMock ? eventStore.getAll() : httpClient.get('/events'),
+    mode === 'supabase' ? supabaseEventStore.getAll() :
+    mode === 'mock' ? eventStore.getAll() : httpClient.get('/events'),
   getById: async (id: string): Promise<Event | null> =>
-    useMock ? eventStore.getById(id) : httpClient.get(`/events/${id}`),
+    mode === 'supabase' ? supabaseEventStore.getById(id) :
+    mode === 'mock' ? eventStore.getById(id) : httpClient.get(`/events/${id}`),
   getBySlug: async (slug: string): Promise<Event | null> =>
-    useMock ? eventStore.getBySlug(slug) : httpClient.get(`/events/slug/${slug}`),
+    mode === 'supabase' ? supabaseEventStore.getBySlug(slug) :
+    mode === 'mock' ? eventStore.getBySlug(slug) : httpClient.get(`/events/slug/${slug}`),
   getByBrand: async (brand: string): Promise<Event[]> =>
-    useMock ? eventStore.getByBrand(brand) : httpClient.get(`/events?brand=${brand}`),
+    mode === 'supabase' ? supabaseEventStore.getByBrand(brand) :
+    mode === 'mock' ? eventStore.getByBrand(brand) : httpClient.get(`/events?brand=${brand}`),
   getFeatured: async (): Promise<Event[]> =>
-    useMock ? eventStore.getFeatured() : httpClient.get('/events?featured=true'),
+    mode === 'supabase' ? supabaseEventStore.getFeatured() :
+    mode === 'mock' ? eventStore.getFeatured() : httpClient.get('/events?featured=true'),
   create: async (e: Event): Promise<Event> =>
-    useMock ? eventStore.create(e) : httpClient.post('/events', e),
+    mode === 'supabase' ? supabaseEventStore.create(e) :
+    mode === 'mock' ? eventStore.create(e) : httpClient.post('/events', e),
   update: async (id: string, data: Partial<Event>): Promise<Event> =>
-    useMock ? eventStore.update(id, data) : httpClient.put(`/events/${id}`, data),
+    mode === 'supabase' ? supabaseEventStore.update(id, data) :
+    mode === 'mock' ? eventStore.update(id, data) : httpClient.put(`/events/${id}`, data),
   delete: async (id: string): Promise<void> =>
-    useMock ? eventStore.delete(id) : httpClient.delete(`/events/${id}`),
+    mode === 'supabase' ? supabaseEventStore.delete(id) :
+    mode === 'mock' ? eventStore.delete(id) : httpClient.delete(`/events/${id}`),
 };
 
 // ── Categories ──
 export const categoriesApi = {
   getAll: async (): Promise<Category[]> =>
-    useMock ? categoryStore.getAll() : httpClient.get('/categories'),
+    mode === 'supabase' ? supabaseCategoryStore.getAll() :
+    mode === 'mock' ? categoryStore.getAll() : httpClient.get('/categories'),
 };
 
-// ── Brands ──
+// ── Brands (static data — stays in mock-store for now) ──
 export const brandsApi = {
   getAll: async (): Promise<BrandContent[]> =>
-    useMock ? brandStore.getAll() : httpClient.get('/brands'),
+    mode === 'azure' ? httpClient.get('/brands') : brandStore.getAll(),
   getById: async (id: string): Promise<BrandContent | null> =>
-    useMock ? brandStore.getById(id) : httpClient.get(`/brands/${id}`),
+    mode === 'azure' ? httpClient.get(`/brands/${id}`) : brandStore.getById(id),
 };
 
-// ── Discounts ──
+// ── Discounts (mock + azure, DB migration deferred) ──
 export const discountsApi = {
   getAll: async (): Promise<Discount[]> =>
-    useMock ? discountStore.getAll() : httpClient.get('/discounts'),
+    mode === 'azure' ? httpClient.get('/discounts') : discountStore.getAll(),
   getByCode: async (code: string): Promise<Discount | null> =>
-    useMock ? discountStore.getByCode(code) : httpClient.get(`/discounts/code/${code}`),
+    mode === 'azure' ? httpClient.get(`/discounts/code/${code}`) : discountStore.getByCode(code),
   create: async (d: Discount): Promise<Discount> =>
-    useMock ? discountStore.create(d) : httpClient.post('/discounts', d),
+    mode === 'azure' ? httpClient.post('/discounts', d) : discountStore.create(d),
   update: async (id: string, data: Partial<Discount>): Promise<Discount> =>
-    useMock ? discountStore.update(id, data) : httpClient.put(`/discounts/${id}`, data),
+    mode === 'azure' ? httpClient.put(`/discounts/${id}`, data) : discountStore.update(id, data),
   delete: async (id: string): Promise<void> =>
-    useMock ? discountStore.delete(id) : httpClient.delete(`/discounts/${id}`),
+    mode === 'azure' ? httpClient.delete(`/discounts/${id}`) : discountStore.delete(id),
 };
 
-// ── Banners ──
+// ── Banners (mock + azure, homepage banners use CMS hooks) ──
 export const bannersApi = {
   getAll: async (): Promise<Banner[]> =>
-    useMock ? bannerStore.getAll() : httpClient.get('/banners'),
+    mode === 'azure' ? httpClient.get('/banners') : bannerStore.getAll(),
   getByPlacement: async (placement: string): Promise<Banner[]> =>
-    useMock ? bannerStore.getByPlacement(placement) : httpClient.get(`/banners?placement=${placement}`),
+    mode === 'azure' ? httpClient.get(`/banners?placement=${placement}`) : bannerStore.getByPlacement(placement),
   create: async (b: Banner): Promise<Banner> =>
-    useMock ? bannerStore.create(b) : httpClient.post('/banners', b),
+    mode === 'azure' ? httpClient.post('/banners', b) : bannerStore.create(b),
   update: async (id: string, data: Partial<Banner>): Promise<Banner> =>
-    useMock ? bannerStore.update(id, data) : httpClient.put(`/banners/${id}`, data),
+    mode === 'azure' ? httpClient.put(`/banners/${id}`, data) : bannerStore.update(id, data),
   delete: async (id: string): Promise<void> =>
-    useMock ? bannerStore.delete(id) : httpClient.delete(`/banners/${id}`),
+    mode === 'azure' ? httpClient.delete(`/banners/${id}`) : bannerStore.delete(id),
 };
 
-// ── CRM ──
+// ── CRM (mock + azure) ──
 export const crmApi = {
   customers: {
-    getAll: async () => useMock ? customerStore.getAll() : httpClient.get('/crm/customers'),
-    create: async (c: any) => useMock ? customerStore.create(c) : httpClient.post('/crm/customers', c),
-    update: async (id: string, d: any) => useMock ? customerStore.update(id, d) : httpClient.put(`/crm/customers/${id}`, d),
-    delete: async (id: string) => useMock ? customerStore.delete(id) : httpClient.delete(`/crm/customers/${id}`),
+    getAll: async () => mode === 'azure' ? httpClient.get('/crm/customers') : customerStore.getAll(),
+    create: async (c: any) => mode === 'azure' ? httpClient.post('/crm/customers', c) : customerStore.create(c),
+    update: async (id: string, d: any) => mode === 'azure' ? httpClient.put(`/crm/customers/${id}`, d) : customerStore.update(id, d),
+    delete: async (id: string) => mode === 'azure' ? httpClient.delete(`/crm/customers/${id}`) : customerStore.delete(id),
   },
   conversations: {
-    getAll: async () => useMock ? conversationStore.getAll() : httpClient.get('/crm/conversations'),
+    getAll: async () => mode === 'azure' ? httpClient.get('/crm/conversations') : conversationStore.getAll(),
   },
   emailCampaigns: {
-    getAll: async () => useMock ? emailCampaignStore.getAll() : httpClient.get('/crm/email-campaigns'),
-    create: async (c: any) => useMock ? emailCampaignStore.create(c) : httpClient.post('/crm/email-campaigns', c),
+    getAll: async () => mode === 'azure' ? httpClient.get('/crm/email-campaigns') : emailCampaignStore.getAll(),
+    create: async (c: any) => mode === 'azure' ? httpClient.post('/crm/email-campaigns', c) : emailCampaignStore.create(c),
   },
   pushNotifications: {
-    getAll: async () => useMock ? pushNotificationStore.getAll() : httpClient.get('/crm/push-notifications'),
-    create: async (n: any) => useMock ? pushNotificationStore.create(n) : httpClient.post('/crm/push-notifications', n),
+    getAll: async () => mode === 'azure' ? httpClient.get('/crm/push-notifications') : pushNotificationStore.getAll(),
+    create: async (n: any) => mode === 'azure' ? httpClient.post('/crm/push-notifications', n) : pushNotificationStore.create(n),
   },
   kbArticles: {
-    getAll: async () => useMock ? kbArticleStore.getAll() : httpClient.get('/crm/kb-articles'),
-    create: async (a: any) => useMock ? kbArticleStore.create(a) : httpClient.post('/crm/kb-articles', a),
-    update: async (id: string, d: any) => useMock ? kbArticleStore.update(id, d) : httpClient.put(`/crm/kb-articles/${id}`, d),
-    delete: async (id: string) => useMock ? kbArticleStore.delete(id) : httpClient.delete(`/crm/kb-articles/${id}`),
+    getAll: async () => mode === 'azure' ? httpClient.get('/crm/kb-articles') : kbArticleStore.getAll(),
+    create: async (a: any) => mode === 'azure' ? httpClient.post('/crm/kb-articles', a) : kbArticleStore.create(a),
+    update: async (id: string, d: any) => mode === 'azure' ? httpClient.put(`/crm/kb-articles/${id}`, d) : kbArticleStore.update(id, d),
+    delete: async (id: string) => mode === 'azure' ? httpClient.delete(`/crm/kb-articles/${id}`) : kbArticleStore.delete(id),
   },
 };
 
-// ── Orders ──
+// ── Orders (mock + azure) ──
 export const ordersApi = {
   getAll: async (): Promise<Order[]> =>
-    useMock ? orderStore.getAll() : httpClient.get('/orders'),
+    mode === 'azure' ? httpClient.get('/orders') : orderStore.getAll(),
   getById: async (id: string): Promise<Order | null> =>
-    useMock ? orderStore.getById(id) : httpClient.get(`/orders/${id}`),
+    mode === 'azure' ? httpClient.get(`/orders/${id}`) : orderStore.getById(id),
   getByEmail: async (email: string): Promise<Order[]> =>
-    useMock ? orderStore.getByEmail(email) : httpClient.get(`/orders/customer/${encodeURIComponent(email)}`),
+    mode === 'azure' ? httpClient.get(`/orders/customer/${encodeURIComponent(email)}`) : orderStore.getByEmail(email),
   create: async (order: Partial<Order>): Promise<Order> =>
-    useMock ? orderStore.create(order as Order) : httpClient.post('/orders', order),
+    mode === 'azure' ? httpClient.post('/orders', order) : orderStore.create(order as Order),
   update: async (id: string, data: Partial<Order>): Promise<Order> =>
-    useMock ? orderStore.update(id, data) : httpClient.put(`/orders/${id}`, data),
+    mode === 'azure' ? httpClient.put(`/orders/${id}`, data) : orderStore.update(id, data),
   cancel: async (id: string): Promise<{ id: string; status: string }> => {
-    if (useMock) {
-      orderStore.update(id, { status: 'cancelled', updatedAt: new Date().toISOString() });
-      return { id, status: 'cancelled' };
-    }
-    return httpClient.put(`/orders/${id}/cancel`, {});
+    if (mode === 'azure') return httpClient.put(`/orders/${id}/cancel`, {});
+    orderStore.update(id, { status: 'cancelled', updatedAt: new Date().toISOString() });
+    return { id, status: 'cancelled' };
   },
 };
 

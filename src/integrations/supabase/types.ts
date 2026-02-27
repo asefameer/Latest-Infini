@@ -14,6 +14,114 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          image: string
+          name: string
+          product_count: number
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          image?: string
+          name: string
+          product_count?: number
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          image?: string
+          name?: string
+          product_count?: number
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          banner_image: string
+          brand: string
+          city: string
+          created_at: string
+          date: string
+          description: string
+          end_date: string | null
+          faq: Json
+          id: string
+          is_featured: boolean
+          lineup: Json | null
+          og_image: string | null
+          schedule: Json | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          ticket_tiers: Json
+          time: string
+          title: string
+          updated_at: string
+          venue: string
+        }
+        Insert: {
+          banner_image?: string
+          brand: string
+          city?: string
+          created_at?: string
+          date: string
+          description?: string
+          end_date?: string | null
+          faq?: Json
+          id?: string
+          is_featured?: boolean
+          lineup?: Json | null
+          og_image?: string | null
+          schedule?: Json | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          ticket_tiers?: Json
+          time?: string
+          title: string
+          updated_at?: string
+          venue?: string
+        }
+        Update: {
+          banner_image?: string
+          brand?: string
+          city?: string
+          created_at?: string
+          date?: string
+          description?: string
+          end_date?: string | null
+          faq?: Json
+          id?: string
+          is_featured?: boolean
+          lineup?: Json | null
+          og_image?: string | null
+          schedule?: Json | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          ticket_tiers?: Json
+          time?: string
+          title?: string
+          updated_at?: string
+          venue?: string
+        }
+        Relationships: []
+      }
       homepage_banners: {
         Row: {
           accent_color: string
@@ -96,6 +204,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      products: {
+        Row: {
+          brand: string
+          category: string
+          compare_at_price: number | null
+          created_at: string
+          currency: string
+          description: string
+          id: string
+          images: Json
+          in_stock: boolean
+          is_new: boolean
+          is_trending: boolean
+          name: string
+          og_image: string | null
+          price: number
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          specs: Json
+          tags: Json
+          updated_at: string
+          variants: Json
+        }
+        Insert: {
+          brand: string
+          category: string
+          compare_at_price?: number | null
+          created_at?: string
+          currency?: string
+          description?: string
+          id?: string
+          images?: Json
+          in_stock?: boolean
+          is_new?: boolean
+          is_trending?: boolean
+          name: string
+          og_image?: string | null
+          price: number
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          specs?: Json
+          tags?: Json
+          updated_at?: string
+          variants?: Json
+        }
+        Update: {
+          brand?: string
+          category?: string
+          compare_at_price?: number | null
+          created_at?: string
+          currency?: string
+          description?: string
+          id?: string
+          images?: Json
+          in_stock?: boolean
+          is_new?: boolean
+          is_trending?: boolean
+          name?: string
+          og_image?: string | null
+          price?: number
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          specs?: Json
+          tags?: Json
+          updated_at?: string
+          variants?: Json
+        }
+        Relationships: []
       }
       site_content: {
         Row: {
