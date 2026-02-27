@@ -14,18 +14,27 @@
  */
 
 export const API_CONFIG = {
-  /** Set to your Azure Function App URL when deployed, e.g. 'https://infinity-api.azurewebsites.net/api' */
+  /** Azure Functions API URL, e.g. 'https://infinity-portal-app-prod-001.azurewebsites.net/api' */
   BASE_URL: import.meta.env.VITE_API_BASE_URL || '',
   
   /** When true, uses in-memory mock data. Set to false once Azure backend is live. */
   USE_MOCK: !import.meta.env.VITE_API_BASE_URL,
 
-  /** Azure AD B2C config (populate when ready) */
+  /** Azure AD B2C config */
   AUTH: {
     TENANT: import.meta.env.VITE_AZURE_AD_TENANT || '',
     CLIENT_ID: import.meta.env.VITE_AZURE_AD_CLIENT_ID || '',
   },
 
-  /** Azure Blob Storage base URL for images */
+  /** Azure Blob Storage base URL for images (stportalinfinityprod001) */
   STORAGE_URL: import.meta.env.VITE_AZURE_STORAGE_URL || '',
+
+  /** Application Insights */
+  APPINSIGHTS_CONNECTION_STRING: import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING || '',
+
+  /** Azure AI Search (query key — safe for frontend) */
+  SEARCH: {
+    URL: import.meta.env.VITE_AZURE_SEARCH_URL || '',
+    KEY: import.meta.env.VITE_AZURE_SEARCH_KEY || '',
+  },
 };
