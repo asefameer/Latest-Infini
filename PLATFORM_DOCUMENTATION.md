@@ -4,6 +4,35 @@
 
 ---
 
+## Table of Contents
+
+1. [Purpose](#1-purpose)
+2. [The Three Brands ("The Trinity")](#2-the-three-brands-the-trinity)
+3. [Customer-Facing Features](#3-customer-facing-features)
+   - [3.1 Homepage ("Ground Zero")](#31-homepage-ground-zero)
+   - [3.2 The Trinity Hub](#32-the-trinity-hub-the-trinity)
+   - [3.3 Editions — Ecommerce](#33-editions--ecommerce-editions)
+   - [3.4 Encounter — Events & Ticketing](#34-encounter--events--ticketing-encounter)
+   - [3.5 Account Area](#35-account-area-account)
+   - [3.6 Global UI Elements](#36-global-ui-elements)
+4. [Admin Panel (CMS & CRM)](#4-admin-panel-cms--crm)
+   - [4.1 Dashboard](#41-dashboard-admin)
+   - [4.2 Content Management (CMS)](#42-content-management-cms)
+   - [4.3 Customer Relationship Management (CRM)](#43-customer-relationship-management-crm)
+   - [4.4 Admin Features](#44-admin-features)
+5. [Technical Architecture](#5-technical-architecture)
+   - [5.1 Frontend Stack](#51-frontend-stack)
+   - [5.2 Backend Architecture (Azure)](#52-backend-architecture-azure)
+   - [5.3 API Layer](#53-api-layer)
+   - [5.4 Telemetry](#54-telemetry)
+6. [Design System](#6-design-system)
+7. [CI/CD & Deployment](#7-cicd--deployment)
+8. [CMS Block System](#8-cms-block-system)
+9. [SEO Implementation](#9-seo-implementation)
+10. [Route Map (Quick Reference)](#10-route-map-quick-reference)
+
+---
+
 ## 1. Purpose
 
 **Infinity** is a premium lifestyle and culture platform built for the Bangladeshi market. It operates at the intersection of **fashion ecommerce**, **event ticketing**, and **brand storytelling** — unifying three distinct brand identities under one digital roof.
