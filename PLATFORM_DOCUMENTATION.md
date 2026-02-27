@@ -170,6 +170,58 @@ Accessible at `/admin/login` (credentials: `admin@infinity.com` / `admin123`).
 
 ## 5. Technical Architecture
 
+### Architecture Diagram
+
+```mermaid
+graph TD
+    subgraph Client["Client (Browser)"]
+        SPA["Vite SPA - React/TS"]
+        TQ["TanStack Query"]
+        FR["Framer Motion"]
+        TH["Three.js / R3F"]
+    end
+
+    subgraph AzureFE["Azure Frontend"]
+        FD["Azure Front Door - CDN/SSL"]
+        BLOB["Azure Blob Storage - Static Hosting"]
+    end
+
+    subgraph AzureBE["Azure Backend"]
+        AF["Azure Functions v4 - REST API"]
+        SQL["Azure SQL Database"]
+        KV["Azure Key Vault"]
+        AIS["Azure AI Search"]
+        BS["Blob Storage - Assets"]
+        AAD["Azure AD B2C - Auth"]
+        AI["Application Insights"]
+    end
+
+    subgraph CICD["CI/CD"]
+        GH["GitHub Actions"]
+        PROD["Production Deploy"]
+        STG["Staging - PR Preview"]
+    end
+
+    SPA --> TQ
+    SPA --> FR
+    SPA --> TH
+    SPA -->|HTTPS| FD
+    FD --> BLOB
+    SPA -->|API Calls| AF
+    AF -->|Managed Identity| KV
+    AF --> SQL
+    AF --> AIS
+    AF --> BS
+    AF --> AAD
+    SPA --> AI
+    AF --> AI
+    GH --> PROD
+    GH --> STG
+    PROD --> BLOB
+    PROD --> AF
+    STG --> BLOB
+```
+
 ### 5.1 Frontend Stack
 | Technology | Purpose |
 |------------|---------|
