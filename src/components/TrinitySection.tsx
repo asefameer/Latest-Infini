@@ -17,6 +17,7 @@ const defaultCards = [
   {
     key: "nova",
     title: "NOVA",
+    titleFont: "font-nova",
     image1: nova01,
     image2: nova02,
     description: "NOVA is a lifestyle platform that goes beyond the ordinary to create Bangladesh's most exceptional experiences.",
@@ -25,6 +26,7 @@ const defaultCards = [
   {
     key: "ltm",
     title: "LIVE THE MOMENT",
+    titleFont: "font-ltm",
     image1: ltm01,
     image2: ltm02,
     description: "Live the Moment is a lifestyle platform where you truly live every bit of the moment.",
@@ -33,6 +35,7 @@ const defaultCards = [
   {
     key: "xforce",
     title: "X FORCE",
+    titleFont: "font-xforce",
     image1: xforce01,
     image2: xforce02,
     description: "X Force is not just a platform, but a tribe for those who refuse to settle. For the ones who push limits, chase adrenaline, and live their passion loud.",
@@ -127,7 +130,7 @@ const TrinitySection = () => {
             <Link to={card.route} className="block cursor-pointer">
               <OverlayCard image1={card.image1} image2={card.image2} alt={card.title} />
 
-              <h3 className="font-display text-xl font-bold text-foreground mb-2 tracking-wide group-hover:text-primary transition-colors">
+              <h3 className={`${card.titleFont} text-xl font-bold text-foreground mb-2 tracking-wide group-hover:text-primary transition-colors`}>
                 {card.title}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">

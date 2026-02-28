@@ -16,6 +16,14 @@ export default {
       fontFamily: {
         display: ["Outfit", "sans-serif"],
         body: ["Space Grotesk", "sans-serif"],
+        // Brand fonts
+        nova: ["Code Next", "sans-serif"],
+        ltm: ["Buttercy", "cursive"],
+        "ltm-script": ["Buttercy Script", "cursive"],
+        "ltm-body": ["Hajime Sans", "sans-serif"],
+        xforce: ["Roost Punk", "sans-serif"],
+        infinity: ["Space Grotesk", "sans-serif"],
+        "infinity-body": ["Roboto", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

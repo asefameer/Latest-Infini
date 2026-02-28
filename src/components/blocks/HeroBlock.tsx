@@ -7,12 +7,13 @@ interface HeroBlockProps {
   video?: string;
   overlay?: boolean;
   height?: 'full' | 'large' | 'medium';
+  titleClassName?: string;
   children?: React.ReactNode;
 }
 
 const heightMap = { full: 'min-h-screen', large: 'min-h-[70vh]', medium: 'min-h-[50vh]' };
 
-const HeroBlock = ({ title, subtitle, image, video, overlay = true, height = 'large', children }: HeroBlockProps) => (
+const HeroBlock = ({ title, subtitle, image, video, overlay = true, height = 'large', titleClassName, children }: HeroBlockProps) => (
   <section className={`relative ${heightMap[height]} flex items-center justify-center overflow-hidden`}>
     {video ? (
       <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
@@ -41,7 +42,7 @@ const HeroBlock = ({ title, subtitle, image, video, overlay = true, height = 'la
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="font-display text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
+        className={`${titleClassName || 'font-display'} text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6`}
       >
         {title}
       </motion.h1>
