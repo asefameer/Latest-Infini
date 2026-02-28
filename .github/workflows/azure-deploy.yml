@@ -32,22 +32,12 @@ permissions:
   pull-requests: write
 
 jobs:
-  production_approval:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    name: ✅ Production Approval Gate
-    environment: production
-    steps:
-      - name: Approval granted
-        run: echo "Production deployment approved"
-
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   # PRODUCTION — triggers on push to main
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   deploy_frontend_prod:
     if: github.event_name == 'push'
-    needs: production_approval
     runs-on: ubuntu-latest
     name: 🚀 Deploy Frontend (Production)
     steps:
@@ -130,7 +120,6 @@ jobs:
 
   deploy_functions_prod:
     if: github.event_name == 'push'
-    needs: production_approval
     runs-on: ubuntu-latest
     name: 🚀 Deploy Functions (Production)
     steps:
