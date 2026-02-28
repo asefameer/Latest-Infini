@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Calendar, MapPin } from 'lucide-react';
 import type { Event } from '@/types';
 
-const EventCard = ({ event }: { event: Event }) => {
+const EventCard = ({ event, headingClassName }: { event: Event; headingClassName?: string }) => {
   const fromPrice = Math.min(...event.ticketTiers.map(t => t.price));
 
   return (
@@ -39,7 +39,7 @@ const EventCard = ({ event }: { event: Event }) => {
             <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{new Date(event.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
             <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{event.city}</span>
           </div>
-          <h3 className="font-display font-semibold text-sm mb-1 group-hover:text-primary transition-colors">{event.title}</h3>
+          <h3 className={`${headingClassName || 'font-display'} font-semibold text-sm mb-1 group-hover:text-primary transition-colors`}>{event.title}</h3>
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">{event.venue}</p>
             <span className="text-sm font-medium">From ৳{fromPrice.toLocaleString()}</span>

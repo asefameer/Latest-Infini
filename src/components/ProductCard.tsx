@@ -5,9 +5,10 @@ import type { Product } from '@/types';
 interface ProductCardProps {
   product: Product;
   onAddToWishlist?: (id: string) => void;
+  headingClassName?: string;
 }
 
-const ProductCard = ({ product, onAddToWishlist }: ProductCardProps) => (
+const ProductCard = ({ product, onAddToWishlist, headingClassName }: ProductCardProps) => (
   <div className="group">
     <Link to={`/editions/p/${product.slug}`} className="block">
       <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-muted mb-3">
@@ -50,7 +51,7 @@ const ProductCard = ({ product, onAddToWishlist }: ProductCardProps) => (
       </div>
       <div>
         <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{product.brand.replace('-', ' ')}</p>
-        <h3 className="font-display font-semibold text-sm mb-1 group-hover:text-primary transition-colors">{product.name}</h3>
+        <h3 className={`${headingClassName || 'font-display'} font-semibold text-sm mb-1 group-hover:text-primary transition-colors`}>{product.name}</h3>
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">৳{product.price.toLocaleString()}</span>
           {product.compareAtPrice && (

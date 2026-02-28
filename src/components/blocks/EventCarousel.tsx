@@ -7,9 +7,10 @@ interface EventCarouselProps {
   title: string;
   events: Event[];
   subtitle?: string;
+  headingClassName?: string;
 }
 
-const EventCarousel = ({ title, events, subtitle }: EventCarouselProps) => {
+const EventCarousel = ({ title, events, subtitle, headingClassName }: EventCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: 'left' | 'right') => {
@@ -25,7 +26,7 @@ const EventCarousel = ({ title, events, subtitle }: EventCarouselProps) => {
       <div className="container mx-auto">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <h2 className="font-display text-2xl md:text-3xl font-bold tracking-tight">{title}</h2>
+            <h2 className={`${headingClassName || 'font-display'} text-2xl md:text-3xl font-bold tracking-tight`}>{title}</h2>
             {subtitle && <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>}
           </div>
           <div className="hidden md:flex items-center gap-2">
@@ -40,7 +41,7 @@ const EventCarousel = ({ title, events, subtitle }: EventCarouselProps) => {
         <div ref={scrollRef} className="flex gap-6 overflow-x-auto scrollbar-hide pb-2 -mx-6 px-6 snap-x snap-mandatory">
           {events.map(e => (
             <div key={e.id} className="min-w-[340px] max-w-[340px] snap-start flex-shrink-0">
-              <EventCard event={e} />
+              <EventCard event={e} headingClassName={headingClassName} />
             </div>
           ))}
         </div>
