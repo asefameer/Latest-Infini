@@ -14,11 +14,11 @@ import { getEventsByBrand } from '@/data/events';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 
-/** Maps brand id → Tailwind font classes for headings & body */
-const brandFontMap: Record<string, { heading: string; body: string }> = {
-  nova:            { heading: 'font-nova',   body: 'font-nova' },
-  'live-the-moment': { heading: 'font-ltm',   body: 'font-ltm-body' },
-  'x-force':       { heading: 'font-xforce', body: 'font-xforce' },
+/** Maps brand id → Tailwind font classes for headings, subtitles & body */
+const brandFontMap: Record<string, { heading: string; subtitle: string; body: string }> = {
+  nova:              { heading: 'font-nova font-semibold',   subtitle: 'font-nova font-normal',    body: 'font-nova' },
+  'live-the-moment': { heading: 'font-ltm',                 subtitle: 'font-ltm-script',           body: 'font-ltm-body' },
+  'x-force':         { heading: 'font-xforce',              subtitle: 'font-xforce',               body: 'font-xforce' },
 };
 
 const BrandPage = () => {
@@ -32,7 +32,7 @@ const BrandPage = () => {
   const brandProducts = getProductsByBrand(brand.id);
   const brandEvents = getEventsByBrand(brand.id);
   const relatedBrands = brands.filter(b => b.id !== brand.id);
-  const fonts = brandFontMap[brand.id] ?? { heading: 'font-display', body: 'font-body' };
+  const fonts = brandFontMap[brand.id] ?? { heading: 'font-display', subtitle: 'font-body', body: 'font-body' };
 
   return (
     <div className={fonts.body}>
@@ -42,10 +42,10 @@ const BrandPage = () => {
         canonical={`/the-trinity/${brand.id}`}
       />
 
-      <HeroBlock title={brand.name} subtitle={brand.tagline} image={brand.heroImage} titleClassName={fonts.heading} />
+      <HeroBlock title={brand.name} subtitle={brand.tagline} image={brand.heroImage} titleClassName={fonts.heading} subtitleClassName={fonts.subtitle} />
 
       <ScrollReveal>
-        <EditorialText heading="The Story" body={brand.description} size="large" />
+        <EditorialText heading="The Story" body={brand.description} size="large" headingClassName={fonts.heading} />
       </ScrollReveal>
 
       {brand.story.map((block, i) => (
@@ -56,9 +56,10 @@ const BrandPage = () => {
               body={block.body}
               image={block.image}
               imagePosition={i % 2 === 0 ? 'right' : 'left'}
+              headingClassName={fonts.heading}
             />
           ) : (
-            <EditorialText heading={block.heading} body={block.body} />
+            <EditorialText heading={block.heading} body={block.body} headingClassName={fonts.heading} />
           )}
         </ScrollReveal>
       ))}
