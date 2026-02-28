@@ -110,9 +110,9 @@
   }
 }
 
-/* LTM body — Hajime for flavor with readable paragraph fallback */
+/* LTM body — Buttercy Script for paragraphs, Hajime for section headings */
 .ltm-body-text {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Buttercy Script', cursive;
   letter-spacing: 0.01em;
 }
 .ltm-body-text h1,
@@ -121,6 +121,13 @@
 .ltm-body-text h4 {
   font-family: 'Hajime Sans', sans-serif;
   letter-spacing: 0.04em;
+}
+.ltm-body-text button,
+.ltm-body-text a.btn-infinity,
+.ltm-body-text nav,
+.ltm-body-text .inline-flex {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.02em;
 }
 
 /* Custom scrollbar */

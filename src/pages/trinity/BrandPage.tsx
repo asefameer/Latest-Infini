@@ -15,10 +15,10 @@ import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 
 /** Maps brand id → Tailwind font classes for headings, subtitles & body */
-const brandFontMap: Record<string, { heading: string; subtitle: string; body: string }> = {
-  nova:              { heading: 'font-nova font-semibold',   subtitle: 'font-nova font-normal',    body: 'font-nova' },
-  'live-the-moment': { heading: 'font-ltm',                 subtitle: 'font-ltm-script',           body: 'ltm-body-text' },
-  'x-force':         { heading: 'font-xforce',              subtitle: 'font-xforce',               body: 'font-xforce' },
+const brandFontMap: Record<string, { heading: string; hero: string; subtitle: string; body: string }> = {
+  nova:              { heading: 'font-nova font-semibold', hero: 'font-nova font-semibold',   subtitle: 'font-nova font-normal',    body: 'font-nova' },
+  'live-the-moment': { heading: 'font-ltm-body',          hero: 'font-ltm',                  subtitle: 'font-ltm-script',           body: 'ltm-body-text' },
+  'x-force':         { heading: 'font-xforce',            hero: 'font-xforce',               subtitle: 'font-xforce',               body: 'font-xforce' },
 };
 
 /** Maps brand id → raw CSS custom property name for accent color */
@@ -39,7 +39,7 @@ const BrandPage = () => {
   const brandProducts = getProductsByBrand(brand.id);
   const brandEvents = getEventsByBrand(brand.id);
   const relatedBrands = brands.filter(b => b.id !== brand.id);
-  const fonts = brandFontMap[brand.id] ?? { heading: 'font-display', subtitle: 'font-body', body: 'font-body' };
+  const fonts = brandFontMap[brand.id] ?? { heading: 'font-display', hero: 'font-display', subtitle: 'font-body', body: 'font-body' };
   const accent = brandAccentMap[brand.id];
 
   return (
@@ -50,7 +50,7 @@ const BrandPage = () => {
         canonical={`/the-trinity/${brand.id}`}
       />
 
-      <HeroBlock title={brand.name} subtitle={brand.tagline} image={brand.heroImage} titleClassName={fonts.heading} subtitleClassName={fonts.subtitle} />
+      <HeroBlock title={brand.name} subtitle={brand.tagline} image={brand.heroImage} titleClassName={fonts.hero} subtitleClassName={fonts.subtitle} />
 
       <ScrollReveal>
         <EditorialText heading="The Story" body={brand.description} size="large" headingClassName={fonts.heading} />
