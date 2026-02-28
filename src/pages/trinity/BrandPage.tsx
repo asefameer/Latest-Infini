@@ -21,6 +21,13 @@ const brandFontMap: Record<string, { heading: string; subtitle: string; body: st
   'x-force':         { heading: 'font-xforce',              subtitle: 'font-xforce',               body: 'font-xforce' },
 };
 
+/** Maps brand id → raw CSS custom property name for accent color */
+const brandAccentMap: Record<string, string> = {
+  nova:              '--infinity-cyan',
+  'live-the-moment': '--infinity-purple',
+  'x-force':         '--infinity-pink',
+};
+
 const BrandPage = () => {
   const { brandSlug } = useParams<{ brandSlug: string }>();
   const brand = brands.find(b => b.id === brandSlug);
@@ -33,6 +40,7 @@ const BrandPage = () => {
   const brandEvents = getEventsByBrand(brand.id);
   const relatedBrands = brands.filter(b => b.id !== brand.id);
   const fonts = brandFontMap[brand.id] ?? { heading: 'font-display', subtitle: 'font-body', body: 'font-body' };
+  const accent = brandAccentMap[brand.id];
 
   return (
     <div className={fonts.body}>
@@ -66,13 +74,13 @@ const BrandPage = () => {
 
       {brandProducts.length > 0 && (
         <ScrollReveal>
-          <ProductCarousel title={`${brand.name} Editions`} products={brandProducts} headingClassName={fonts.heading} />
+          <ProductCarousel title={`${brand.name} Editions`} products={brandProducts} headingClassName={fonts.heading} accentColor={accent} />
         </ScrollReveal>
       )}
 
       {brandEvents.length > 0 && (
         <ScrollReveal>
-          <EventCarousel title={`${brand.name} Events`} events={brandEvents} headingClassName={fonts.heading} />
+          <EventCarousel title={`${brand.name} Events`} events={brandEvents} headingClassName={fonts.heading} accentColor={accent} />
         </ScrollReveal>
       )}
 
