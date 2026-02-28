@@ -1,10 +1,9 @@
 /**
  * Unified API Service
  * 
- * Three-tier backend routing:
- * 1. 'supabase' → Lovable Cloud (default, current deployment)
- * 2. 'azure'    → Azure Functions (set VITE_API_BASE_URL)
- * 3. 'mock'     → In-memory store (set VITE_USE_MOCK=true)
+ * Two-tier backend routing:
+ * 1. 'azure' → Azure API (App Service)
+ * 2. 'mock'  → In-memory store (set VITE_USE_MOCK=true)
  * 
  * All admin and customer-facing pages use the hooks in ./hooks.ts,
  * which call these API functions. Switching backends requires zero
@@ -19,11 +18,6 @@ import {
   orderStore,
   subscribe,
 } from './mock-store';
-import {
-  supabaseProductStore,
-  supabaseEventStore,
-  supabaseCategoryStore,
-} from './supabase-store';
 import type { Product, Event, Category, BrandContent, Order } from '@/types';
 import type { Discount } from '@/pages/admin/DiscountsAdmin';
 import type { Banner } from './mock-store';
@@ -33,72 +27,52 @@ const mode = API_CONFIG.BACKEND_MODE;
 // ── Products ──
 export const productsApi = {
   getAll: async (): Promise<Product[]> =>
-    mode === 'supabase' ? supabaseProductStore.getAll() :
     mode === 'mock' ? productStore.getAll() : httpClient.get('/products'),
   getById: async (id: string): Promise<Product | null> =>
-    mode === 'supabase' ? supabaseProductStore.getById(id) :
     mode === 'mock' ? productStore.getById(id) : httpClient.get(`/products/${id}`),
   getBySlug: async (slug: string): Promise<Product | null> =>
-    mode === 'supabase' ? supabaseProductStore.getBySlug(slug) :
     mode === 'mock' ? productStore.getBySlug(slug) : httpClient.get(`/products/slug/${slug}`),
   getByCategory: async (cat: string): Promise<Product[]> =>
-    mode === 'supabase' ? supabaseProductStore.getByCategory(cat) :
     mode === 'mock' ? productStore.getByCategory(cat) : httpClient.get(`/products?category=${cat}`),
   getByBrand: async (brand: string): Promise<Product[]> =>
-    mode === 'supabase' ? supabaseProductStore.getByBrand(brand) :
     mode === 'mock' ? productStore.getByBrand(brand) : httpClient.get(`/products?brand=${brand}`),
   getTrending: async (): Promise<Product[]> =>
-    mode === 'supabase' ? supabaseProductStore.getTrending() :
     mode === 'mock' ? productStore.getTrending() : httpClient.get('/products?trending=true'),
   getNew: async (): Promise<Product[]> =>
-    mode === 'supabase' ? supabaseProductStore.getNew() :
     mode === 'mock' ? productStore.getNew() : httpClient.get('/products?new=true'),
   getFeatured: async (): Promise<Product[]> =>
-    mode === 'supabase' ? supabaseProductStore.getFeatured() :
     mode === 'mock' ? productStore.getFeatured() : httpClient.get('/products?featured=true'),
   create: async (p: Product): Promise<Product> =>
-    mode === 'supabase' ? supabaseProductStore.create(p) :
     mode === 'mock' ? productStore.create(p) : httpClient.post('/products', p),
   update: async (id: string, data: Partial<Product>): Promise<Product> =>
-    mode === 'supabase' ? supabaseProductStore.update(id, data) :
     mode === 'mock' ? productStore.update(id, data) : httpClient.put(`/products/${id}`, data),
   delete: async (id: string): Promise<void> =>
-    mode === 'supabase' ? supabaseProductStore.delete(id) :
     mode === 'mock' ? productStore.delete(id) : httpClient.delete(`/products/${id}`),
 };
 
 // ── Events ──
 export const eventsApi = {
   getAll: async (): Promise<Event[]> =>
-    mode === 'supabase' ? supabaseEventStore.getAll() :
     mode === 'mock' ? eventStore.getAll() : httpClient.get('/events'),
   getById: async (id: string): Promise<Event | null> =>
-    mode === 'supabase' ? supabaseEventStore.getById(id) :
     mode === 'mock' ? eventStore.getById(id) : httpClient.get(`/events/${id}`),
   getBySlug: async (slug: string): Promise<Event | null> =>
-    mode === 'supabase' ? supabaseEventStore.getBySlug(slug) :
     mode === 'mock' ? eventStore.getBySlug(slug) : httpClient.get(`/events/slug/${slug}`),
   getByBrand: async (brand: string): Promise<Event[]> =>
-    mode === 'supabase' ? supabaseEventStore.getByBrand(brand) :
     mode === 'mock' ? eventStore.getByBrand(brand) : httpClient.get(`/events?brand=${brand}`),
   getFeatured: async (): Promise<Event[]> =>
-    mode === 'supabase' ? supabaseEventStore.getFeatured() :
     mode === 'mock' ? eventStore.getFeatured() : httpClient.get('/events?featured=true'),
   create: async (e: Event): Promise<Event> =>
-    mode === 'supabase' ? supabaseEventStore.create(e) :
     mode === 'mock' ? eventStore.create(e) : httpClient.post('/events', e),
   update: async (id: string, data: Partial<Event>): Promise<Event> =>
-    mode === 'supabase' ? supabaseEventStore.update(id, data) :
     mode === 'mock' ? eventStore.update(id, data) : httpClient.put(`/events/${id}`, data),
   delete: async (id: string): Promise<void> =>
-    mode === 'supabase' ? supabaseEventStore.delete(id) :
     mode === 'mock' ? eventStore.delete(id) : httpClient.delete(`/events/${id}`),
 };
 
 // ── Categories ──
 export const categoriesApi = {
   getAll: async (): Promise<Category[]> =>
-    mode === 'supabase' ? supabaseCategoryStore.getAll() :
     mode === 'mock' ? categoryStore.getAll() : httpClient.get('/categories'),
 };
 
