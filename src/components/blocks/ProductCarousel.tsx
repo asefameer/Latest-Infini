@@ -8,9 +8,10 @@ interface ProductCarouselProps {
   products: Product[];
   subtitle?: string;
   headingClassName?: string;
+  accentColor?: string;
 }
 
-const ProductCarousel = ({ title, products, subtitle, headingClassName }: ProductCarouselProps) => {
+const ProductCarousel = ({ title, products, subtitle, headingClassName, accentColor }: ProductCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: 'left' | 'right') => {
@@ -41,7 +42,7 @@ const ProductCarousel = ({ title, products, subtitle, headingClassName }: Produc
         <div ref={scrollRef} className="flex gap-6 overflow-x-auto scrollbar-hide pb-2 -mx-6 px-6 snap-x snap-mandatory">
           {products.map(p => (
             <div key={p.id} className="min-w-[260px] max-w-[260px] snap-start flex-shrink-0">
-              <ProductCard product={p} headingClassName={headingClassName} />
+              <ProductCard product={p} headingClassName={headingClassName} accentColor={accentColor} />
             </div>
           ))}
         </div>

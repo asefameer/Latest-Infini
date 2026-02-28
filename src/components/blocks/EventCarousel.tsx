@@ -8,9 +8,10 @@ interface EventCarouselProps {
   events: Event[];
   subtitle?: string;
   headingClassName?: string;
+  accentColor?: string;
 }
 
-const EventCarousel = ({ title, events, subtitle, headingClassName }: EventCarouselProps) => {
+const EventCarousel = ({ title, events, subtitle, headingClassName, accentColor }: EventCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: 'left' | 'right') => {
@@ -41,7 +42,7 @@ const EventCarousel = ({ title, events, subtitle, headingClassName }: EventCarou
         <div ref={scrollRef} className="flex gap-6 overflow-x-auto scrollbar-hide pb-2 -mx-6 px-6 snap-x snap-mandatory">
           {events.map(e => (
             <div key={e.id} className="min-w-[340px] max-w-[340px] snap-start flex-shrink-0">
-              <EventCard event={e} headingClassName={headingClassName} />
+              <EventCard event={e} headingClassName={headingClassName} accentColor={accentColor} />
             </div>
           ))}
         </div>
