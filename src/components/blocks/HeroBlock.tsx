@@ -8,12 +8,13 @@ interface HeroBlockProps {
   overlay?: boolean;
   height?: 'full' | 'large' | 'medium';
   titleClassName?: string;
+  subtitleClassName?: string;
   children?: React.ReactNode;
 }
 
 const heightMap = { full: 'min-h-screen', large: 'min-h-[70vh]', medium: 'min-h-[50vh]' };
 
-const HeroBlock = ({ title, subtitle, image, video, overlay = true, height = 'large', titleClassName, children }: HeroBlockProps) => (
+const HeroBlock = ({ title, subtitle, image, video, overlay = true, height = 'large', titleClassName, subtitleClassName, children }: HeroBlockProps) => (
   <section className={`relative ${heightMap[height]} flex items-center justify-center overflow-hidden`}>
     {video ? (
       <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
@@ -51,7 +52,7 @@ const HeroBlock = ({ title, subtitle, image, video, overlay = true, height = 'la
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto"
+          className={`${subtitleClassName || ''} text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto`}
         >
           {subtitle}
         </motion.p>

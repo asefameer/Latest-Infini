@@ -5,15 +5,16 @@ interface SplitFeatureProps {
   body: string;
   image: string;
   imagePosition?: 'left' | 'right';
+  headingClassName?: string;
   children?: React.ReactNode;
 }
 
-const SplitFeature = ({ heading, body, image, imagePosition = 'right', children }: SplitFeatureProps) => (
+const SplitFeature = ({ heading, body, image, imagePosition = 'right', headingClassName, children }: SplitFeatureProps) => (
   <ScrollReveal>
     <section className="py-16 md:py-24 px-6" style={{ background: 'hsl(var(--section-mid))' }}>
       <div className={`container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center ${imagePosition === 'left' ? 'md:direction-rtl' : ''}`}>
         <div className={imagePosition === 'left' ? 'md:direction-ltr order-2 md:order-2' : ''}>
-          <h2 className="font-display text-2xl md:text-4xl font-bold tracking-tight mb-6">{heading}</h2>
+          <h2 className={`${headingClassName || 'font-display'} text-2xl md:text-4xl font-bold tracking-tight mb-6`}>{heading}</h2>
           <p className="text-muted-foreground leading-relaxed text-base md:text-lg">{body}</p>
           {children}
         </div>
