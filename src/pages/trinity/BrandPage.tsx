@@ -65,13 +65,13 @@ const BrandPage = () => {
 
       {brandProducts.length > 0 && (
         <ScrollReveal>
-          <ProductCarousel title={`${brand.name} Editions`} products={brandProducts} />
+          <ProductCarousel title={`${brand.name} Editions`} products={brandProducts} headingClassName={fonts.heading} />
         </ScrollReveal>
       )}
 
       {brandEvents.length > 0 && (
         <ScrollReveal>
-          <EventCarousel title={`${brand.name} Events`} events={brandEvents} />
+          <EventCarousel title={`${brand.name} Events`} events={brandEvents} headingClassName={fonts.heading} />
         </ScrollReveal>
       )}
 
