@@ -110,6 +110,19 @@
   }
 }
 
+/* LTM body — Hajime for flavor with readable paragraph fallback */
+.ltm-body-text {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.01em;
+}
+.ltm-body-text h1,
+.ltm-body-text h2,
+.ltm-body-text h3,
+.ltm-body-text h4 {
+  font-family: 'Hajime Sans', sans-serif;
+  letter-spacing: 0.04em;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

@@ -17,7 +17,7 @@ import ErrorState from '@/components/ErrorState';
 /** Maps brand id → Tailwind font classes for headings, subtitles & body */
 const brandFontMap: Record<string, { heading: string; subtitle: string; body: string }> = {
   nova:              { heading: 'font-nova font-semibold',   subtitle: 'font-nova font-normal',    body: 'font-nova' },
-  'live-the-moment': { heading: 'font-ltm',                 subtitle: 'font-ltm-script',           body: 'font-ltm-body' },
+  'live-the-moment': { heading: 'font-ltm',                 subtitle: 'font-ltm-script',           body: 'ltm-body-text' },
   'x-force':         { heading: 'font-xforce',              subtitle: 'font-xforce',               body: 'font-xforce' },
 };
 
