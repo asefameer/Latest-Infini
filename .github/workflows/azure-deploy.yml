@@ -1,30 +1,19 @@
-name: Deploy to Azure (Front Door + Blob Storage + Functions)
+name: Deploy to Azure App Service (Frontend + API)
 
 on:
   push:
     branches: [main]
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches: [main]
 
 env:
   NODE_VERSION: '20'
-  # ── Azure Auth (OIDC) ──
   AZURE_CLIENT_ID: 02f4f574-35df-4a2e-9a9b-99cac22aa223
   AZURE_TENANT_ID: c3fe8cd9-f644-4f76-bb09-920687b1237d
   AZURE_SUBSCRIPTION_ID: e2dde12e-087a-4db9-80cc-129d6dbec90b
-  # ── Production ──
-  AZURE_STORAGE_ACCOUNT_PROD: stportalinfinityprod001
+  AZURE_NETWORK_RESOURCE_GROUP: rg-portal-network
   AZURE_CDN_PROFILE: afd-portal-prod
   AZURE_CDN_ENDPOINT_PROD: infinity-frontend
-  AZURE_NETWORK_RESOURCE_GROUP: rg-portal-network
-  AZURE_SHARED_RESOURCE_GROUP: rg-portal-shared
   AZURE_APP_RESOURCE_GROUP: rg-portal-app-prod
-  AZURE_FUNCTIONAPP_NAME_PROD: infinity-portal-app-prod-001
-  # ── Staging ──
-  AZURE_STORAGE_ACCOUNT_STAGING: stportalinfinitystaging
-  AZURE_CDN_ENDPOINT_STAGING: infinity-frontend-staging
-  AZURE_FUNCTIONAPP_NAME_STAGING: infinity-portal-app-staging-001
+  AZURE_WEBAPP_NAME_PROD: infinity-portal-app-prod-001
 
 permissions:
   id-token: write
@@ -32,14 +21,10 @@ permissions:
   pull-requests: write
 
 jobs:
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  # PRODUCTION — triggers on push to main
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  deploy_frontend_prod:
+  deploy_app_prod:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    name: 🚀 Deploy Frontend (Production)
+    name: 🚀 Deploy App Service (Production)
     steps:
       - uses: actions/checkout@v4
 
@@ -48,19 +33,28 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install dependencies
-        run: npm ci
-
       - name: Build frontend
         env:
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_API_BASE_URL: https://infinitybd.live/api
           VITE_AZURE_AD_TENANT: ${{ secrets.VITE_AZURE_AD_TENANT }}
           VITE_AZURE_AD_CLIENT_ID: ${{ secrets.VITE_AZURE_AD_CLIENT_ID }}
           VITE_AZURE_STORAGE_URL: ${{ secrets.VITE_AZURE_STORAGE_URL }}
           VITE_APPINSIGHTS_CONNECTION_STRING: ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}
           VITE_AZURE_SEARCH_URL: ${{ secrets.VITE_AZURE_SEARCH_URL }}
           VITE_AZURE_SEARCH_KEY: ${{ secrets.VITE_AZURE_SEARCH_KEY }}
-        run: npm run build
+          VITE_ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build App Service API package
+        run: |
+          cd app-service-api
+          npm ci
+          npm run build
+          mkdir -p dist/public
+          cp -r ../dist/* dist/public/
+          npm prune --omit=dev
 
       - name: Azure Login (OIDC)
         uses: azure/login@v2
@@ -69,44 +63,11 @@ jobs:
           tenant-id: ${{ env.AZURE_TENANT_ID }}
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Upload to Blob Storage ($web)
-        uses: azure/cli@v2
+      - name: Deploy to App Service (Production)
+        uses: azure/webapps-deploy@v3
         with:
-          inlineScript: |
-            az storage blob upload-batch \
-              --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} \
-              --destination '$web' \
-              --source ./dist \
-              --overwrite true \
-              --content-cache-control "public, max-age=31536000, immutable" \
-              --pattern "assets/*" \
-              --auth-mode login
-
-            az storage blob upload-batch \
-              --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} \
-              --destination '$web' \
-              --source ./dist \
-              --overwrite true \
-              --content-cache-control "no-cache" \
-              --pattern "*.html" \
-              --auth-mode login
-
-            az storage blob upload-batch \
-              --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} \
-              --destination '$web' \
-              --source ./dist \
-              --overwrite true \
-              --content-cache-control "no-cache" \
-              --pattern "*.json" \
-              --auth-mode login
-
-            # Upload remaining files (robots.txt, sitemap.xml, fonts, etc.)
-            az storage blob upload-batch \
-              --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} \
-              --destination '$web' \
-              --source ./dist \
-              --overwrite true \
-              --auth-mode login
+          app-name: ${{ env.AZURE_WEBAPP_NAME_PROD }}
+          package: app-service-api
 
       - name: Purge Front Door cache
         uses: azure/cli@v2
@@ -118,41 +79,9 @@ jobs:
               --endpoint-name ${{ env.AZURE_CDN_ENDPOINT_PROD }} \
               --content-paths "/*"
 
-  deploy_functions_prod:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    name: 🚀 Deploy Functions (Production)
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install & build Functions
-        working-directory: azure-functions
-        run: |
-          npm ci
-          npm run build
-
-      - name: Azure Login (OIDC)
-        uses: azure/login@v2
-        with:
-          client-id: ${{ env.AZURE_CLIENT_ID }}
-          tenant-id: ${{ env.AZURE_TENANT_ID }}
-          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Deploy to Azure Functions
-        uses: Azure/functions-action@v1
-        with:
-          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME_PROD }}
-          package: azure-functions
-          respect-funcignore: true
-
   smoke_test_prod:
     if: github.event_name == 'push'
-    needs: [deploy_frontend_prod, deploy_functions_prod]
+    needs: [deploy_app_prod]
     runs-on: ubuntu-latest
     name: 🔎 Smoke Test (Production)
     steps:
@@ -182,11 +111,11 @@ jobs:
           done
           exit 1
 
-  rollback_functions_prod:
+  rollback_app_prod:
     if: github.event_name == 'push' && needs.smoke_test_prod.result == 'failure'
     needs: [smoke_test_prod]
     runs-on: ubuntu-latest
-    name: ♻️ Rollback Functions (Production)
+    name: ♻️ Rollback App Service (Production)
     steps:
       - name: Azure Login (OIDC)
         uses: azure/login@v2
@@ -199,179 +128,20 @@ jobs:
         uses: azure/cli@v2
         with:
           inlineScript: |
-            SLOT_EXISTS=$(az functionapp deployment slot list \
+            SLOT_EXISTS=$(az webapp deployment slot list \
               --resource-group ${{ env.AZURE_APP_RESOURCE_GROUP }} \
-              --name ${{ env.AZURE_FUNCTIONAPP_NAME_PROD }} \
+              --name ${{ env.AZURE_WEBAPP_NAME_PROD }} \
               --query "[?name=='staging'] | length(@)" \
               -o tsv)
 
             if [ "$SLOT_EXISTS" = "1" ]; then
-              az functionapp deployment slot swap \
+              az webapp deployment slot swap \
                 --resource-group ${{ env.AZURE_APP_RESOURCE_GROUP }} \
-                --name ${{ env.AZURE_FUNCTIONAPP_NAME_PROD }} \
+                --name ${{ env.AZURE_WEBAPP_NAME_PROD }} \
                 --slot staging \
                 --target-slot production
-              echo "Rolled back production Functions using staging slot"
+              echo "Rolled back production app using staging slot"
             else
-              echo "No staging slot found for production Function App; rollback skipped"
-              exit 1
+              echo "No staging slot found; rollback skipped (non-blocking)"
+              exit 0
             fi
-
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  # STAGING — triggers on PR open/update
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  deploy_frontend_staging:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed'
-    runs-on: ubuntu-latest
-    name: 🧪 Deploy Frontend (Staging)
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build frontend (staging)
-        env:
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_STAGING }}
-          VITE_AZURE_AD_TENANT: ${{ secrets.VITE_AZURE_AD_TENANT }}
-          VITE_AZURE_AD_CLIENT_ID: ${{ secrets.VITE_AZURE_AD_CLIENT_ID }}
-          VITE_AZURE_STORAGE_URL: ${{ secrets.VITE_AZURE_STORAGE_URL_STAGING }}
-          VITE_APPINSIGHTS_CONNECTION_STRING: ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}
-          VITE_AZURE_SEARCH_URL: ${{ secrets.VITE_AZURE_SEARCH_URL }}
-          VITE_AZURE_SEARCH_KEY: ${{ secrets.VITE_AZURE_SEARCH_KEY }}
-        run: npm run build
-
-      - name: Azure Login (OIDC)
-        uses: azure/login@v2
-        with:
-          client-id: ${{ env.AZURE_CLIENT_ID }}
-          tenant-id: ${{ env.AZURE_TENANT_ID }}
-          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Create staging container (PR-specific)
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            # Upload to a PR-specific path inside $web so multiple PRs don't collide
-            PR_NUMBER=${{ github.event.pull_request.number }}
-
-            az storage blob upload-batch \
-              --account-name ${{ env.AZURE_STORAGE_ACCOUNT_STAGING }} \
-              --destination '$web' \
-              --destination-path "pr-${PR_NUMBER}" \
-              --source ./dist \
-              --overwrite true \
-              --auth-mode login
-
-      - name: Purge staging Front Door cache
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            az afd endpoint purge \
-              --resource-group ${{ env.AZURE_NETWORK_RESOURCE_GROUP }} \
-              --profile-name ${{ env.AZURE_CDN_PROFILE }} \
-              --endpoint-name ${{ env.AZURE_CDN_ENDPOINT_STAGING }} \
-              --content-paths "/pr-${{ github.event.pull_request.number }}/*"
-
-      - name: Comment PR with staging URL
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const prNumber = context.payload.pull_request.number;
-            const stagingUrl = `https://${{ env.AZURE_CDN_ENDPOINT_STAGING }}.azurefd.net/pr-${prNumber}/`;
-            const body = `## 🧪 Staging Preview\n\nFrontend deployed to staging:\n👉 **[${stagingUrl}](${stagingUrl})**\n\n_Auto-deployed by GitHub Actions. Will be cleaned up when PR is closed._`;
-
-            // Check if we already commented
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-            });
-            const existing = comments.find(c => c.body?.includes('Staging Preview'));
-
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                body,
-              });
-            }
-
-  deploy_functions_staging:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed'
-    runs-on: ubuntu-latest
-    name: 🧪 Deploy Functions (Staging Slot)
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install & build Functions
-        working-directory: azure-functions
-        run: |
-          npm ci
-          npm run build
-
-      - name: Azure Login (OIDC)
-        uses: azure/login@v2
-        with:
-          client-id: ${{ env.AZURE_CLIENT_ID }}
-          tenant-id: ${{ env.AZURE_TENANT_ID }}
-          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Deploy to staging slot
-        uses: Azure/functions-action@v1
-        with:
-          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME_STAGING }}
-          package: azure-functions
-          respect-funcignore: true
-          slot-name: staging
-
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  # CLEANUP — triggers on PR close/merge
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  cleanup_staging:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: 🧹 Cleanup Staging
-    steps:
-      - name: Azure Login (OIDC)
-        uses: azure/login@v2
-        with:
-          client-id: ${{ env.AZURE_CLIENT_ID }}
-          tenant-id: ${{ env.AZURE_TENANT_ID }}
-          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Delete PR staging files
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            PR_NUMBER=${{ github.event.pull_request.number }}
-
-            # Delete all blobs under the PR path
-            az storage blob delete-batch \
-              --account-name ${{ env.AZURE_STORAGE_ACCOUNT_STAGING }} \
-              --source '$web' \
-              --pattern "pr-${PR_NUMBER}/*" \
-              --auth-mode login \
-              2>/dev/null || echo "No staging files to clean up"
-
-            echo "✅ Cleaned up staging for PR #${PR_NUMBER}"

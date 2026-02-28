@@ -22,7 +22,7 @@ uploadsRouter.post('/cms-image', requireAdmin, upload.single('file'), async (req
 
   const account = process.env.AZURE_STORAGE_ACCOUNT;
   const containerName = process.env.CMS_BLOB_CONTAINER || '$web';
-  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING || process.env.STORAGE_CONNECTION_STRING;
 
   if (!account || !connectionString) {
     return res.status(500).json({ error: 'Blob storage is not configured' });
