@@ -14,6 +14,13 @@ import { getEventsByBrand } from '@/data/events';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 
+/** Maps brand id → Tailwind font classes for headings & body */
+const brandFontMap: Record<string, { heading: string; body: string }> = {
+  nova:            { heading: 'font-nova',   body: 'font-nova' },
+  'live-the-moment': { heading: 'font-ltm',   body: 'font-ltm-body' },
+  'x-force':       { heading: 'font-xforce', body: 'font-xforce' },
+};
+
 const BrandPage = () => {
   const { brandSlug } = useParams<{ brandSlug: string }>();
   const brand = brands.find(b => b.id === brandSlug);
@@ -25,16 +32,17 @@ const BrandPage = () => {
   const brandProducts = getProductsByBrand(brand.id);
   const brandEvents = getEventsByBrand(brand.id);
   const relatedBrands = brands.filter(b => b.id !== brand.id);
+  const fonts = brandFontMap[brand.id] ?? { heading: 'font-display', body: 'font-body' };
 
   return (
-    <>
+    <div className={fonts.body}>
       <SEOHead
         title={brand.name}
         description={brand.description}
         canonical={`/the-trinity/${brand.id}`}
       />
 
-      <HeroBlock title={brand.name} subtitle={brand.tagline} image={brand.heroImage} />
+      <HeroBlock title={brand.name} subtitle={brand.tagline} image={brand.heroImage} titleClassName={fonts.heading} />
 
       <ScrollReveal>
         <EditorialText heading="The Story" body={brand.description} size="large" />
@@ -89,7 +97,7 @@ const BrandPage = () => {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 };
 
