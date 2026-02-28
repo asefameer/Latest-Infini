@@ -9,16 +9,27 @@ on:
 
 env:
   NODE_VERSION: '20'
+  # ── Azure Auth (OIDC) ──
+  AZURE_CLIENT_ID: 02f4f574-35df-4a2e-9a9b-99cac22aa223
+  AZURE_TENANT_ID: c3fe8cd9-f644-4f76-bb09-920687b1237d
+  AZURE_SUBSCRIPTION_ID: e2dde12e-087a-4db9-80cc-129d6dbec90b
   # ── Production ──
   AZURE_STORAGE_ACCOUNT_PROD: stportalinfinityprod001
   AZURE_CDN_PROFILE: afd-portal-prod
   AZURE_CDN_ENDPOINT_PROD: infinity-frontend
-  AZURE_RESOURCE_GROUP: rg-portal-app-prod
+  AZURE_NETWORK_RESOURCE_GROUP: rg-portal-network
+  AZURE_SHARED_RESOURCE_GROUP: rg-portal-shared
+  AZURE_APP_RESOURCE_GROUP: rg-portal-app-prod
   AZURE_FUNCTIONAPP_NAME_PROD: infinity-portal-app-prod-001
   # ── Staging ──
   AZURE_STORAGE_ACCOUNT_STAGING: stportalinfinitystaging
   AZURE_CDN_ENDPOINT_STAGING: infinity-frontend-staging
   AZURE_FUNCTIONAPP_NAME_STAGING: infinity-portal-app-staging-001
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
 
 jobs:
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -51,10 +62,12 @@ jobs:
           VITE_AZURE_SEARCH_KEY: ${{ secrets.VITE_AZURE_SEARCH_KEY }}
         run: npm run build
 
-      - name: Azure Login
+      - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
       - name: Upload to Blob Storage ($web)
         uses: azure/cli@v2
@@ -66,7 +79,8 @@ jobs:
               --source ./dist \
               --overwrite true \
               --content-cache-control "public, max-age=31536000, immutable" \
-              --pattern "assets/*"
+              --pattern "assets/*" \
+              --auth-mode login
 
             az storage blob upload-batch \
               --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} \
@@ -74,7 +88,8 @@ jobs:
               --source ./dist \
               --overwrite true \
               --content-cache-control "no-cache" \
-              --pattern "*.html"
+              --pattern "*.html" \
+              --auth-mode login
 
             az storage blob upload-batch \
               --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} \
@@ -82,14 +97,23 @@ jobs:
               --source ./dist \
               --overwrite true \
               --content-cache-control "no-cache" \
-              --pattern "*.json"
+              --pattern "*.json" \
+              --auth-mode login
+
+            # Upload remaining files (robots.txt, sitemap.xml, fonts, etc.)
+            az storage blob upload-batch \
+              --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} \
+              --destination '$web' \
+              --source ./dist \
+              --overwrite true \
+              --auth-mode login
 
       - name: Purge Front Door cache
         uses: azure/cli@v2
         with:
           inlineScript: |
             az afd endpoint purge \
-              --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+              --resource-group ${{ env.AZURE_NETWORK_RESOURCE_GROUP }} \
               --profile-name ${{ env.AZURE_CDN_PROFILE }} \
               --endpoint-name ${{ env.AZURE_CDN_ENDPOINT_PROD }} \
               --content-paths "/*"
@@ -112,10 +136,12 @@ jobs:
           npm ci
           npm run build
 
-      - name: Azure Login
+      - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
@@ -154,10 +180,12 @@ jobs:
           VITE_AZURE_SEARCH_KEY: ${{ secrets.VITE_AZURE_SEARCH_KEY }}
         run: npm run build
 
-      - name: Azure Login
+      - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
       - name: Create staging container (PR-specific)
         uses: azure/cli@v2
@@ -171,14 +199,15 @@ jobs:
               --destination '$web' \
               --destination-path "pr-${PR_NUMBER}" \
               --source ./dist \
-              --overwrite true
+              --overwrite true \
+              --auth-mode login
 
       - name: Purge staging Front Door cache
         uses: azure/cli@v2
         with:
           inlineScript: |
             az afd endpoint purge \
-              --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+              --resource-group ${{ env.AZURE_NETWORK_RESOURCE_GROUP }} \
               --profile-name ${{ env.AZURE_CDN_PROFILE }} \
               --endpoint-name ${{ env.AZURE_CDN_ENDPOINT_STAGING }} \
               --content-paths "/pr-${{ github.event.pull_request.number }}/*"
@@ -233,10 +262,12 @@ jobs:
           npm ci
           npm run build
 
-      - name: Azure Login
+      - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to staging slot
         uses: Azure/functions-action@v1
@@ -255,10 +286,12 @@ jobs:
     runs-on: ubuntu-latest
     name: 🧹 Cleanup Staging
     steps:
-      - name: Azure Login
+      - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
       - name: Delete PR staging files
         uses: azure/cli@v2
@@ -271,6 +304,7 @@ jobs:
               --account-name ${{ env.AZURE_STORAGE_ACCOUNT_STAGING }} \
               --source '$web' \
               --pattern "pr-${PR_NUMBER}/*" \
+              --auth-mode login \
               2>/dev/null || echo "No staging files to clean up"
 
             echo "✅ Cleaned up staging for PR #${PR_NUMBER}"
