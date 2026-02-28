@@ -32,12 +32,22 @@ permissions:
   pull-requests: write
 
 jobs:
+  production_approval:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    name: ✅ Production Approval Gate
+    environment: production
+    steps:
+      - name: Approval granted
+        run: echo "Production deployment approved"
+
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   # PRODUCTION — triggers on push to main
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   deploy_frontend_prod:
     if: github.event_name == 'push'
+    needs: production_approval
     runs-on: ubuntu-latest
     name: 🚀 Deploy Frontend (Production)
     steps:
@@ -120,6 +130,7 @@ jobs:
 
   deploy_functions_prod:
     if: github.event_name == 'push'
+    needs: production_approval
     runs-on: ubuntu-latest
     name: 🚀 Deploy Functions (Production)
     steps:
@@ -149,6 +160,73 @@ jobs:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME_PROD }}
           package: azure-functions
           respect-funcignore: true
+
+  smoke_test_prod:
+    if: github.event_name == 'push'
+    needs: [deploy_frontend_prod, deploy_functions_prod]
+    runs-on: ubuntu-latest
+    name: 🔎 Smoke Test (Production)
+    steps:
+      - name: Validate homepage
+        run: |
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://infinitybd.live/)
+            if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+              echo "Homepage check passed with status $STATUS"
+              exit 0
+            fi
+            echo "Homepage check failed with status $STATUS, retry $i/10"
+            sleep 10
+          done
+          exit 1
+
+      - name: Validate products API
+        run: |
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://infinitybd.live/api/products)
+            if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+              echo "Products API check passed with status $STATUS"
+              exit 0
+            fi
+            echo "Products API check failed with status $STATUS, retry $i/10"
+            sleep 10
+          done
+          exit 1
+
+  rollback_functions_prod:
+    if: github.event_name == 'push' && needs.smoke_test_prod.result == 'failure'
+    needs: [smoke_test_prod]
+    runs-on: ubuntu-latest
+    name: ♻️ Rollback Functions (Production)
+    steps:
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Swap staging slot to production
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            SLOT_EXISTS=$(az functionapp deployment slot list \
+              --resource-group ${{ env.AZURE_APP_RESOURCE_GROUP }} \
+              --name ${{ env.AZURE_FUNCTIONAPP_NAME_PROD }} \
+              --query "[?name=='staging'] | length(@)" \
+              -o tsv)
+
+            if [ "$SLOT_EXISTS" = "1" ]; then
+              az functionapp deployment slot swap \
+                --resource-group ${{ env.AZURE_APP_RESOURCE_GROUP }} \
+                --name ${{ env.AZURE_FUNCTIONAPP_NAME_PROD }} \
+                --slot staging \
+                --target-slot production
+              echo "Rolled back production Functions using staging slot"
+            else
+              echo "No staging slot found for production Function App; rollback skipped"
+              exit 1
+            fi
 
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   # STAGING — triggers on PR open/update
