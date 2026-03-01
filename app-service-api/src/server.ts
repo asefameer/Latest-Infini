@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
+import { authRouter } from './routes/auth.js';
 import { catalogRouter } from './routes/catalog.js';
 import { cmsRouter } from './routes/cms.js';
 import { discountsRouter } from './routes/discounts.js';
@@ -23,6 +24,7 @@ app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({ status: 'ok', service: 'infinity-app-service-api' });
 });
 
+app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/events', eventsRouter);
 app.use('/api/orders', ordersRouter);

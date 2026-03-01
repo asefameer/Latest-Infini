@@ -63,6 +63,27 @@ jobs:
           tenant-id: ${{ env.AZURE_TENANT_ID }}
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Configure App Service settings
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az webapp config appsettings set \
+              --resource-group ${{ env.AZURE_APP_RESOURCE_GROUP }} \
+              --name ${{ env.AZURE_WEBAPP_NAME_PROD }} \
+              --settings \
+                AUTH_JWT_SECRET='${{ secrets.AUTH_JWT_SECRET }}' \
+                ADMIN_API_TOKEN='${{ secrets.ADMIN_API_TOKEN }}' \
+                DB_CONNECTION_STRING='${{ secrets.DB_CONNECTION_STRING }}' \
+                AZURE_STORAGE_CONNECTION_STRING='${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}' \
+                AZURE_STORAGE_ACCOUNT='${{ secrets.AZURE_STORAGE_ACCOUNT }}' \
+                CMS_BLOB_CONTAINER='${{ secrets.CMS_BLOB_CONTAINER }}' \
+                KEY_VAULT_URL='${{ secrets.KEY_VAULT_URL }}'
+
+      - name: Apply SQL schema updates
+        run: |
+          cd app-service-api
+          DB_CONN='${{ secrets.DB_CONNECTION_STRING }}' node scripts/apply-cms-schema.cjs
+
       - name: Deploy to App Service (Production)
         uses: azure/webapps-deploy@v3
         with:
@@ -107,6 +128,19 @@ jobs:
               exit 0
             fi
             echo "Products API check failed with status $STATUS, retry $i/10"
+            sleep 10
+          done
+          exit 1
+
+      - name: Validate auth API route
+        run: |
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://infinitybd.live/api/auth/me)
+            if [ "$STATUS" = "401" ] || [ "$STATUS" = "200" ]; then
+              echo "Auth API route check passed with status $STATUS"
+              exit 0
+            fi
+            echo "Auth API route check failed with status $STATUS, retry $i/10"
             sleep 10
           done
           exit 1

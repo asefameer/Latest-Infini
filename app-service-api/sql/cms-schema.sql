@@ -43,3 +43,18 @@ BEGIN
 
   CREATE INDEX IX_HomepageBanners_OrderActive ON dbo.HomepageBanners(sort_order, is_active);
 END;
+
+IF OBJECT_ID('dbo.CustomerAccounts', 'U') IS NULL
+BEGIN
+  CREATE TABLE dbo.CustomerAccounts (
+    id NVARCHAR(50) NOT NULL PRIMARY KEY,
+    name NVARCHAR(200) NOT NULL,
+    email NVARCHAR(255) NOT NULL UNIQUE,
+    passwordHash NVARCHAR(512) NOT NULL,
+    isActive BIT NOT NULL DEFAULT 1,
+    createdAt NVARCHAR(30) NOT NULL,
+    updatedAt NVARCHAR(30) NOT NULL
+  );
+
+  CREATE UNIQUE INDEX IX_CustomerAccounts_Email ON dbo.CustomerAccounts(email);
+END;

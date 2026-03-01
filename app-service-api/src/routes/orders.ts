@@ -1,6 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { getDb } from '../shared/db.js';
 import { requireAdmin } from '../shared/auth.js';
+import { requireCustomer } from '../shared/customer-auth.js';
 import { tryParseJson } from '../shared/json.js';
 
 export const ordersRouter = Router();
@@ -32,7 +33,37 @@ ordersRouter.get('/', requireAdmin, async (req: Request, res: Response) => {
   res.json(result.recordset.map(parseOrderRow));
 });
 
-ordersRouter.get('/customer/:email', async (req: Request, res: Response) => {
+ordersRouter.get('/customer/me', requireCustomer, async (req: Request, res: Response) => {
+  const user = req.customerUser;
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  const db = await getDb();
+  const result = await db.request().input('email', user.email).query('SELECT * FROM Orders WHERE customerEmail = @email ORDER BY createdAt DESC');
+  res.json(result.recordset.map(parseOrderRow));
+});
+
+ordersRouter.get('/customer/me/:id', requireCustomer, async (req: Request, res: Response) => {
+  const user = req.customerUser;
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  const db = await getDb();
+  const result = await db.request()
+    .input('id', req.params.id)
+    .input('email', user.email)
+    .query('SELECT * FROM Orders WHERE id = @id AND customerEmail = @email');
+
+  if (result.recordset.length === 0) return res.status(404).json({ error: 'Order not found' });
+  res.json(parseOrderRow(result.recordset[0]));
+});
+
+ordersRouter.get('/customer/:email', requireCustomer, async (req: Request, res: Response) => {
+  const user = req.customerUser;
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  if (req.params.email.toLowerCase() !== user.email.toLowerCase()) {
+    return res.status(403).json({ error: 'You can only view your own orders' });
+  }
+
   const db = await getDb();
   const result = await db.request().input('email', req.params.email).query('SELECT * FROM Orders WHERE customerEmail = @email ORDER BY createdAt DESC');
   res.json(result.recordset.map(parseOrderRow));
