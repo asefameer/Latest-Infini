@@ -162,6 +162,20 @@ function extractToken(req: HttpRequest): string | null {
   return match ? match[1] : null;
 }
 
+function hasValidAdminApiToken(req: HttpRequest): boolean {
+  const expected = process.env.ADMIN_API_TOKEN;
+  if (!expected) return false;
+
+  const provided = req.headers.get('x-admin-token');
+  if (!provided) return false;
+
+  const expectedBuf = Buffer.from(expected);
+  const providedBuf = Buffer.from(provided);
+  if (expectedBuf.length !== providedBuf.length) return false;
+
+  return crypto.timingSafeEqual(expectedBuf, providedBuf);
+}
+
 // ── Check admin role ──
 
 function hasAdminRole(payload: TokenPayload): boolean {
@@ -187,6 +201,19 @@ export type AdminHandler = (req: HttpRequest, user: TokenPayload) => Promise<Htt
 export function requireAdmin(handler: AdminHandler): (req: HttpRequest) => Promise<HttpResponseInit> {
   return async (req: HttpRequest): Promise<HttpResponseInit> => {
     if (req.method === 'OPTIONS') return handleOptions();
+
+    if (hasValidAdminApiToken(req)) {
+      const now = Math.floor(Date.now() / 1000);
+      const mockPayload: TokenPayload = {
+        sub: 'admin_api_token',
+        iss: 'admin_api_token',
+        aud: 'admin_api_token',
+        exp: now + 3600,
+        nbf: now - 60,
+        roles: [process.env.B2C_ADMIN_ROLE || 'Admin'],
+      };
+      return handler(req, mockPayload);
+    }
 
     const token = extractToken(req);
     if (!token) return errorResponse(401, 'Missing Authorization header');

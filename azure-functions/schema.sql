@@ -107,6 +107,61 @@ CREATE TABLE Banners (
 
 CREATE INDEX IX_Banners_placement ON Banners (placement);
 
+-- CMS: Site Content
+IF OBJECT_ID('site_content', 'U') IS NULL
+BEGIN
+  CREATE TABLE site_content (
+    id            NVARCHAR(50)   PRIMARY KEY,
+    section       NVARCHAR(100)  NOT NULL,
+    content_key   NVARCHAR(100)  NOT NULL,
+    content_value NVARCHAR(MAX)  NOT NULL DEFAULT '',
+    content_type  NVARCHAR(50)   NOT NULL DEFAULT 'text',
+    sort_order    INT            NOT NULL DEFAULT 0,
+    created_at    DATETIME2      NOT NULL DEFAULT GETUTCDATE(),
+    updated_at    DATETIME2      NOT NULL DEFAULT GETUTCDATE(),
+    CONSTRAINT UQ_site_content_section_key UNIQUE (section, content_key)
+  );
+END;
+
+-- CMS: Navigation Items
+IF OBJECT_ID('navigation_items', 'U') IS NULL
+BEGIN
+  CREATE TABLE navigation_items (
+    id            NVARCHAR(50)   PRIMARY KEY,
+    location      NVARCHAR(50)   NOT NULL DEFAULT 'header',
+    label         NVARCHAR(255)  NOT NULL,
+    href          NVARCHAR(500)  NOT NULL,
+    sort_order    INT            NOT NULL DEFAULT 0,
+    is_visible    BIT            NOT NULL DEFAULT 1,
+    parent_id     NVARCHAR(50)   NULL,
+    created_at    DATETIME2      NOT NULL DEFAULT GETUTCDATE(),
+    updated_at    DATETIME2      NOT NULL DEFAULT GETUTCDATE()
+  );
+
+  CREATE INDEX IX_navigation_items_location ON navigation_items (location);
+  CREATE INDEX IX_navigation_items_visible ON navigation_items (is_visible);
+END;
+
+-- CMS: Homepage Banners
+IF OBJECT_ID('homepage_banners', 'U') IS NULL
+BEGIN
+  CREATE TABLE homepage_banners (
+    id            NVARCHAR(50)   PRIMARY KEY,
+    name          NVARCHAR(255)  NOT NULL,
+    tagline       NVARCHAR(500)  NOT NULL DEFAULT '',
+    image_url     NVARCHAR(500)  NOT NULL,
+    link          NVARCHAR(500)  NOT NULL DEFAULT '/',
+    accent_color  NVARCHAR(50)   NOT NULL DEFAULT '180 100% 50%',
+    sort_order    INT            NOT NULL DEFAULT 0,
+    is_active     BIT            NOT NULL DEFAULT 1,
+    created_at    DATETIME2      NOT NULL DEFAULT GETUTCDATE(),
+    updated_at    DATETIME2      NOT NULL DEFAULT GETUTCDATE()
+  );
+
+  CREATE INDEX IX_homepage_banners_active ON homepage_banners (is_active);
+  CREATE INDEX IX_homepage_banners_sort ON homepage_banners (sort_order);
+END;
+
 -- Customers
 CREATE TABLE Customers (
   id            NVARCHAR(50)   PRIMARY KEY,

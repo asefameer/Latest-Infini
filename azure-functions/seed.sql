@@ -181,6 +181,41 @@ INSERT INTO PushNotifications (id, title, body, status, segment, scheduledAt, se
 ('pn2','Your tickets are ready','Download your LTM Paris tickets now.','sent','event-goer',NULL,'2026-02-21',310),
 ('pn3','New X-Force arrivals','Check out the latest X-Force collection.','scheduled','xforce-fan','2026-03-05',NULL,1800);
 
+-- CMS: Site Content
+INSERT INTO site_content (id, section, content_key, content_value, content_type, sort_order)
+SELECT 'sc-home-hero-title', 'home_hero', 'title', 'Welcome to Infinity', 'text', 1
+WHERE NOT EXISTS (SELECT 1 FROM site_content WHERE id = 'sc-home-hero-title');
+
+INSERT INTO site_content (id, section, content_key, content_value, content_type, sort_order)
+SELECT 'sc-home-hero-tagline', 'home_hero', 'tagline', 'Where fashion, experience, and performance become one.', 'text', 2
+WHERE NOT EXISTS (SELECT 1 FROM site_content WHERE id = 'sc-home-hero-tagline');
+
+-- CMS: Navigation Items
+INSERT INTO navigation_items (id, location, label, href, sort_order, is_visible, parent_id)
+SELECT 'nav-header-home', 'header', 'Home', '/', 1, 1, NULL
+WHERE NOT EXISTS (SELECT 1 FROM navigation_items WHERE id = 'nav-header-home');
+
+INSERT INTO navigation_items (id, location, label, href, sort_order, is_visible, parent_id)
+SELECT 'nav-header-trinity', 'header', 'The Trinity', '/the-trinity', 2, 1, NULL
+WHERE NOT EXISTS (SELECT 1 FROM navigation_items WHERE id = 'nav-header-trinity');
+
+INSERT INTO navigation_items (id, location, label, href, sort_order, is_visible, parent_id)
+SELECT 'nav-header-editions', 'header', 'Editions', '/editions', 3, 1, NULL
+WHERE NOT EXISTS (SELECT 1 FROM navigation_items WHERE id = 'nav-header-editions');
+
+-- CMS: Homepage Banners
+INSERT INTO homepage_banners (id, name, tagline, image_url, link, accent_color, sort_order, is_active)
+SELECT 'banner-nova', 'NOVA', 'A bold new experience', '/assets/trinity-nova.jpg', '/the-trinity/nova', 'var(--infinity-cyan)', 1, 1
+WHERE NOT EXISTS (SELECT 1 FROM homepage_banners WHERE id = 'banner-nova');
+
+INSERT INTO homepage_banners (id, name, tagline, image_url, link, accent_color, sort_order, is_active)
+SELECT 'banner-ltm', 'Live The Moment', '', '/assets/trinity-live-the-moment.jpg', '/the-trinity/live-the-moment', 'var(--infinity-purple)', 2, 1
+WHERE NOT EXISTS (SELECT 1 FROM homepage_banners WHERE id = 'banner-ltm');
+
+INSERT INTO homepage_banners (id, name, tagline, image_url, link, accent_color, sort_order, is_active)
+SELECT 'banner-xforce', 'X-Force', 'Unleash Your X-factor', '/assets/trinity-xforce.jpg', '/the-trinity/x-force', 'var(--infinity-pink)', 3, 1
+WHERE NOT EXISTS (SELECT 1 FROM homepage_banners WHERE id = 'banner-xforce');
+
 -- Orders
 INSERT INTO Orders (id, customerId, customerEmail, customerName, status, paymentMethod, paymentStatus, subtotal, discount, shippingCost, total, currency, promoCode, items, shippingAddress, notes, createdAt, updatedAt) VALUES
 ('ORD-2026-0001','c1','aya@example.com','Aya Nakamura','delivered','stripe','paid',6700,0,150,6850,'BDT',NULL,
