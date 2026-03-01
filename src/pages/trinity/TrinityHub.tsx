@@ -58,7 +58,7 @@ const TrinityHub = () => {
                   />
                   <div className="absolute bottom-0 left-0 right-0 p-8">
                     <h3 className="font-display text-2xl md:text-3xl font-bold mb-2">{brand.name}</h3>
-                    <p className="text-muted-foreground text-sm mb-4">{brand.tagline}</p>
+                    {brand.tagline && <p className="text-muted-foreground text-sm mb-4">{brand.tagline}</p>}
                     <span className="inline-flex items-center gap-2 text-sm font-medium text-primary group-hover:gap-3 transition-all">
                       Explore <ArrowRight className="w-4 h-4" />
                     </span>

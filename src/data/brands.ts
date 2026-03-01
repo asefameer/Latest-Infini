@@ -16,7 +16,7 @@ export const brands: BrandContent[] = [
   {
     id: 'nova',
     name: 'NOVA',
-    tagline: 'Light Beyond Limits',
+    tagline: 'A bold new experience',
     heroImage: trinityNova,
     logoImage: novaLogo,
     description: 'NOVA is the creative soul of Infinity. Born from the intersection of art and technology, NOVA represents the light that guides us beyond the familiar into the extraordinary.',
@@ -41,7 +41,7 @@ export const brands: BrandContent[] = [
   {
     id: 'live-the-moment',
     name: 'Live The Moment',
-    tagline: 'Every Second Counts',
+    tagline: '',
     heroImage: trinityLtm,
     logoImage: ltmLogo,
     description: 'Live The Moment captures the essence of presence. In a world of constant distraction, LTM creates spaces and pieces that anchor you in the now.',
@@ -66,7 +66,7 @@ export const brands: BrandContent[] = [
   {
     id: 'x-force',
     name: 'X-Force',
-    tagline: 'Defy. Disrupt. Dominate.',
+    tagline: 'Unleash Your X-factor',
     heroImage: trinityXforce,
     logoImage: xforceLogo,
     description: 'X-Force channels raw energy into refined performance. Built for those who push boundaries — in sport, in style, in life.',

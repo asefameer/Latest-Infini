@@ -17,9 +17,9 @@ interface TrinitySlide {
 }
 
 const fallbackSlides: TrinitySlide[] = [
-  { id: 'nova', name: 'NOVA', tagline: 'Light Beyond Limits', image: trinityNova, link: '/the-trinity/nova', accent: 'var(--infinity-cyan)' },
-  { id: 'live-the-moment', name: 'Live The Moment', tagline: 'Every Second Counts', image: trinityLtm, link: '/the-trinity/live-the-moment', accent: 'var(--infinity-purple)' },
-  { id: 'x-force', name: 'X-Force', tagline: 'Defy. Disrupt. Dominate.', image: trinityXforce, link: '/the-trinity/x-force', accent: 'var(--infinity-pink)' },
+  { id: 'nova', name: 'NOVA', tagline: 'A bold new experience', image: trinityNova, link: '/the-trinity/nova', accent: 'var(--infinity-cyan)' },
+  { id: 'live-the-moment', name: 'Live The Moment', tagline: '', image: trinityLtm, link: '/the-trinity/live-the-moment', accent: 'var(--infinity-purple)' },
+  { id: 'x-force', name: 'X-Force', tagline: 'Unleash Your X-factor', image: trinityXforce, link: '/the-trinity/x-force', accent: 'var(--infinity-pink)' },
 ];
 
 // Map local image paths to imported assets
@@ -202,9 +202,11 @@ const HomepageBanner = () => {
                   <h2 className="font-display text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-1 sm:mb-2">
                     {slide.name}
                   </h2>
-                  <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-4 sm:mb-6">
-                    {slide.tagline}
-                  </p>
+                  {slide.tagline && (
+                    <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-4 sm:mb-6">
+                      {slide.tagline}
+                    </p>
+                  )}
                   <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-foreground group-hover:gap-3 transition-all">
                     {bt['cta_label'] ?? 'Explore'} <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </span>
