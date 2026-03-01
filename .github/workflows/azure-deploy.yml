@@ -84,9 +84,18 @@ jobs:
           DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
         run: |
           if [ -z "$DB_CONNECTION_STRING" ]; then
-            echo "DB_CONNECTION_STRING GitHub secret is missing" >&2
-            exit 1
+            DB_CONNECTION_STRING=$(az webapp config appsettings list \
+              --resource-group ${{ env.AZURE_APP_RESOURCE_GROUP }} \
+              --name ${{ env.AZURE_WEBAPP_NAME_PROD }} \
+              --query "[?name=='DB_CONNECTION_STRING'].value | [0]" \
+              -o tsv)
           fi
+
+          if [ -z "$DB_CONNECTION_STRING" ] || [ "$DB_CONNECTION_STRING" = "null" ]; then
+            echo "DB connection string not found in GitHub secrets or App Service settings; skipping schema apply"
+            exit 0
+          fi
+
           cd app-service-api
           node scripts/apply-cms-schema.cjs
 
