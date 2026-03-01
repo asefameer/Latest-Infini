@@ -91,6 +91,8 @@ export const useKBArticles = () => useQuery({ queryKey: ['crm', 'kb-articles'], 
 export const useOrders = () => useQuery({ queryKey: ['orders'], queryFn: ordersApi.getAll });
 export const useOrder = (id: string) => useQuery({ queryKey: ['orders', id], queryFn: () => ordersApi.getById(id), enabled: !!id });
 export const useOrdersByEmail = (email: string) => useQuery({ queryKey: ['orders', 'email', email], queryFn: () => ordersApi.getByEmail(email), enabled: !!email });
+export const useMyOrders = (enabled = true) => useQuery({ queryKey: ['orders', 'me'], queryFn: ordersApi.getMyOrders, enabled });
+export const useMyOrder = (id: string, enabled = true) => useQuery({ queryKey: ['orders', 'me', id], queryFn: () => ordersApi.getMyOrderById(id), enabled: !!id && enabled });
 
 export const useCreateOrder = () => {
   const qc = useQueryClient();

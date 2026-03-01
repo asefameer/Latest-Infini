@@ -18,6 +18,10 @@ class HttpClient {
     this.token = token;
   }
 
+  getToken() {
+    return this.token;
+  }
+
   private async request<T>(method: string, path: string, body?: unknown): Promise<T> {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
@@ -33,7 +37,11 @@ class HttpClient {
       throw new Error(`API Error ${res.status}: ${error}`);
     }
 
-    return res.json();
+    if (res.status === 204) return undefined as T;
+
+    const text = await res.text();
+    if (!text) return undefined as T;
+    return JSON.parse(text) as T;
   }
 
   get<T>(path: string) { return this.request<T>('GET', path); }

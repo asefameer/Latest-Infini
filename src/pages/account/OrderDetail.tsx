@@ -2,12 +2,13 @@ import { useParams, Link } from 'react-router-dom';
 import SEOHead from '@/components/SEOHead';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import ErrorState from '@/components/ErrorState';
-import { useOrder } from '@/services/api/hooks';
+import { useMyOrder } from '@/services/api/hooks';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Order } from '@/types';
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 
 const statusColor = (s: Order['status']) => {
   switch (s) {
@@ -26,7 +27,8 @@ const STEPS: { key: Order['status']; label: string }[] = [
 
 const OrderDetail = () => {
   const { orderId } = useParams<{ orderId: string }>();
-  const { data: order, isLoading, isError, refetch } = useOrder(orderId || '');
+  const { user } = useCustomerAuth();
+  const { data: order, isLoading, isError, refetch } = useMyOrder(orderId || '', !!user);
 
   return (
     <>

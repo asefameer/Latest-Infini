@@ -1,56 +1,28 @@
 import { Link } from 'react-router-dom';
 import SEOHead from '@/components/SEOHead';
-import { User, Package, MapPin, Heart, LogIn } from 'lucide-react';
-import MagneticButton from '@/components/MagneticButton';
+import { User, Package, MapPin, Heart, LogOut } from 'lucide-react';
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 
 const AccountDashboard = () => {
-  const isLoggedIn = false; // placeholder
-
-  if (!isLoggedIn) {
-    return (
-      <>
-        <SEOHead title="Account" description="Sign in to your Infinity account." canonical="/account" />
-        <div className="container mx-auto px-6 py-20 text-center max-w-md">
-          {/* Glow behind icon */}
-          <div className="relative inline-block mb-6">
-            <div
-              className="absolute inset-0 rounded-full blur-xl opacity-30"
-              style={{ background: 'linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)))' }}
-            />
-            <div className="relative w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
-              <LogIn className="w-7 h-7 text-muted-foreground" />
-            </div>
-          </div>
-          <h1 className="font-display text-3xl font-bold tracking-tight mb-3">Sign In</h1>
-          <p className="text-muted-foreground text-sm mb-8">Sign in to access your orders, addresses, and wishlist.</p>
-          <MagneticButton strength={0.25}>
-            <button
-              className="group relative w-full rounded-full py-3 text-sm font-medium transition-all"
-            >
-              <div
-                className="absolute -inset-[1px] rounded-full opacity-80 group-hover:opacity-100 transition-opacity"
-                style={{
-                  background: 'linear-gradient(135deg, hsl(var(--infinity-cyan)), hsl(var(--infinity-purple)), hsl(var(--infinity-pink)))',
-                  backgroundSize: '200% 200%',
-                  animation: 'gradient-shift 3s ease infinite',
-                }}
-              />
-              <span className="relative block w-full rounded-full py-3 bg-background/90 group-hover:bg-background/80 transition-colors">
-                Sign In with Email
-              </span>
-            </button>
-          </MagneticButton>
-          <p className="text-xs text-muted-foreground mt-4">Authentication coming soon. This is a placeholder.</p>
-        </div>
-      </>
-    );
-  }
+  const { user, logout } = useCustomerAuth();
 
   return (
     <>
       <SEOHead title="My Account" description="Manage your Infinity account." canonical="/account" />
       <div className="container mx-auto px-6 py-8">
-        <h1 className="font-display text-3xl font-bold tracking-tight mb-10">My Account</h1>
+        <div className="flex items-center justify-between mb-10 gap-4 flex-wrap">
+          <div>
+            <h1 className="font-display text-3xl font-bold tracking-tight">My Account</h1>
+            {user && <p className="text-sm text-muted-foreground mt-1">Signed in as {user.email}</p>}
+          </div>
+          <button
+            onClick={logout}
+            className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium border border-border/40 hover:bg-muted/50 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { icon: User, label: 'Profile', desc: 'Manage your details', href: '/account' },

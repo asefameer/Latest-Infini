@@ -22,6 +22,17 @@ import type { Product, Event, Category, BrandContent, Order } from '@/types';
 import type { Discount } from '@/pages/admin/DiscountsAdmin';
 import type { Banner } from './mock-store';
 
+export interface CustomerAuthUser {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: CustomerAuthUser;
+}
+
 const mode = API_CONFIG.BACKEND_MODE;
 
 // ── Products ──
@@ -147,6 +158,10 @@ export const ordersApi = {
     mode === 'azure' ? httpClient.get(`/orders/${id}`) : orderStore.getById(id),
   getByEmail: async (email: string): Promise<Order[]> =>
     mode === 'azure' ? httpClient.get(`/orders/customer/${encodeURIComponent(email)}`) : orderStore.getByEmail(email),
+  getMyOrders: async (): Promise<Order[]> =>
+    mode === 'azure' ? httpClient.get('/orders/customer/me') : [],
+  getMyOrderById: async (id: string): Promise<Order | null> =>
+    mode === 'azure' ? httpClient.get(`/orders/customer/me/${id}`) : orderStore.getById(id),
   create: async (order: Partial<Order>): Promise<Order> =>
     mode === 'azure' ? httpClient.post('/orders', order) : orderStore.create(order as Order),
   update: async (id: string, data: Partial<Order>): Promise<Order> =>
@@ -156,6 +171,21 @@ export const ordersApi = {
     orderStore.update(id, { status: 'cancelled', updatedAt: new Date().toISOString() });
     return { id, status: 'cancelled' };
   },
+};
+
+export const authApi = {
+  signup: async (payload: { name: string; email: string; password: string }): Promise<AuthResponse> =>
+    mode === 'azure'
+      ? httpClient.post('/auth/signup', payload)
+      : { token: 'mock-token', user: { id: 'mock-user', name: payload.name, email: payload.email } },
+  login: async (payload: { email: string; password: string }): Promise<AuthResponse> =>
+    mode === 'azure'
+      ? httpClient.post('/auth/login', payload)
+      : { token: 'mock-token', user: { id: 'mock-user', name: 'Mock User', email: payload.email } },
+  me: async (): Promise<{ user: CustomerAuthUser }> =>
+    mode === 'azure'
+      ? httpClient.get('/auth/me')
+      : { user: { id: 'mock-user', name: 'Mock User', email: 'mock@example.com' } },
 };
 
 // Re-export subscribe for React hooks to listen for mock store changes

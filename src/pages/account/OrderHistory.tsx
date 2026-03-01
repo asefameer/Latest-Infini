@@ -1,14 +1,13 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEOHead from '@/components/SEOHead';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
-import { useOrdersByEmail } from '@/services/api/hooks';
+import { useMyOrders } from '@/services/api/hooks';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Package, Search, ChevronRight, Loader2 } from 'lucide-react';
+import { Package, ChevronRight, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Order } from '@/types';
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 
 const statusColor = (s: Order['status']) => {
   switch (s) {
@@ -36,53 +35,18 @@ const StatusTracker = ({ status }: { status: Order['status'] }) => {
 };
 
 const OrderHistory = () => {
-  const [email, setEmail] = useState('');
-  const [searchEmail, setSearchEmail] = useState('');
-  const { data: orders = [], isLoading, isError, refetch } = useOrdersByEmail(searchEmail);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSearchEmail(email.trim());
-  };
+  const { user } = useCustomerAuth();
+  const { data: orders = [], isLoading, isError, refetch } = useMyOrders(!!user);
 
   return (
     <>
       <SEOHead title="Order History" description="View your past orders." canonical="/account/orders" />
       <div className="container mx-auto px-6 py-8 max-w-3xl">
         <h1 className="font-display text-3xl font-bold tracking-tight mb-2">Order History</h1>
-        <p className="text-sm text-muted-foreground mb-8">Enter your email to view your orders.</p>
-
-        {/* Email search */}
-        <form onSubmit={handleSearch} className="flex gap-2 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              type="email"
-              placeholder="Enter your email address…"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="pl-9"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="rounded-lg px-5 py-2 text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-          >
-            Look Up
-          </button>
-        </form>
+        <p className="text-sm text-muted-foreground mb-8">Showing orders for {user?.email}.</p>
 
         {/* Results */}
-        {!searchEmail ? (
-          <EmptyState
-            icon={<Package className="w-7 h-7" />}
-            title="No orders yet"
-            description="When you place an order, it will appear here."
-            actionLabel="Start Shopping"
-            actionLink="/editions"
-          />
-        ) : isLoading ? (
+        {isLoading ? (
           <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
             <Loader2 className="w-4 h-4 animate-spin" /> Loading orders…
           </div>
@@ -91,8 +55,8 @@ const OrderHistory = () => {
         ) : orders.length === 0 ? (
           <EmptyState
             icon={<Package className="w-7 h-7" />}
-            title="No orders found"
-            description={`No orders found for ${searchEmail}. Try a different email.`}
+            title="No orders yet"
+            description="When you place an order, it will appear here."
             actionLabel="Start Shopping"
             actionLink="/editions"
           />

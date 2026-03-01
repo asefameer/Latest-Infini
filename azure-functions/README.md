@@ -36,6 +36,7 @@ func azure functionapp publish <YOUR_FUNCTION_APP_NAME>
 | `B2C_CLIENT_ID` | Application (client) ID registered in B2C |
 | `B2C_ADMIN_ROLE` | Role claim value for admin access (default: `Admin`) |
 | `ADMIN_API_TOKEN` | Optional dev/admin token accepted through `x-admin-token` header |
+| `AUTH_JWT_SECRET` | Secret used to sign customer auth tokens (`/api/auth/*`) |
 | `STORAGE_CONNECTION_STRING` | Blob Storage connection string for CMS image uploads |
 | `CMS_IMAGE_CONTAINER` | Blob container for CMS images (default: `cms-images`) |
 | `STORAGE_PUBLIC_BASE_URL` | Optional public base URL for image links (e.g. `https://stportalinfinityprod001.blob.core.windows.net`) |

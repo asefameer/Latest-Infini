@@ -13,6 +13,7 @@ import { app, HttpRequest } from '@azure/functions';
 import { getDb } from '../shared/db.js';
 import { corsResponse, handleOptions, parseBody, errorResponse } from '../shared/http.js';
 import { requireAdmin } from '../shared/auth.js';
+import { requireCustomerAuth } from '../shared/customer-auth.js';
 
 // ── List / Filter (admin) ──
 app.http('orders-list', {
@@ -152,22 +153,55 @@ app.http('orders-cancel', {
   },
 });
 
-// ── Customer orders (public — by email) ──
+app.http('orders-by-current-customer', {
+  methods: ['GET', 'OPTIONS'],
+  authLevel: 'anonymous',
+  route: 'orders/customer/me',
+  handler: requireCustomerAuth(async (_req, user) => {
+    const db = await getDb();
+    const result = await db.request()
+      .input('email', user.email)
+      .query('SELECT * FROM Orders WHERE customerEmail = @email ORDER BY createdAt DESC');
+
+    return corsResponse(200, result.recordset.map(parseOrderRow));
+  }),
+});
+
+app.http('order-by-current-customer-id', {
+  methods: ['GET', 'OPTIONS'],
+  authLevel: 'anonymous',
+  route: 'orders/customer/me/{id}',
+  handler: requireCustomerAuth(async (req, user) => {
+    const id = req.params.id;
+    const db = await getDb();
+    const result = await db.request()
+      .input('id', id)
+      .input('email', user.email)
+      .query('SELECT * FROM Orders WHERE id = @id AND customerEmail = @email');
+
+    if (result.recordset.length === 0) return errorResponse(404, 'Order not found');
+    return corsResponse(200, parseOrderRow(result.recordset[0]));
+  }),
+});
+
+// ── Customer orders (auth — by email, must match logged-in user) ──
 app.http('orders-by-customer', {
   methods: ['GET', 'OPTIONS'],
   authLevel: 'anonymous',
   route: 'orders/customer/{email}',
-  handler: async (req: HttpRequest) => {
-    if (req.method === 'OPTIONS') return handleOptions();
-
+  handler: requireCustomerAuth(async (req, user) => {
     const email = req.params.email;
+    if (!email || email.toLowerCase() !== user.email.toLowerCase()) {
+      return errorResponse(403, 'You can only view your own orders');
+    }
+
     const db = await getDb();
     const result = await db.request()
       .input('email', email)
       .query('SELECT * FROM Orders WHERE customerEmail = @email ORDER BY createdAt DESC');
 
     return corsResponse(200, result.recordset.map(parseOrderRow));
-  },
+  }),
 });
 
 // ── Row parser ──

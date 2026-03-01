@@ -260,3 +260,19 @@ CREATE INDEX IX_Orders_customerId ON Orders (customerId);
 CREATE INDEX IX_Orders_customerEmail ON Orders (customerEmail);
 CREATE INDEX IX_Orders_status ON Orders (status);
 CREATE INDEX IX_Orders_createdAt ON Orders (createdAt DESC);
+
+-- Customer Accounts (auth)
+IF OBJECT_ID('CustomerAccounts', 'U') IS NULL
+BEGIN
+  CREATE TABLE CustomerAccounts (
+    id            NVARCHAR(50)   PRIMARY KEY,
+    name          NVARCHAR(200)  NOT NULL,
+    email         NVARCHAR(255)  NOT NULL UNIQUE,
+    passwordHash  NVARCHAR(512)  NOT NULL,
+    isActive      BIT            NOT NULL DEFAULT 1,
+    createdAt     NVARCHAR(30)   NOT NULL,
+    updatedAt     NVARCHAR(30)   NOT NULL
+  );
+
+  CREATE UNIQUE INDEX IX_CustomerAccounts_email ON CustomerAccounts (email);
+END;
