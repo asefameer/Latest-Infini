@@ -139,7 +139,7 @@ app.http('kb-articles-list', {
   handler: requireAdmin(async (req) => {
     const db = await getDb();
     const result = await db.request().query('SELECT * FROM KBArticles ORDER BY updatedAt DESC');
-    return corsResponse(200, result.recordset.map(r => ({ ...r, isPublished: !!r.isPublished })));
+    return corsResponse(200, result.recordset.map((row: any) => ({ ...row, isPublished: !!row.isPublished })));
   }),
 });
 
