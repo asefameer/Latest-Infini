@@ -58,3 +58,16 @@ BEGIN
 
   CREATE UNIQUE INDEX IX_CustomerAccounts_Email ON dbo.CustomerAccounts(email);
 END;
+
+IF OBJECT_ID('dbo.Customers', 'U') IS NOT NULL
+BEGIN
+  IF COL_LENGTH('dbo.Customers', 'lastActive') IS NOT NULL
+  BEGIN
+    ALTER TABLE dbo.Customers ALTER COLUMN lastActive NVARCHAR(40) NOT NULL;
+  END;
+
+  IF COL_LENGTH('dbo.Customers', 'joinedAt') IS NOT NULL
+  BEGIN
+    ALTER TABLE dbo.Customers ALTER COLUMN joinedAt NVARCHAR(40) NOT NULL;
+  END;
+END;
