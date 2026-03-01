@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { getDb } from '../shared/db.js';
 import { corsResponse, handleOptions, parseBody, errorResponse } from '../shared/http.js';
 import { requireAdmin } from '../shared/auth.js';
+import { uploadCmsImageToBlob } from '../shared/storage.js';
 
 app.http('cms-site-content-list', {
   methods: ['GET', 'OPTIONS'],
@@ -305,15 +306,18 @@ app.http('uploads-cms-image', {
   authLevel: 'anonymous',
   route: 'uploads/cms-image',
   handler: requireAdmin(async (req) => {
-    const form = await req.formData();
-    const file = form.get('file');
+    try {
+      const form = await req.formData();
+      const file = form.get('file');
 
-    if (!file || typeof file === 'string') {
-      return errorResponse(400, 'Missing file');
+      if (!file || typeof file === 'string') {
+        return errorResponse(400, 'Missing file');
+      }
+
+      const url = await uploadCmsImageToBlob(file as File);
+      return corsResponse(200, { url });
+    } catch (err: any) {
+      return errorResponse(500, `Image upload failed: ${err.message || 'Unknown error'}`);
     }
-
-    const fileName = (file as File).name || 'cms-image';
-    const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '-');
-    return corsResponse(200, { url: `/uploads/${Date.now()}-${safeName}` });
   }),
 });

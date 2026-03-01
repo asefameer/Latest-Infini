@@ -10,7 +10,11 @@
     "B2C_TENANT_NAME": "your-b2c-tenant",
     "B2C_POLICY_NAME": "B2C_1_signupsignin",
     "B2C_CLIENT_ID": "your-client-id",
-    "B2C_ADMIN_ROLE": "Admin"
+    "B2C_ADMIN_ROLE": "Admin",
+    "ADMIN_API_TOKEN": "set-a-strong-admin-token",
+    "STORAGE_CONNECTION_STRING": "",
+    "CMS_IMAGE_CONTAINER": "cms-images",
+    "STORAGE_PUBLIC_BASE_URL": "https://your-storage-account.blob.core.windows.net"
   },
   "Host": {
     "CORS": "*",
