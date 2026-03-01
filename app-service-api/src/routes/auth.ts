@@ -25,6 +25,10 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function toSqlDateTimeString(date: Date): string {
+  return date.toISOString().slice(0, 19).replace('T', ' ');
+}
+
 async function ensureAuthSchema() {
   if (authSchemaReady) return;
 
@@ -68,7 +72,9 @@ authRouter.post('/signup', async (req: Request, res: Response) => {
     }
 
     const userId = cryptoRandomId('cus');
-    const now = new Date().toISOString();
+    const nowDate = new Date();
+    const now = nowDate.toISOString();
+    const customerNow = toSqlDateTimeString(nowDate);
     const passwordHash = hashPassword(password);
 
     await db.request()
@@ -87,8 +93,8 @@ authRouter.post('/signup', async (req: Request, res: Response) => {
       .input('id', userId)
       .input('name', name)
       .input('email', email)
-      .input('lastActive', now)
-      .input('joinedAt', now)
+      .input('lastActive', customerNow)
+      .input('joinedAt', customerNow)
       .query(`
         IF NOT EXISTS (SELECT 1 FROM Customers WHERE email = @email)
         BEGIN
