@@ -99,11 +99,38 @@ jobs:
           cd app-service-api
           node scripts/apply-cms-schema.cjs
 
-      - name: Deploy to App Service (Production)
+      - name: Deploy to App Service (Production) - attempt 1
+        id: deploy_try_1
+        continue-on-error: true
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME_PROD }}
           package: app-service-api
+
+      - name: Restart App Service before retry
+        if: steps.deploy_try_1.outcome == 'failure'
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az webapp restart \
+              --resource-group ${{ env.AZURE_APP_RESOURCE_GROUP }} \
+              --name ${{ env.AZURE_WEBAPP_NAME_PROD }}
+            sleep 20
+
+      - name: Deploy to App Service (Production) - attempt 2
+        id: deploy_try_2
+        if: steps.deploy_try_1.outcome == 'failure'
+        continue-on-error: true
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME_PROD }}
+          package: app-service-api
+
+      - name: Ensure deployment succeeded
+        if: steps.deploy_try_1.outcome == 'failure' && steps.deploy_try_2.outcome == 'failure'
+        run: |
+          echo "Both deployment attempts failed"
+          exit 1
 
       - name: Purge Front Door cache
         uses: azure/cli@v2
