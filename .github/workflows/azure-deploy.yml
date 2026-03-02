@@ -1,8 +1,20 @@
-name: Deploy to Azure App Service (Frontend + API)
+name: Deploy Infinity to Azure App Service
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'app-service-api/**'
+      - 'azure-functions/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.ts'
+      - 'tailwind.config.ts'
+      - 'tsconfig*.json'
+      - '.github/workflows/azure-deploy.yml'
 
 env:
   NODE_VERSION: '20'
